@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CEM Breakeven Tracker — Weekly View</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0a0e1a; --card: #1a2236; --border: #1e293b;
+            --green: #10b981; --red: #ef4444; --blue: #3b82f6;
+            --purple: #8b5cf6; --amber: #f59e0b; --cyan: #06b6d4;
+            --text: #f1f5f9; --muted: #94a3b8; --dim: #64748b;
+        }
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body { font-family:'Inter',sans-serif; background:var(--bg); color:var(--text); min-height:100vh; }
+        .wrap { max-width:1200px; margin:0 auto; padding:32px 24px; }
+        .header { text-align:center; margin-bottom:32px; }
+        .header h1 { font-size:1.8rem; font-weight:800; background:linear-gradient(135deg,#fff,#94a3b8);
+            -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+        .header p { color:var(--muted); font-size:.9rem; margin-top:6px; }
+        .card { background:var(--card); border:1px solid var(--border); border-radius:16px; padding:28px; margin-bottom:24px; }
+        .card h2 { font-size:1.1rem; font-weight:700; margin-bottom:4px; }
+        .card .sub { font-size:.8rem; color:var(--dim); margin-bottom:20px; }
+        .chart-box { position:relative; height:420px; }
+        .legend-custom { display:flex; gap:24px; justify-content:center; flex-wrap:wrap; margin-bottom:16px; }
+        .legend-item { display:flex; align-items:center; gap:6px; font-size:.82rem; color:var(--muted); }
+        .legend-line { width:28px; height:3px; border-radius:2px; }
+        .legend-dash { width:28px; height:0; border-top:3px dashed; }
+        table { width:100%; border-collapse:separate; border-spacing:0; font-size:.85rem; }
+        th { background:#111827; color:var(--muted); font-weight:600; text-transform:uppercase; font-size:.7rem;
+             letter-spacing:1px; padding:12px 14px; text-align:right; border-bottom:1px solid var(--border); }
+        th:first-child { text-align:left; border-radius:8px 0 0 0; }
+        th:last-child { border-radius:0 8px 0 0; }
+        td { padding:10px 14px; text-align:right; border-bottom:1px solid rgba(30,41,59,.4); }
+        td:first-child { text-align:left; font-weight:600; }
+        tr:hover td { background:rgba(59,130,246,.04); }
+        .pos { color:var(--green); font-weight:600; }
+        .neg { color:var(--red); font-weight:600; }
+        .proj { background:rgba(99,102,241,.08); font-style:italic; }
+        .insight { background:rgba(59,130,246,.08); border:1px solid rgba(59,130,246,.2);
+                   border-radius:12px; padding:18px; margin-top:16px; }
+        .insight h4 { color:var(--blue); font-size:.82rem; text-transform:uppercase; letter-spacing:.5px; margin-bottom:8px; }
+        .insight p { color:var(--muted); font-size:.88rem; line-height:1.6; }
+        .hl { color:var(--green); font-weight:700; }
+        .wn { color:var(--amber); font-weight:700; }
+        .footer { text-align:center; margin-top:32px; color:var(--dim); font-size:.75rem; border-top:1px solid var(--border); padding-top:16px; }
+    </style>
+</head>
+<body>
+<div class="wrap">
+    <div class="header">
+        <h1>CEM Breakeven Tracker — Weekly View</h1>
+        <p>Revenue vs. Breakeven (Reduced & Full Strength) · Last 5 Weeks + 3 Week Projection</p>
+    </div>
+
+    <div class="card">
+        <h2>📊 Weekly Revenue vs. Breakeven Lines</h2>
+        <div class="sub">Green = Revenue · Red = Expenses · Amber dashed = Reduced BE ($56K/wk) · Purple dashed = Full Strength BE ($130K/wk)</div>
+        <div class="legend-custom">
+            <div class="legend-item"><div class="legend-line" style="background:var(--green)"></div> Revenue</div>
+            <div class="legend-item"><div class="legend-line" style="background:var(--red)"></div> Expenses</div>
+            <div class="legend-item"><div class="legend-dash" style="border-color:var(--amber)"></div> BE Reduced ($56K)</div>
+            <div class="legend-item"><div class="legend-dash" style="border-color:var(--purple)"></div> BE Full ($130K)</div>
+            <div class="legend-item"><div class="legend-line" style="background:rgba(99,102,241,.3);height:12px;border-radius:4px"></div> Projected</div>
+        </div>
+        <div class="chart-box">
+            <canvas id="mainChart"></canvas>
+        </div>
+    </div>
+
+    <div class="card">
+        <h2>📋 Weekly Data — Actual + Projected</h2>
+        <div class="sub">Blue-shaded rows are projections based on weighted avg + trend of last 3 actual weeks</div>
+        <table>
+            <thead><tr>
+                <th style="text-align:left">Week</th><th>Revenue</th><th>Expenses</th><th>Net</th>
+                <th>BE Reduced</th><th>BE Full</th><th>vs. Reduced</th><th>vs. Full</th>
+            </tr></thead>
+            <tbody id="tbl"></tbody>
+        </table>
+    </div>
+
+    <div class="card">
+        <h2>🔍 Analysis</h2>
+        <div class="insight">
+            <h4>Where CEM Stands</h4>
+            <p>CEM revenue is <span class="hl">above the reduced breakeven</span> ($56K/week) in 4 of the last 5 weeks.
+            However, it remains <span class="wn">below the full strength breakeven</span> ($130K/week) — meaning CEM cannot yet afford to bring back all staff.</p>
+        </div>
+        <div class="insight" style="margin-top:12px">
+            <h4>3-Week Projection</h4>
+            <p>Based on the last 3 weeks, revenue has an <span class="hl">upward trend of +$12,906/week</span>.
+            Projected weeks 6–8 show revenue between <span class="hl">$91K–$104K/week</span> — 
+            comfortably above reduced BE but still <span class="wn">$26K–$39K short</span> of full strength BE.
+            At current trajectory, CEM would need approximately <span class="wn">6–8 more weeks</span> of this growth rate to reach full strength breakeven.</p>
+        </div>
+        <div class="insight" style="margin-top:12px; border-color:rgba(139,92,246,.3); background:rgba(139,92,246,.08)">
+            <h4>Path to Full Strength</h4>
+            <p>To hit full strength breakeven ($130K/week), CEM needs <span class="wn">+$52K/week more revenue</span> (67% increase from current avg).
+            If the +$12.9K/week trend holds, CEM could reach full strength breakeven by approximately <span class="hl">late June / early July 2026</span>.</p>
+        </div>
+    </div>
+
+    <div class="footer">CEM Breakeven Tracker · Data: Chase Bank (9536+9207) + CEM_Budget_V6 · May 18, 2026</div>
+</div>
+
+<script>
+const weeks = ['Wk1\nApr 13', 'Wk2\nApr 20', 'Wk3\nApr 27', 'Wk4\nMay 4', 'Wk5\nMay 11', 'Wk6*\nMay 18', 'Wk7*\nMay 25', 'Wk8*\nJun 1'];
+const rev =   [128669, 58647, 80097, 47750, 105910, 90825, 97731, 104637];
+const exp =   [65146, 99085, 46780, 72666, 124660, 100183, 119123, 138063];
+const beRed = Array(8).fill(56234);
+const beFull = Array(8).fill(130294);
+
+Chart.defaults.color = '#94a3b8';
+Chart.defaults.borderColor = 'rgba(30,41,59,.4)';
+Chart.defaults.font.family = "'Inter',sans-serif";
+
+new Chart(document.getElementById('mainChart'), {
+    type: 'line',
+    data: {
+        labels: weeks,
+        datasets: [
+            {
+                label: 'Revenue',
+                data: rev,
+                borderColor: '#10b981',
+                backgroundColor: 'rgba(16,185,129,.1)',
+                borderWidth: 3, fill: false, tension: 0.3,
+                pointRadius: [6,6,6,6,6,5,5,5],
+                pointBackgroundColor: rev.map((v,i) => i>=5 ? 'rgba(16,185,129,.5)' : '#10b981'),
+                pointBorderColor: '#fff', pointBorderWidth: 2,
+                segment: { borderDash: ctx => ctx.p0DataIndex >= 4 ? [6,3] : undefined }
+            },
+            {
+                label: 'Expenses',
+                data: exp,
+                borderColor: '#ef4444',
+                borderWidth: 3, fill: false, tension: 0.3,
+                pointRadius: [6,6,6,6,6,5,5,5],
+                pointBackgroundColor: exp.map((v,i) => i>=5 ? 'rgba(239,68,68,.5)' : '#ef4444'),
+                pointBorderColor: '#fff', pointBorderWidth: 2,
+                segment: { borderDash: ctx => ctx.p0DataIndex >= 4 ? [6,3] : undefined }
+            },
+            {
+                label: 'BE Reduced ($56K)',
+                data: beRed,
+                borderColor: '#f59e0b', borderWidth: 2.5, borderDash: [10,5],
+                pointRadius: 0, fill: false
+            },
+            {
+                label: 'BE Full ($130K)',
+                data: beFull,
+                borderColor: '#8b5cf6', borderWidth: 2.5, borderDash: [6,6],
+                pointRadius: 0, fill: false
+            }
+        ]
+    },
+    options: {
+        responsive: true, maintainAspectRatio: false,
+        interaction: { intersect: false, mode: 'index' },
+        plugins: {
+            legend: { display: false },
+            tooltip: {
+                backgroundColor: '#1a2236', titleColor: '#f1f5f9', bodyColor: '#94a3b8',
+                borderColor: '#1e293b', borderWidth: 1, padding: 12,
+                callbacks: { label: ctx => `${ctx.dataset.label}: $${ctx.raw.toLocaleString()}` }
+            },
+            annotation: {}
+        },
+        scales: {
+            y: { ticks: { callback: v => '$'+Math.round(v/1000)+'K' }, grid: { color:'rgba(30,41,59,.3)' }, min: 0, max: 160000 },
+            x: { grid: { display: false } }
+        }
+    }
+});
+
+// Table
+const tbl = document.getElementById('tbl');
+const labels = ['Apr 13-19','Apr 20-26','Apr 27-May 3','May 4-10','May 11-17','May 18-24*','May 25-31*','Jun 1-7*'];
+for(let i=0;i<8;i++){
+    const net = rev[i]-exp[i];
+    const vsR = rev[i]-beRed[0];
+    const vsF = rev[i]-beFull[0];
+    const cls = i>=5 ? ' class="proj"' : '';
+    tbl.innerHTML += `<tr${cls}>
+        <td>${labels[i]}</td>
+        <td class="pos">$${rev[i].toLocaleString()}</td>
+        <td class="neg">$${exp[i].toLocaleString()}</td>
+        <td class="${net>=0?'pos':'neg'}">${net>=0?'+':'-'}$${Math.abs(net).toLocaleString()}</td>
+        <td>$${beRed[0].toLocaleString()}</td>
+        <td>$${beFull[0].toLocaleString()}</td>
+        <td class="${vsR>=0?'pos':'neg'}">${vsR>=0?'+':'-'}$${Math.abs(vsR).toLocaleString()}</td>
+        <td class="${vsF>=0?'pos':'neg'}">${vsF>=0?'+':'-'}$${Math.abs(vsF).toLocaleString()}</td>
+    </tr>`;
+}
+</script>
+</body>
+</html>
