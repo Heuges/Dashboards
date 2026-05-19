@@ -346,14 +346,13 @@ function loadEmails(){
 // AI Cost Tracker
 function loadCosts(){
   const platforms=[
-    {name:'Claude (Anthropic)',icon:'C',color:'#d97706',bg:'rgba(217,119,6,',tier:'Pro Plan',cost:20,type:'subscription',limit:'Unlimited msgs',used:75,tip:'Included in Pro subscription'},
-    {name:'Antigravity (DeepMind)',icon:'A',color:'#8b5cf6',bg:'rgba(139,92,246,',tier:'Google Workspace',cost:0,type:'included',limit:'Included w/ Workspace',used:60,tip:'No extra cost — bundled'},
-    {name:'Gemini API (AI Studio)',icon:'G',color:'#3b82f6',bg:'rgba(59,130,246,',tier:'Free Tier',cost:0,type:'free',limit:'1500 req/day free',used:5,tip:'Free tier covers your usage'},
+    {name:'Google AI Ultra (Business)',icon:'G',color:'#8b5cf6',bg:'rgba(139,92,246,',tier:'Ultra for Business',cost:250,type:'subscription',limit:'Unlimited · No weekly caps',used:60,note:'Includes Antigravity + Gemini + Deep Research'},
+    {name:'Claude (Anthropic)',icon:'C',color:'#d97706',bg:'rgba(217,119,6,',tier:'Pro Plan',cost:20,type:'subscription',limit:'Unlimited messages',used:75,note:'Complex analysis & coding'},
+    {name:'Gemini API (AI Studio)',icon:'✦',color:'#3b82f6',bg:'rgba(59,130,246,',tier:'Free Tier',cost:0,type:'free',limit:'1,500 req/day free',used:5,note:'Powers dashboard chat'},
   ];
-  // Check if user has logged any extra costs
-  const extraCosts=JSON.parse(localStorage.getItem('ai_extra_costs')||'[]');
-  const totalMonthly=platforms.reduce((s,p)=>s+p.cost,0)+extraCosts.reduce((s,c)=>s+c.cost,0);
-  
+  const totalMonthly=platforms.reduce((s,p)=>s+p.cost,0);
+  const daily=(totalMonthly/30).toFixed(2);
+  const yearly=totalMonthly*12;
   let html='';
   for(const p of platforms){
     const barColor=p.used>80?'var(--red)':p.used>50?'var(--amber)':'var(--green)';
@@ -363,26 +362,25 @@ function loadCosts(){
         <div class="cost-name">${p.name}</div>
         <div class="cost-tier">${p.tier} · ${p.limit}</div>
         <div class="cost-bar"><div class="cost-bar-fill" style="width:${p.used}%;background:${barColor}"></div></div>
+        <div style="font-size:.68rem;color:var(--dim);margin-top:2px">${p.note}</div>
       </div>
-      <div class="cost-amt" style="color:${p.cost>0?'var(--amber)':'var(--green)}">${p.cost>0?'$'+p.cost+'/mo':'Free'}</div>
+      <div class="cost-amt" style="color:${p.cost>0?'var(--amber)':'var(--green)'}">${p.cost>0?'$'+p.cost+'/mo':'Free'}</div>
     </div>`;
   }
-  
   html+=`<div class="cost-total">
-    <div><div class="label">Monthly AI Spend</div><div style="font-size:.75rem;color:var(--dim);margin-top:2px">${platforms.filter(p=>p.cost>0).length} paid · ${platforms.filter(p=>p.cost===0).length} free</div></div>
+    <div><div class="label">Monthly AI Spend</div><div style="font-size:.75rem;color:var(--dim);margin-top:2px">$${daily}/day · $${yearly.toLocaleString()}/year</div></div>
     <div class="amount">$${totalMonthly}/mo</div>
   </div>`;
-  
   html+=`<div class="cost-tips">
-    <strong>💡 Cost-Saving Tips:</strong>
+    <strong>💡 Optimization Tips:</strong>
     <ul style="list-style:none;padding:0;margin:4px 0 0">
-      <li>✅ Gemini API free tier = 1,500 requests/day — plenty for the chat</li>
-      <li>✅ Antigravity is included with your Google Workspace — $0 extra</li>
-      <li>⚡ Use Claude for complex analysis, Gemini chat for quick questions</li>
-      <li>📊 At current usage, your AI spend is <strong>~$0.67/day</strong></li>
+      <li>⚡ Your Ultra plan covers Antigravity, Gemini, Deep Research, NotebookLM — use them all</li>
+      <li>📊 Consider if Claude Pro ($20) overlaps with Antigravity — could save $240/yr</li>
+      <li>✅ Dashboard chat uses free Gemini API — $0 cost for quick questions</li>
+      <li>🔍 Check Google Admin Console for per-user seat costs if scaling</li>
+      <li>💰 <strong>Biggest cost: Google Ultra at $250/mo (93% of spend)</strong></li>
     </ul>
   </div>`;
-  
   document.getElementById('costContent').innerHTML=html;
 }
 
