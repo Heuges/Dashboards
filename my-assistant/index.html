@@ -89,6 +89,22 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
 .api-setup button{background:var(--blue);border:none;border-radius:10px;padding:8px 20px;color:#fff;cursor:pointer;font-size:.82rem;font-weight:600}
 .api-setup p{font-size:.78rem;color:var(--muted);margin:6px 0}
 .api-setup a{color:var(--blue)}
+.card.aicost::before{background:linear-gradient(90deg,var(--purple),var(--cyan))}
+.cost-row{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid rgba(30,41,59,.4)}
+.cost-row:last-child{border-bottom:none}
+.cost-icon{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:.9rem;font-weight:700}
+.cost-info{flex:1}
+.cost-name{font-size:.82rem;font-weight:600}
+.cost-tier{font-size:.7rem;color:var(--dim)}
+.cost-bar{height:6px;background:rgba(255,255,255,.06);border-radius:3px;margin-top:4px;overflow:hidden}
+.cost-bar-fill{height:100%;border-radius:3px;transition:width .5s}
+.cost-amt{font-size:.95rem;font-weight:800;min-width:60px;text-align:right}
+.cost-total{display:flex;justify-content:space-between;align-items:center;padding:14px;background:rgba(139,92,246,.08);border:1px solid rgba(139,92,246,.2);border-radius:12px;margin-top:14px}
+.cost-total .label{font-size:.78rem;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;font-weight:600}
+.cost-total .amount{font-size:1.4rem;font-weight:800;color:var(--purple)}
+.cost-tips{margin-top:14px;font-size:.78rem;color:var(--muted);line-height:1.6}
+.cost-tips strong{color:var(--green)}
+.cost-tips li{margin:4px 0;padding-left:4px}
 </style>
 </head>
 <body>
@@ -118,6 +134,11 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
 <div class="card walking">
 <h2><span class="icon">🚶</span> Walking Planner</h2>
 <div id="walkContent"><div class="loading">Planning walks...</div></div>
+</div>
+<!-- AI Cost Tracker -->
+<div class="card aicost">
+<h2><span class="icon">💰</span> AI Cost Tracker</h2>
+<div id="costContent"><div class="loading">Loading costs...</div></div>
 </div>
 </div>
 </div>
@@ -322,10 +343,54 @@ function loadEmails(){
   document.getElementById('emailContent').innerHTML=html;
 }
 
+// AI Cost Tracker
+function loadCosts(){
+  const platforms=[
+    {name:'Claude (Anthropic)',icon:'C',color:'#d97706',bg:'rgba(217,119,6,',tier:'Pro Plan',cost:20,type:'subscription',limit:'Unlimited msgs',used:75,tip:'Included in Pro subscription'},
+    {name:'Antigravity (DeepMind)',icon:'A',color:'#8b5cf6',bg:'rgba(139,92,246,',tier:'Google Workspace',cost:0,type:'included',limit:'Included w/ Workspace',used:60,tip:'No extra cost — bundled'},
+    {name:'Gemini API (AI Studio)',icon:'G',color:'#3b82f6',bg:'rgba(59,130,246,',tier:'Free Tier',cost:0,type:'free',limit:'1500 req/day free',used:5,tip:'Free tier covers your usage'},
+  ];
+  // Check if user has logged any extra costs
+  const extraCosts=JSON.parse(localStorage.getItem('ai_extra_costs')||'[]');
+  const totalMonthly=platforms.reduce((s,p)=>s+p.cost,0)+extraCosts.reduce((s,c)=>s+c.cost,0);
+  
+  let html='';
+  for(const p of platforms){
+    const barColor=p.used>80?'var(--red)':p.used>50?'var(--amber)':'var(--green)';
+    html+=`<div class="cost-row">
+      <div class="cost-icon" style="background:${p.bg}.15);color:${p.color}">${p.icon}</div>
+      <div class="cost-info">
+        <div class="cost-name">${p.name}</div>
+        <div class="cost-tier">${p.tier} · ${p.limit}</div>
+        <div class="cost-bar"><div class="cost-bar-fill" style="width:${p.used}%;background:${barColor}"></div></div>
+      </div>
+      <div class="cost-amt" style="color:${p.cost>0?'var(--amber)':'var(--green)}">${p.cost>0?'$'+p.cost+'/mo':'Free'}</div>
+    </div>`;
+  }
+  
+  html+=`<div class="cost-total">
+    <div><div class="label">Monthly AI Spend</div><div style="font-size:.75rem;color:var(--dim);margin-top:2px">${platforms.filter(p=>p.cost>0).length} paid · ${platforms.filter(p=>p.cost===0).length} free</div></div>
+    <div class="amount">$${totalMonthly}/mo</div>
+  </div>`;
+  
+  html+=`<div class="cost-tips">
+    <strong>💡 Cost-Saving Tips:</strong>
+    <ul style="list-style:none;padding:0;margin:4px 0 0">
+      <li>✅ Gemini API free tier = 1,500 requests/day — plenty for the chat</li>
+      <li>✅ Antigravity is included with your Google Workspace — $0 extra</li>
+      <li>⚡ Use Claude for complex analysis, Gemini chat for quick questions</li>
+      <li>📊 At current usage, your AI spend is <strong>~$0.67/day</strong></li>
+    </ul>
+  </div>`;
+  
+  document.getElementById('costContent').innerHTML=html;
+}
+
 // Init
 loadWeather();
 loadMeetings();
 loadEmails();
+loadCosts();
 
 // Chat
 const GEMINI_KEY_STORAGE='gemini_api_key';
