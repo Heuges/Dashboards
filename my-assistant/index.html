@@ -105,6 +105,116 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
 .cost-tips{margin-top:14px;font-size:.78rem;color:var(--muted);line-height:1.6}
 .cost-tips strong{color:var(--green)}
 .cost-tips li{margin:4px 0;padding-left:4px}
+/* To Do List */
+.card.todos::before{background:linear-gradient(90deg,var(--cyan),var(--green))}
+.todo-add{display:flex;gap:8px;margin-bottom:14px}
+.todo-add input{flex:1;background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:10px;padding:9px 12px;color:var(--text);font-size:.82rem;font-family:'Inter',sans-serif;outline:none}
+.todo-add input:focus{border-color:var(--cyan)}
+.todo-add input::placeholder{color:var(--dim)}
+.todo-add select{background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:10px;padding:9px 8px;color:var(--text);font-size:.75rem;font-family:'Inter',sans-serif;outline:none;cursor:pointer}
+.todo-add select option{background:var(--card);color:var(--text)}
+.todo-add button{background:var(--cyan);border:none;border-radius:10px;padding:9px 14px;color:#fff;cursor:pointer;font-size:.85rem;font-weight:700;transition:background .2s}
+.todo-add button:hover{background:var(--green)}
+.todo-item{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid rgba(30,41,59,.4);transition:opacity .3s}
+.todo-item:last-child{border-bottom:none}
+.todo-item.done{opacity:.4}
+.todo-check{width:20px;height:20px;border-radius:6px;border:2px solid var(--dim);background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;flex-shrink:0}
+.todo-check:hover{border-color:var(--green)}
+.todo-check.checked{background:var(--green);border-color:var(--green)}
+.todo-check.checked::after{content:'✓';color:#fff;font-size:.7rem;font-weight:800}
+.todo-text{flex:1;font-size:.84rem}
+.todo-item.done .todo-text{text-decoration:line-through;color:var(--dim)}
+.todo-priority{font-size:.6rem;font-weight:700;text-transform:uppercase;letter-spacing:.5px;padding:2px 7px;border-radius:6px}
+.tp-high{background:rgba(239,68,68,.15);color:var(--red);border:1px solid rgba(239,68,68,.3)}
+.tp-med{background:rgba(245,158,11,.15);color:var(--amber);border:1px solid rgba(245,158,11,.3)}
+.tp-low{background:rgba(59,130,246,.15);color:var(--blue);border:1px solid rgba(59,130,246,.3)}
+.todo-del{background:none;border:none;color:var(--dim);cursor:pointer;font-size:.9rem;padding:4px;border-radius:6px;transition:all .2s}
+.todo-del:hover{color:var(--red);background:rgba(239,68,68,.1)}
+.todo-empty{text-align:center;padding:20px;color:var(--dim);font-size:.82rem}
+.todo-filters{display:flex;gap:6px;margin-bottom:12px}
+.todo-filter{background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:8px;padding:4px 10px;font-size:.7rem;color:var(--dim);cursor:pointer;font-family:'Inter',sans-serif;transition:all .2s}
+.todo-filter.active{background:rgba(6,182,212,.12);color:var(--cyan);border-color:rgba(6,182,212,.3)}
+.todo-filter:hover{color:var(--text)}
+/* Reminders */
+.card.reminders::before{background:linear-gradient(90deg,var(--amber),var(--red))}
+.rem-add{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap}
+.rem-add input[type="text"]{flex:1;min-width:120px;background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:10px;padding:9px 12px;color:var(--text);font-size:.82rem;font-family:'Inter',sans-serif;outline:none}
+.rem-add input[type="text"]:focus{border-color:var(--amber)}
+.rem-add input[type="text"]::placeholder{color:var(--dim)}
+.rem-add input[type="datetime-local"]{background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:10px;padding:9px 10px;color:var(--text);font-size:.78rem;font-family:'Inter',sans-serif;outline:none;color-scheme:dark}
+.rem-add button{background:var(--amber);border:none;border-radius:10px;padding:9px 14px;color:#000;cursor:pointer;font-size:.85rem;font-weight:700;transition:background .2s}
+.rem-add button:hover{background:var(--red);color:#fff}
+.rem-item{display:flex;align-items:center;gap:10px;padding:10px;background:rgba(255,255,255,.02);border:1px solid rgba(30,41,59,.4);border-radius:10px;margin-bottom:8px;transition:all .3s}
+.rem-item.overdue{background:rgba(239,68,68,.06);border-color:rgba(239,68,68,.25)}
+.rem-item.upcoming{background:rgba(245,158,11,.06);border-color:rgba(245,158,11,.2)}
+.rem-icon{font-size:1.2rem;flex-shrink:0}
+.rem-info{flex:1}
+.rem-text{font-size:.84rem;font-weight:600}
+.rem-time{font-size:.72rem;color:var(--muted);margin-top:2px}
+.rem-time .overdue-label{color:var(--red);font-weight:700}
+.rem-time .upcoming-label{color:var(--amber);font-weight:600}
+.rem-dismiss{background:none;border:1px solid var(--border);border-radius:8px;padding:4px 10px;color:var(--dim);cursor:pointer;font-size:.72rem;font-weight:600;transition:all .2s;font-family:'Inter',sans-serif}
+.rem-dismiss:hover{color:var(--green);border-color:var(--green);background:rgba(16,185,129,.08)}
+.rem-empty{text-align:center;padding:20px;color:var(--dim);font-size:.82rem}
+@keyframes remPulse{0%,100%{box-shadow:0 0 0 0 rgba(239,68,68,.3)}50%{box-shadow:0 0 12px 4px rgba(239,68,68,.15)}}
+.rem-item.overdue{animation:remPulse 2s infinite}
+/* Workout Tracker */
+.card.workout::before{background:linear-gradient(90deg,#06b6d4,#10b981)}
+.wo-today{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:14px}
+.wo-stat{text-align:center;background:rgba(255,255,255,.03);border-radius:12px;padding:14px 8px}
+.wo-stat .wo-icon{font-size:1.6rem;margin-bottom:4px}
+.wo-stat .wo-val{font-size:1.8rem;font-weight:800;margin:2px 0}
+.wo-stat .wo-label{font-size:.65rem;text-transform:uppercase;letter-spacing:.8px;color:var(--dim);font-weight:600}
+.wo-stat.water .wo-val{color:var(--cyan)}
+.wo-stat.pushups .wo-val{color:var(--green)}
+.wo-stat.situps .wo-val{color:var(--amber)}
+.wo-add-row{display:flex;gap:6px;margin-bottom:10px;align-items:center}
+.wo-add-row label{font-size:.75rem;color:var(--dim);min-width:55px}
+.wo-add-row input{width:70px;background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:8px;padding:7px 8px;color:var(--text);font-size:.82rem;font-family:'Inter',sans-serif;outline:none;text-align:center}
+.wo-add-row input:focus{border-color:var(--cyan)}
+.wo-add-row button{background:var(--cyan);border:none;border-radius:8px;padding:7px 12px;color:#fff;cursor:pointer;font-size:.78rem;font-weight:700;transition:background .2s;margin-left:auto}
+.wo-add-row button:hover{background:var(--green)}
+.wo-history{margin-top:12px;border-top:1px solid var(--border);padding-top:10px}
+.wo-history-title{font-size:.75rem;color:var(--dim);font-weight:600;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px}
+.wo-day{display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid rgba(30,41,59,.3);font-size:.78rem}
+.wo-day:last-child{border-bottom:none}
+.wo-day .wo-date{color:var(--muted);min-width:80px;font-weight:600}
+.wo-day .wo-d-stat{color:var(--text);display:flex;gap:12px}
+.wo-day .wo-d-stat span{display:flex;align-items:center;gap:3px}
+/* Blood Pressure Tracker */
+.card.bp::before{background:linear-gradient(90deg,#ef4444,#f59e0b)}
+.bp-input-row{display:flex;gap:6px;margin-bottom:14px;align-items:center;flex-wrap:wrap}
+.bp-input-row input{width:65px;background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:8px;padding:8px 6px;color:var(--text);font-size:.85rem;font-family:'Inter',sans-serif;outline:none;text-align:center}
+.bp-input-row input:focus{border-color:var(--red)}
+.bp-input-row input::placeholder{color:var(--dim);font-size:.7rem}
+.bp-input-row .bp-slash{color:var(--dim);font-weight:300;font-size:1.2rem}
+.bp-input-row button{background:linear-gradient(135deg,var(--red),var(--amber));border:none;border-radius:8px;padding:8px 14px;color:#fff;cursor:pointer;font-size:.78rem;font-weight:700;transition:all .2s;margin-left:auto}
+.bp-input-row button:hover{opacity:.85;transform:scale(1.02)}
+.bp-readings{margin-bottom:12px}
+.bp-reading{display:flex;align-items:center;gap:10px;padding:8px 10px;background:rgba(255,255,255,.02);border:1px solid rgba(30,41,59,.4);border-radius:10px;margin-bottom:6px}
+.bp-reading .bp-time{font-size:.75rem;color:var(--muted);min-width:70px;font-weight:600}
+.bp-reading .bp-vals{flex:1;display:flex;gap:8px;align-items:center}
+.bp-reading .bp-num{font-size:1rem;font-weight:800}
+.bp-reading .bp-sys{color:var(--red)}
+.bp-reading .bp-dia{color:var(--amber)}
+.bp-reading .bp-pul{color:var(--cyan)}
+.bp-reading .bp-lbl{font-size:.6rem;color:var(--dim);text-transform:uppercase;letter-spacing:.5px}
+.bp-reading .bp-slash{color:var(--dim);font-size:1rem}
+.bp-reading .bp-status{font-size:.65rem;font-weight:700;padding:2px 7px;border-radius:6px;margin-left:auto}
+.bp-status-normal{background:rgba(16,185,129,.15);color:var(--green);border:1px solid rgba(16,185,129,.3)}
+.bp-status-elevated{background:rgba(245,158,11,.15);color:var(--amber);border:1px solid rgba(245,158,11,.3)}
+.bp-status-high{background:rgba(239,68,68,.15);color:var(--red);border:1px solid rgba(239,68,68,.3)}
+.bp-del{background:none;border:none;color:var(--dim);cursor:pointer;font-size:.8rem;padding:2px 4px;border-radius:4px;transition:all .2s}
+.bp-del:hover{color:var(--red);background:rgba(239,68,68,.1)}
+.bp-avg{display:flex;justify-content:space-around;padding:14px;background:rgba(239,68,68,.06);border:1px solid rgba(239,68,68,.15);border-radius:12px}
+.bp-avg-item{text-align:center}
+.bp-avg-item .bp-avg-val{font-size:1.3rem;font-weight:800}
+.bp-avg-item .bp-avg-lbl{font-size:.65rem;color:var(--dim);text-transform:uppercase;letter-spacing:.5px;margin-top:2px}
+.bp-empty{text-align:center;padding:20px;color:var(--dim);font-size:.82rem}
+.bp-date-nav{display:flex;align-items:center;justify-content:center;gap:12px;margin-bottom:14px}
+.bp-date-nav button{background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:8px;padding:5px 10px;color:var(--text);cursor:pointer;font-size:.8rem;transition:all .2s}
+.bp-date-nav button:hover{background:rgba(255,255,255,.1)}
+.bp-date-nav .bp-date-label{font-size:.85rem;font-weight:700;min-width:120px;text-align:center}
 </style>
 </head>
 <body>
@@ -130,15 +240,81 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
 <h2><span class="icon">📧</span> Needs Attention <span class="badge-count" id="emailCount">0</span></h2>
 <div id="emailContent"><div class="loading">Loading emails...</div></div>
 </div>
-<!-- Walking Planner -->
-<div class="card walking">
-<h2><span class="icon">🚶</span> Walking Planner</h2>
-<div id="walkContent"><div class="loading">Planning walks...</div></div>
-</div>
 <!-- AI Cost Tracker -->
 <div class="card aicost">
 <h2><span class="icon">💰</span> AI Cost Tracker</h2>
 <div id="costContent"><div class="loading">Loading costs...</div></div>
+</div>
+<!-- To Do List -->
+<div class="card todos">
+<h2><span class="icon">✅</span> To Do List <span class="badge-count" id="todoCount">0</span></h2>
+<div class="todo-add">
+<input type="text" id="todoInput" placeholder="What needs to get done?" onkeydown="if(event.key==='Enter')addTodo()">
+<select id="todoPriority"><option value="high">🔴 High</option><option value="med" selected>🟡 Med</option><option value="low">🔵 Low</option></select>
+<button onclick="addTodo()">+</button>
+</div>
+<div class="todo-filters">
+<button class="todo-filter active" data-filter="all" onclick="filterTodos('all',this)">All</button>
+<button class="todo-filter" data-filter="active" onclick="filterTodos('active',this)">Active</button>
+<button class="todo-filter" data-filter="done" onclick="filterTodos('done',this)">Done</button>
+</div>
+<div id="todoList"><div class="loading">Loading todos...</div></div>
+</div>
+<!-- Reminders -->
+<div class="card reminders">
+<h2><span class="icon">🔔</span> Reminders <span class="badge-count" id="remCount">0</span></h2>
+<div class="rem-add">
+<input type="text" id="remInput" placeholder="Remind me to..." onkeydown="if(event.key==='Enter')addReminder()">
+<input type="datetime-local" id="remDate">
+<button onclick="addReminder()">+</button>
+</div>
+<div id="remList"><div class="loading">Loading reminders...</div></div>
+</div>
+<!-- Workout Tracker -->
+<div class="card workout">
+<h2><span class="icon">💪</span> Workout</h2>
+<div id="woToday" class="wo-today">
+<div class="wo-stat water"><div class="wo-icon">💧</div><div class="wo-val" id="woWater">0</div><div class="wo-label">oz Water</div></div>
+<div class="wo-stat pushups"><div class="wo-icon">🏋️</div><div class="wo-val" id="woPushups">0</div><div class="wo-label">Pushups</div></div>
+<div class="wo-stat situps"><div class="wo-icon">🔥</div><div class="wo-val" id="woSitups">0</div><div class="wo-label">Situps</div></div>
+</div>
+<div class="wo-add-row">
+<label>💧 Water</label><input type="number" id="woAddWater" placeholder="oz" min="0">
+<button onclick="logWorkout('water')">+ Add</button>
+</div>
+<div class="wo-add-row">
+<label>🏋️ Pushups</label><input type="number" id="woAddPushups" placeholder="#" min="0">
+<button onclick="logWorkout('pushups')">+ Add</button>
+</div>
+<div class="wo-add-row">
+<label>🔥 Situps</label><input type="number" id="woAddSitups" placeholder="#" min="0">
+<button onclick="logWorkout('situps')">+ Add</button>
+</div>
+<div id="woHistory"></div>
+</div>
+<!-- Blood Pressure Tracker -->
+<div class="card bp">
+<h2><span class="icon">❤️</span> Blood Pressure</h2>
+<div class="bp-input-row">
+<input type="number" id="bpSys" placeholder="SYS" min="0" max="300">
+<span class="bp-slash">/</span>
+<input type="number" id="bpDia" placeholder="DIA" min="0" max="200">
+<span class="bp-slash">·</span>
+<input type="number" id="bpPul" placeholder="PUL" min="0" max="250">
+<button onclick="addBP()">Record</button>
+</div>
+<div class="bp-date-nav">
+<button onclick="navBPDate(-1)">◀</button>
+<span class="bp-date-label" id="bpDateLabel">Today</span>
+<button onclick="navBPDate(1)">▶</button>
+</div>
+<div id="bpReadings"></div>
+<div id="bpAvg"></div>
+</div>
+<!-- Walking Planner -->
+<div class="card walking">
+<h2><span class="icon">🚶</span> Walking Planner</h2>
+<div id="walkContent"><div class="loading">Planning walks...</div></div>
 </div>
 </div>
 </div>
@@ -148,7 +324,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
 <div class="chat-panel" id="chatPanel">
 <div class="chat-header"><div class="dot"></div><span>My Assistant</span><div class="model">Gemini</div></div>
 <div class="chat-msgs" id="chatMsgs">
-<div class="msg ai">Hi Tommy! I can help you think through replies, brainstorm ideas, and answer questions. <br><br>💡 <em>Try: "Draft a polite reply declining a sales email"</em><br>💡 <em>"When should I walk today to avoid the heat?"</em></div>
+<div class="msg ai">Hi Tommy! I'm your AI assistant. Ask me anything — check emails, reschedule meetings, plan your walks, or draft responses. <br><br>💡 <em>Try: "What should I reply to Mark Muzzini?"</em></div>
 </div>
 <div id="chatInputArea"></div>
 </div>
@@ -330,7 +506,7 @@ function loadEmails(){
       <span class="priority ${pcls}">${plbl}</span>
     </div>`;
   }
-  html+='<div style="text-align:center;padding:12px;color:var(--dim);font-size:.78rem;margin-top:8px;border-top:1px solid var(--border)">Tell Antigravity "check my emails" to refresh</div>';
+  html+='<div style="text-align:center;padding:12px;color:var(--dim);font-size:.78rem;margin-top:8px;border-top:1px solid var(--border)">Say "check my emails" to refresh</div>';
   document.getElementById('emailContent').innerHTML=html;
 }
 
@@ -375,11 +551,384 @@ function loadCosts(){
   document.getElementById('costContent').innerHTML=html;
 }
 
+// ─── To Do List ───
+let todos = [];
+let todoFilter = 'all';
+
+async function loadTodos() {
+  try {
+    const r = await fetch('http://localhost:8888/data/todos');
+    todos = await r.json();
+  } catch(e) { todos = JSON.parse(localStorage.getItem('todos') || '[]'); }
+  renderTodos();
+}
+
+async function saveTodos() {
+  localStorage.setItem('todos', JSON.stringify(todos));
+  try { await fetch('http://localhost:8888/data/todos', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(todos) }); } catch(e) {}
+}
+
+function addTodo() {
+  const input = document.getElementById('todoInput');
+  const text = input.value.trim();
+  if (!text) return;
+  const priority = document.getElementById('todoPriority').value;
+  todos.unshift({ id: Date.now(), text, priority, done: false, created: new Date().toISOString() });
+  input.value = '';
+  saveTodos();
+  renderTodos();
+}
+
+function toggleTodo(id) {
+  const t = todos.find(t => t.id === id);
+  if (t) t.done = !t.done;
+  saveTodos();
+  renderTodos();
+}
+
+function deleteTodo(id) {
+  todos = todos.filter(t => t.id !== id);
+  saveTodos();
+  renderTodos();
+}
+
+function filterTodos(filter, btn) {
+  todoFilter = filter;
+  document.querySelectorAll('.todo-filter').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderTodos();
+}
+
+function renderTodos() {
+  let filtered = todos;
+  if (todoFilter === 'active') filtered = todos.filter(t => !t.done);
+  if (todoFilter === 'done') filtered = todos.filter(t => t.done);
+  
+  const activeCount = todos.filter(t => !t.done).length;
+  document.getElementById('todoCount').textContent = activeCount;
+  
+  if (filtered.length === 0) {
+    document.getElementById('todoList').innerHTML = '<div class="todo-empty">🎯 ' + (todoFilter === 'done' ? 'No completed items yet' : todoFilter === 'active' ? 'All done! Nice work 🎉' : 'Add your first task above') + '</div>';
+    return;
+  }
+  
+  // Sort: incomplete first (sorted by priority), then completed
+  const order = { high: 0, med: 1, low: 2 };
+  filtered.sort((a, b) => {
+    if (a.done !== b.done) return a.done ? 1 : -1;
+    return (order[a.priority] || 1) - (order[b.priority] || 1);
+  });
+  
+  let html = '';
+  for (const t of filtered) {
+    const pcls = t.priority === 'high' ? 'tp-high' : t.priority === 'low' ? 'tp-low' : 'tp-med';
+    const plbl = t.priority === 'high' ? 'High' : t.priority === 'low' ? 'Low' : 'Med';
+    html += `<div class="todo-item${t.done ? ' done' : ''}">
+      <div class="todo-check${t.done ? ' checked' : ''}" onclick="toggleTodo(${t.id})"></div>
+      <div class="todo-text">${t.text}</div>
+      <span class="todo-priority ${pcls}">${plbl}</span>
+      <button class="todo-del" onclick="deleteTodo(${t.id})" title="Delete">✕</button>
+    </div>`;
+  }
+  document.getElementById('todoList').innerHTML = html;
+}
+
+// ─── Reminders ───
+let reminders = [];
+
+async function loadReminders() {
+  try {
+    const r = await fetch('http://localhost:8888/data/reminders');
+    reminders = await r.json();
+  } catch(e) { reminders = JSON.parse(localStorage.getItem('reminders') || '[]'); }
+  renderReminders();
+}
+
+async function saveReminders() {
+  localStorage.setItem('reminders', JSON.stringify(reminders));
+  try { await fetch('http://localhost:8888/data/reminders', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(reminders) }); } catch(e) {}
+}
+
+function addReminder() {
+  const input = document.getElementById('remInput');
+  const dateInput = document.getElementById('remDate');
+  const text = input.value.trim();
+  if (!text) return;
+  const when = dateInput.value ? new Date(dateInput.value).toISOString() : null;
+  reminders.push({ id: Date.now(), text, when, created: new Date().toISOString() });
+  input.value = '';
+  dateInput.value = '';
+  saveReminders();
+  renderReminders();
+}
+
+function dismissReminder(id) {
+  reminders = reminders.filter(r => r.id !== id);
+  saveReminders();
+  renderReminders();
+}
+
+function renderReminders() {
+  const now = new Date();
+  // Sort: overdue first, then soonest upcoming, then no-date
+  reminders.sort((a, b) => {
+    if (!a.when && !b.when) return 0;
+    if (!a.when) return 1;
+    if (!b.when) return -1;
+    return new Date(a.when) - new Date(b.when);
+  });
+  
+  const activeCount = reminders.filter(r => r.when && new Date(r.when) > now).length;
+  const overdueCount = reminders.filter(r => r.when && new Date(r.when) <= now).length;
+  document.getElementById('remCount').textContent = reminders.length;
+  if (overdueCount > 0) document.getElementById('remCount').style.background = 'var(--red)';
+  else document.getElementById('remCount').style.background = 'var(--amber)';
+  
+  if (reminders.length === 0) {
+    document.getElementById('remList').innerHTML = '<div class="rem-empty">🔕 No reminders set. Add one above!</div>';
+    return;
+  }
+  
+  let html = '';
+  for (const r of reminders) {
+    let status = '';
+    let timeStr = '';
+    let cls = '';
+    
+    if (r.when) {
+      const d = new Date(r.when);
+      const diff = d - now;
+      timeStr = d.toLocaleDateString('en-US', { weekday:'short', month:'short', day:'numeric' }) + ' at ' + d.toLocaleTimeString('en-US', { hour:'numeric', minute:'2-digit' });
+      
+      if (diff <= 0) {
+        const ago = Math.abs(Math.round(diff / 60000));
+        const agoStr = ago < 60 ? ago + ' min ago' : Math.round(ago/60) + ' hrs ago';
+        status = `<span class="overdue-label">⚠️ OVERDUE — ${agoStr}</span>`;
+        cls = 'overdue';
+      } else if (diff < 3600000) {
+        const mins = Math.round(diff / 60000);
+        status = `<span class="upcoming-label">⏰ In ${mins} min</span>`;
+        cls = 'upcoming';
+      } else if (diff < 86400000) {
+        const hrs = Math.round(diff / 3600000);
+        status = `<span class="upcoming-label">In ${hrs} hr${hrs > 1 ? 's' : ''}</span>`;
+        cls = 'upcoming';
+      }
+    } else {
+      timeStr = 'No date set';
+    }
+    
+    const icon = cls === 'overdue' ? '🔴' : cls === 'upcoming' ? '🟡' : '🔔';
+    html += `<div class="rem-item ${cls}">
+      <div class="rem-icon">${icon}</div>
+      <div class="rem-info">
+        <div class="rem-text">${r.text}</div>
+        <div class="rem-time">${status ? status + ' · ' : ''}${timeStr}</div>
+      </div>
+      <button class="rem-dismiss" onclick="dismissReminder(${r.id})">Done ✓</button>
+    </div>`;
+  }
+  document.getElementById('remList').innerHTML = html;
+}
+
+// Refresh reminders every minute to update countdowns
+setInterval(renderReminders, 60000);
+
+// ─── Workout Tracker ───
+let workoutLog = [];
+
+function getTodayStr() { return new Date().toISOString().slice(0,10); }
+
+async function loadWorkout() {
+  try {
+    const r = await fetch('http://localhost:8888/data/workout');
+    workoutLog = await r.json();
+  } catch(e) { workoutLog = JSON.parse(localStorage.getItem('workout') || '[]'); }
+  renderWorkout();
+}
+
+async function saveWorkout() {
+  localStorage.setItem('workout', JSON.stringify(workoutLog));
+  try { await fetch('http://localhost:8888/data/workout', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(workoutLog) }); } catch(e) {}
+}
+
+function logWorkout(type) {
+  const inputMap = { water:'woAddWater', pushups:'woAddPushups', situps:'woAddSitups' };
+  const input = document.getElementById(inputMap[type]);
+  const val = parseInt(input.value);
+  if (!val || val <= 0) return;
+  
+  const today = getTodayStr();
+  let entry = workoutLog.find(w => w.date === today);
+  if (!entry) {
+    entry = { date: today, water: 0, pushups: 0, situps: 0 };
+    workoutLog.unshift(entry);
+  }
+  entry[type] += val;
+  input.value = '';
+  saveWorkout();
+  renderWorkout();
+}
+
+function renderWorkout() {
+  const today = getTodayStr();
+  const entry = workoutLog.find(w => w.date === today) || { water:0, pushups:0, situps:0 };
+  
+  document.getElementById('woWater').textContent = entry.water;
+  document.getElementById('woPushups').textContent = entry.pushups;
+  document.getElementById('woSitups').textContent = entry.situps;
+  
+  // History (last 7 days, excluding today)
+  const history = workoutLog.filter(w => w.date !== today).slice(0, 7);
+  if (history.length === 0) {
+    document.getElementById('woHistory').innerHTML = '';
+    return;
+  }
+  
+  let html = '<div class="wo-history"><div class="wo-history-title">Recent History</div>';
+  for (const d of history) {
+    const dt = new Date(d.date + 'T12:00:00');
+    const label = dt.toLocaleDateString('en-US', { weekday:'short', month:'short', day:'numeric' });
+    html += `<div class="wo-day">
+      <div class="wo-date">${label}</div>
+      <div class="wo-d-stat">
+        <span>💧 ${d.water}oz</span>
+        <span>🏋️ ${d.pushups}</span>
+        <span>🔥 ${d.situps}</span>
+      </div>
+    </div>`;
+  }
+  html += '</div>';
+  document.getElementById('woHistory').innerHTML = html;
+}
+
+// ─── Blood Pressure Tracker ───
+let bpLog = [];
+let bpViewDate = getTodayStr();
+
+async function loadBP() {
+  try {
+    const r = await fetch('http://localhost:8888/data/bloodpressure');
+    bpLog = await r.json();
+  } catch(e) { bpLog = JSON.parse(localStorage.getItem('bloodpressure') || '[]'); }
+  renderBP();
+}
+
+async function saveBP() {
+  localStorage.setItem('bloodpressure', JSON.stringify(bpLog));
+  try { await fetch('http://localhost:8888/data/bloodpressure', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(bpLog) }); } catch(e) {}
+}
+
+function addBP() {
+  const sys = parseInt(document.getElementById('bpSys').value);
+  const dia = parseInt(document.getElementById('bpDia').value);
+  const pul = parseInt(document.getElementById('bpPul').value);
+  if (!sys || !dia || !pul) return;
+  
+  const now = new Date();
+  bpLog.unshift({
+    id: Date.now(),
+    date: now.toISOString().slice(0,10),
+    time: now.toLocaleTimeString('en-US', { hour:'numeric', minute:'2-digit' }),
+    sys, dia, pul,
+    timestamp: now.toISOString()
+  });
+  
+  document.getElementById('bpSys').value = '';
+  document.getElementById('bpDia').value = '';
+  document.getElementById('bpPul').value = '';
+  bpViewDate = getTodayStr();
+  saveBP();
+  renderBP();
+}
+
+function deleteBP(id) {
+  bpLog = bpLog.filter(b => b.id !== id);
+  saveBP();
+  renderBP();
+}
+
+function navBPDate(dir) {
+  const d = new Date(bpViewDate + 'T12:00:00');
+  d.setDate(d.getDate() + dir);
+  const today = new Date();
+  if (d > today) return; // can't go to future
+  bpViewDate = d.toISOString().slice(0,10);
+  renderBP();
+}
+
+function getBPStatus(sys, dia) {
+  if (sys < 120 && dia < 80) return { label:'Normal', cls:'bp-status-normal' };
+  if (sys < 130 && dia < 80) return { label:'Elevated', cls:'bp-status-elevated' };
+  return { label:'High', cls:'bp-status-high' };
+}
+
+function renderBP() {
+  const today = getTodayStr();
+  const isToday = bpViewDate === today;
+  
+  // Date label
+  if (isToday) {
+    document.getElementById('bpDateLabel').textContent = 'Today';
+  } else {
+    const d = new Date(bpViewDate + 'T12:00:00');
+    document.getElementById('bpDateLabel').textContent = d.toLocaleDateString('en-US', { weekday:'short', month:'short', day:'numeric' });
+  }
+  
+  // Filter readings for selected date
+  const readings = bpLog.filter(b => b.date === bpViewDate);
+  
+  if (readings.length === 0) {
+    document.getElementById('bpReadings').innerHTML = '<div class="bp-empty">❤️ No readings for this date. ' + (isToday ? 'Record your first reading above!' : '') + '</div>';
+    document.getElementById('bpAvg').innerHTML = '';
+    return;
+  }
+  
+  // Sort by time (newest first for display)
+  readings.sort((a,b) => new Date(b.timestamp) - new Date(a.timestamp));
+  
+  let html = '<div class="bp-readings">';
+  for (const r of readings) {
+    const st = getBPStatus(r.sys, r.dia);
+    html += `<div class="bp-reading">
+      <div class="bp-time">${r.time}</div>
+      <div class="bp-vals">
+        <div><div class="bp-num bp-sys">${r.sys}</div><div class="bp-lbl">SYS</div></div>
+        <span class="bp-slash">/</span>
+        <div><div class="bp-num bp-dia">${r.dia}</div><div class="bp-lbl">DIA</div></div>
+        <span class="bp-slash">·</span>
+        <div><div class="bp-num bp-pul">${r.pul}</div><div class="bp-lbl">PUL</div></div>
+      </div>
+      <span class="bp-status ${st.cls}">${st.label}</span>
+      <button class="bp-del" onclick="deleteBP(${r.id})" title="Delete">✕</button>
+    </div>`;
+  }
+  html += '</div>';
+  document.getElementById('bpReadings').innerHTML = html;
+  
+  // Averages
+  const avgSys = Math.round(readings.reduce((s,r) => s+r.sys, 0) / readings.length);
+  const avgDia = Math.round(readings.reduce((s,r) => s+r.dia, 0) / readings.length);
+  const avgPul = Math.round(readings.reduce((s,r) => s+r.pul, 0) / readings.length);
+  const avgSt = getBPStatus(avgSys, avgDia);
+  
+  document.getElementById('bpAvg').innerHTML = `<div class="bp-avg">
+    <div class="bp-avg-item"><div class="bp-avg-val" style="color:var(--red)">${avgSys}</div><div class="bp-avg-lbl">Avg SYS</div></div>
+    <div class="bp-avg-item"><div class="bp-avg-val" style="color:var(--amber)">${avgDia}</div><div class="bp-avg-lbl">Avg DIA</div></div>
+    <div class="bp-avg-item"><div class="bp-avg-val" style="color:var(--cyan)">${avgPul}</div><div class="bp-avg-lbl">Avg PUL</div></div>
+    <div class="bp-avg-item"><div class="bp-avg-val"><span class="bp-status ${avgSt.cls}">${avgSt.label}</span></div><div class="bp-avg-lbl">${readings.length} Reading${readings.length>1?'s':''}</div></div>
+  </div>`;
+}
+
 // Init
 loadWeather();
 loadMeetings();
 loadEmails();
 loadCosts();
+loadTodos();
+loadReminders();
+loadWorkout();
+loadBP();
 
 // Chat
 const GEMINI_KEY_STORAGE='gemini_api_key';
@@ -438,10 +987,10 @@ async function sendMsg(){
       method:'POST',headers:{'Content-Type':'application/json'},
       body:JSON.stringify({system_instruction:{parts:[{text:sysPrompt}]},contents:[{parts:[{text:text}]}]})
     });
-    if(!r.ok){const err=await r.text();console.error('Gemini API error:',r.status,err);if(r.status===429){thinking.innerHTML='⏳ Rate limit hit — waiting 5 seconds and retrying...';await new Promise(r=>setTimeout(r,5000));const r2=await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key='+key,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({system_instruction:{parts:[{text:sysPrompt}]},contents:[{parts:[{text:text}]}]})});if(r2.ok){const d2=await r2.json();const reply2=d2.candidates?.[0]?.content?.parts?.[0]?.text;if(reply2){thinking.innerHTML=reply2.replace(/\n/g,'<br>').replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>').replace(/\*(.+?)\*/g,'<em>$1</em>');return;}}thinking.innerHTML='Still rate limited. Wait 30 seconds and try again.';return;}if(r.status===400||r.status===403){thinking.innerHTML='API key invalid or expired. <a href="https://aistudio.google.com/apikey" target="_blank">Get a new key</a>';localStorage.removeItem(GEMINI_KEY_STORAGE);setTimeout(()=>initChat(),2000);}else{thinking.innerHTML='API error ('+r.status+'). Try again in a moment.';}return;}
+    if(!r.ok){const err=await r.text();console.error('Gemini API error:',r.status,err);if(r.status===429){thinking.innerHTML='⏳ Rate limit hit — waiting 5 seconds...';await new Promise(rv=>setTimeout(rv,5000));const r2=await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key='+key,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({system_instruction:{parts:[{text:sysPrompt}]},contents:[{parts:[{text:text}]}]})});if(r2.ok){const d2=await r2.json();const rp=d2.candidates?.[0]?.content?.parts?.[0]?.text;if(rp){thinking.innerHTML=rp.replace(/\n/g,'<br>').replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>');return;}}thinking.innerHTML='Still rate limited. Wait 30 seconds and try again.';return;}if(r.status===400||r.status===403){thinking.innerHTML='API key invalid or expired. <a href="https://aistudio.google.com/apikey" target="_blank">Get a new key</a>';localStorage.removeItem(GEMINI_KEY_STORAGE);setTimeout(()=>initChat(),2000);}else{thinking.innerHTML='API error ('+r.status+'). Try again in a moment.';}return;}
     const d=await r.json();
     const reply=d.candidates?.[0]?.content?.parts?.[0]?.text;
-    if(!reply){console.error('Gemini response:',JSON.stringify(d));thinking.innerHTML='No response received. The model may be busy — try again.';return;}
+    if(!reply){thinking.innerHTML='No response received. Try again.';return;}
     thinking.innerHTML=reply.replace(/\n/g,'<br>').replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>').replace(/\*(.+?)\*/g,'<em>$1</em>');
   }catch(e){console.error('Fetch error:',e);thinking.innerHTML='Network error — check your internet connection.';}
 }
