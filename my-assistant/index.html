@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>My Assistant</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0a0e1a;--card:#1a2236;--border:#1e293b;--green:#10b981;--red:#ef4444;--amber:#f59e0b;--blue:#3b82f6;--purple:#8b5cf6;--cyan:#06b6d4;--text:#f1f5f9;--muted:#94a3b8;--dim:#64748b}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+.wrap{max-width:1400px;margin:0 auto;padding:24px}
+.top{display:flex;justify-content:space-between;align-items:center;margin-bottom:28px}
+.top h1{font-size:1.6rem;font-weight:800;background:linear-gradient(135deg,#fff,#94a3b8);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.clock{font-size:2.4rem;font-weight:300;color:var(--text);letter-spacing:-1px}
+.clock .date{font-size:.85rem;color:var(--dim);font-weight:500;margin-top:2px;text-align:right}
+.grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:20px}
+@media(max-width:1100px){.grid{grid-template-columns:1fr 1fr}}
+@media(max-width:700px){.grid{grid-template-columns:1fr}}
+.card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:22px;position:relative;overflow:hidden}
+.card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
+.card.weather::before{background:linear-gradient(90deg,var(--amber),var(--cyan))}
+.card.meetings::before{background:var(--blue)}
+.card.emails::before{background:var(--red)}
+.card.walking::before{background:var(--green)}
+.card h2{font-size:.95rem;font-weight:700;margin-bottom:14px;display:flex;align-items:center;gap:8px}
+.card h2 .icon{font-size:1.1rem}
+.weather-main{display:flex;align-items:center;gap:20px;margin-bottom:16px}
+.weather-temp{font-size:3.2rem;font-weight:200;letter-spacing:-2px}
+.weather-desc{color:var(--muted);font-size:.85rem}
+.weather-detail{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.wd{background:rgba(255,255,255,.03);border-radius:10px;padding:10px 12px}
+.wd-l{font-size:.65rem;text-transform:uppercase;letter-spacing:.8px;color:var(--dim);font-weight:600}
+.wd-v{font-size:1.1rem;font-weight:700;margin-top:2px}
+.hourly{display:flex;gap:10px;overflow-x:auto;padding:8px 0;margin-top:12px}
+.hour{text-align:center;min-width:52px;padding:8px 6px;background:rgba(255,255,255,.03);border-radius:10px}
+.hour .t{font-size:.7rem;color:var(--dim)}.hour .tmp{font-size:.95rem;font-weight:700;margin:4px 0}.hour .ic{font-size:1.2rem}
+.meeting{display:flex;gap:14px;padding:12px 0;border-bottom:1px solid rgba(30,41,59,.5)}
+.meeting:last-child{border-bottom:none}
+.meeting .time-col{min-width:65px}
+.meeting .time-col .t{font-size:.85rem;font-weight:700;color:var(--blue)}.meeting .time-col .dur{font-size:.68rem;color:var(--dim)}
+.meeting .info .title{font-size:.88rem;font-weight:600}.meeting .info .who{font-size:.78rem;color:var(--muted);margin-top:2px}
+.meeting.now{background:rgba(59,130,246,.08);border-radius:10px;padding:12px;margin:-2px -12px;border-bottom:none}
+.email-item{padding:12px 0;border-bottom:1px solid rgba(30,41,59,.5);cursor:pointer;transition:background .2s}
+.email-item:hover{background:rgba(59,130,246,.04);border-radius:8px;padding:12px 8px;margin:0 -8px}
+.email-item:last-child{border-bottom:none}
+.email-item .from{font-size:.85rem;font-weight:600;display:flex;justify-content:space-between}
+.email-item .from .time{color:var(--dim);font-weight:400;font-size:.75rem}
+.email-item .subj{font-size:.82rem;color:var(--muted);margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.email-item .priority{display:inline-block;padding:2px 8px;border-radius:8px;font-size:.65rem;font-weight:600;text-transform:uppercase;letter-spacing:.5px;margin-top:6px}
+.p-urgent{background:rgba(239,68,68,.15);color:var(--red);border:1px solid rgba(239,68,68,.3)}
+.p-action{background:rgba(245,158,11,.15);color:var(--amber);border:1px solid rgba(245,158,11,.3)}
+.p-info{background:rgba(59,130,246,.15);color:var(--blue);border:1px solid rgba(59,130,246,.3)}
+.walk-goal{text-align:center;margin-bottom:16px}
+.walk-ring{width:120px;height:120px;margin:0 auto 10px}
+.walk-stat{font-size:.82rem;color:var(--muted)}
+.walk-stat span{color:var(--green);font-weight:700}
+.walk-plan{margin-top:14px}
+.walk-slot{display:flex;align-items:center;gap:12px;padding:10px;background:rgba(16,185,129,.06);border:1px solid rgba(16,185,129,.15);border-radius:10px;margin-bottom:8px}
+.walk-slot .ws-time{font-size:.85rem;font-weight:700;color:var(--green);min-width:90px}
+.walk-slot .ws-info{font-size:.8rem;color:var(--muted)}
+.walk-slot .ws-info strong{color:var(--text)}
+.full-width{grid-column:1/-1}
+.back{display:inline-block;margin-bottom:16px;color:var(--muted);text-decoration:none;font-size:.85rem}.back:hover{color:var(--text)}
+.badge-count{background:var(--red);color:#fff;font-size:.7rem;padding:2px 7px;border-radius:10px;margin-left:6px;font-weight:700}
+.loading{color:var(--dim);font-size:.85rem;padding:20px;text-align:center}
+.chat-toggle{position:fixed;bottom:24px;right:24px;width:60px;height:60px;border-radius:50%;background:linear-gradient(135deg,var(--blue),var(--purple));border:none;color:#fff;font-size:1.5rem;cursor:pointer;box-shadow:0 4px 20px rgba(59,130,246,.4);z-index:1000;transition:all .3s;display:flex;align-items:center;justify-content:center}
+.chat-toggle:hover{transform:scale(1.1);box-shadow:0 6px 30px rgba(59,130,246,.6)}
+.chat-toggle.open{border-radius:14px;width:48px;height:48px}
+.chat-panel{position:fixed;bottom:96px;right:24px;width:380px;max-height:520px;background:var(--card);border:1px solid var(--border);border-radius:20px;z-index:999;display:none;flex-direction:column;overflow:hidden;box-shadow:0 12px 40px rgba(0,0,0,.5)}
+.chat-panel.open{display:flex}
+.chat-header{padding:16px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px}
+.chat-header .dot{width:10px;height:10px;border-radius:50%;background:var(--green);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+.chat-header span{font-weight:700;font-size:.9rem}
+.chat-header .model{margin-left:auto;font-size:.7rem;color:var(--dim);background:rgba(255,255,255,.05);padding:3px 8px;border-radius:8px}
+.chat-msgs{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:12px;max-height:360px}
+.msg{max-width:85%;padding:10px 14px;border-radius:14px;font-size:.84rem;line-height:1.5}
+.msg.user{align-self:flex-end;background:var(--blue);color:#fff;border-bottom-right-radius:4px}
+.msg.ai{align-self:flex-start;background:rgba(255,255,255,.06);color:var(--text);border-bottom-left-radius:4px}
+.msg.ai .thinking{color:var(--dim);font-style:italic}
+.chat-input{padding:12px 16px;border-top:1px solid var(--border);display:flex;gap:8px}
+.chat-input input{flex:1;background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:12px;padding:10px 14px;color:var(--text);font-size:.85rem;font-family:'Inter',sans-serif;outline:none}
+.chat-input input:focus{border-color:var(--blue)}
+.chat-input input::placeholder{color:var(--dim)}
+.chat-input button{background:var(--blue);border:none;border-radius:12px;width:40px;color:#fff;cursor:pointer;font-size:1rem;transition:background .2s}
+.chat-input button:hover{background:var(--purple)}
+.api-setup{padding:16px;text-align:center}
+.api-setup input{width:100%;background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:10px;padding:10px;color:var(--text);font-size:.82rem;margin:8px 0;font-family:'Inter',sans-serif}
+.api-setup button{background:var(--blue);border:none;border-radius:10px;padding:8px 20px;color:#fff;cursor:pointer;font-size:.82rem;font-weight:600}
+.api-setup p{font-size:.78rem;color:var(--muted);margin:6px 0}
+.api-setup a{color:var(--blue)}
+</style>
+</head>
+<body>
+<div class="wrap">
+<a href="../" class="back">← All Dashboards</a>
+<div class="top">
+<h1>👋 Good <span id="greeting">Morning</span>, Tommy</h1>
+<div class="clock"><span id="time"></span><div class="date" id="dateStr"></div></div>
+</div>
+<div class="grid">
+<!-- Weather -->
+<div class="card weather">
+<h2><span class="icon">🌤️</span> Weather</h2>
+<div id="weatherContent"><div class="loading">Loading weather...</div></div>
+</div>
+<!-- Meetings -->
+<div class="card meetings">
+<h2><span class="icon">📅</span> Today's Schedule <span class="badge-count" id="meetCount">0</span></h2>
+<div id="meetContent"><div class="loading">Loading meetings...</div></div>
+</div>
+<!-- Emails -->
+<div class="card emails">
+<h2><span class="icon">📧</span> Needs Attention <span class="badge-count" id="emailCount">0</span></h2>
+<div id="emailContent"><div class="loading">Loading emails...</div></div>
+</div>
+<!-- Walking Planner -->
+<div class="card walking">
+<h2><span class="icon">🚶</span> Walking Planner</h2>
+<div id="walkContent"><div class="loading">Planning walks...</div></div>
+</div>
+</div>
+</div>
+
+<!-- Chat Panel -->
+<button class="chat-toggle" id="chatToggle" onclick="toggleChat()">💬</button>
+<div class="chat-panel" id="chatPanel">
+<div class="chat-header"><div class="dot"></div><span>My Assistant</span><div class="model">Gemini</div></div>
+<div class="chat-msgs" id="chatMsgs">
+<div class="msg ai">Hi Tommy! I'm your AI assistant. Ask me anything — check emails, reschedule meetings, plan your walks, or draft responses. <br><br>💡 <em>Try: "What should I reply to Mark Muzzini?"</em></div>
+</div>
+<div id="chatInputArea"></div>
+</div>
+
+<script>
+// Clock
+function updateClock(){
+  const now=new Date();
+  const h=now.getHours(),m=now.getMinutes();
+  const ampm=h>=12?'PM':'AM';
+  const h12=h%12||12;
+  document.getElementById('time').textContent=`${h12}:${String(m).padStart(2,'0')} ${ampm}`;
+  document.getElementById('dateStr').textContent=now.toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric',year:'numeric'});
+  const g=h<12?'Morning':h<17?'Afternoon':'Evening';
+  document.getElementById('greeting').textContent=g;
+}
+setInterval(updateClock,1000);updateClock();
+
+// Weather (Open-Meteo, no API key needed)
+async function loadWeather(){
+  try{
+    // Try geolocation, fallback to Salt Lake City area
+    let lat=40.76,lon=-111.89,city='Salt Lake City';
+    try{
+      const pos=await new Promise((res,rej)=>navigator.geolocation.getCurrentPosition(res,rej,{timeout:3000}));
+      lat=pos.coords.latitude;lon=pos.coords.longitude;city='Your Location';
+    }catch(e){}
+    
+    const r=await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,apparent_temperature,wind_speed_10m,weather_code&hourly=temperature_2m,weather_code&temperature_unit=fahrenheit&wind_speed_unit=mph&timezone=auto&forecast_days=1`);
+    const d=await r.json();
+    const c=d.current;
+    const codes={0:'☀️ Clear',1:'🌤️ Mostly Clear',2:'⛅ Partly Cloudy',3:'☁️ Overcast',45:'🌫️ Foggy',48:'🌫️ Fog',51:'🌧️ Light Drizzle',53:'🌧️ Drizzle',55:'🌧️ Heavy Drizzle',61:'🌧️ Light Rain',63:'🌧️ Rain',65:'🌧️ Heavy Rain',71:'🌨️ Light Snow',73:'🌨️ Snow',75:'🌨️ Heavy Snow',80:'🌦️ Showers',81:'🌦️ Showers',82:'⛈️ Heavy Showers',95:'⛈️ Thunderstorm'};
+    const wc=codes[c.weather_code]||'🌤️ Fair';
+    const icon=wc.split(' ')[0];
+    const desc=wc.split(' ').slice(1).join(' ');
+    
+    // Hourly for walking planner
+    window.hourlyTemps=d.hourly.temperature_2m;
+    window.hourlyCodes=d.hourly.weather_code;
+    
+    // Build hourly strip (next 12 hours)
+    const nowH=new Date().getHours();
+    let hourlyHtml='<div class="hourly">';
+    for(let i=nowH;i<Math.min(nowH+10,24);i++){
+      const t=d.hourly.temperature_2m[i];
+      const hc=codes[d.hourly.weather_code[i]]||'🌤️';
+      const hi=hc.split(' ')[0];
+      const lbl=i===nowH?'Now':`${i%12||12}${i<12?'a':'p'}`;
+      hourlyHtml+=`<div class="hour"><div class="t">${lbl}</div><div class="ic">${hi}</div><div class="tmp">${Math.round(t)}°</div></div>`;
+    }
+    hourlyHtml+='</div>';
+    
+    document.getElementById('weatherContent').innerHTML=`
+      <div class="weather-main">
+        <div style="font-size:3rem">${icon}</div>
+        <div><div class="weather-temp">${Math.round(c.temperature_2m)}°</div><div class="weather-desc">${desc} · ${city}</div></div>
+      </div>
+      <div class="weather-detail">
+        <div class="wd"><div class="wd-l">Feels Like</div><div class="wd-v">${Math.round(c.apparent_temperature)}°F</div></div>
+        <div class="wd"><div class="wd-l">Humidity</div><div class="wd-v">${c.relative_humidity_2m}%</div></div>
+        <div class="wd"><div class="wd-l">Wind</div><div class="wd-v">${Math.round(c.wind_speed_10m)} mph</div></div>
+        <div class="wd"><div class="wd-l">High Today</div><div class="wd-v">${Math.round(Math.max(...d.hourly.temperature_2m))}°F</div></div>
+      </div>
+      ${hourlyHtml}`;
+    
+    // Now plan walks
+    planWalks(d.hourly.temperature_2m,d.hourly.weather_code);
+  }catch(e){
+    document.getElementById('weatherContent').innerHTML='<div class="loading">Weather unavailable</div>';
+  }
+}
+
+// Walking Planner
+function planWalks(temps,codes){
+  const now=new Date().getHours();
+  const PACE=19; // min per mile
+  const GOAL=3; // miles
+  const rainCodes=[51,53,55,61,63,65,80,81,82,95];
+  
+  // Score each hour (lower is better)
+  let slots=[];
+  for(let h=Math.max(now,6);h<21;h++){
+    const t=temps[h];
+    let score=0;
+    if(t<60) score+=1; // cool, ok
+    else if(t<75) score+=0; // ideal
+    else if(t<85) score+=3; // warm
+    else if(t<95) score+=6; // hot
+    else score+=10; // very hot
+    if(rainCodes.includes(codes[h])) score+=8;
+    if(h<9) score-=1; // morning bonus
+    slots.push({hour:h,temp:Math.round(t),score,rain:rainCodes.includes(codes[h])});
+  }
+  slots.sort((a,b)=>a.score-b.score);
+  
+  // Pick best 3 non-overlapping slots (each walk = ~19min = 1 hour block)
+  let walks=[];
+  let usedHours=new Set();
+  for(const s of slots){
+    if(walks.length>=3) break;
+    if(!usedHours.has(s.hour)&&!usedHours.has(s.hour-1)&&!usedHours.has(s.hour+1)){
+      walks.push({...s,miles:1,duration:PACE});
+      usedHours.add(s.hour);
+    }
+  }
+  walks.sort((a,b)=>a.hour-b.hour);
+  
+  const totalMiles=walks.reduce((s,w)=>s+w.miles,0);
+  const totalMin=walks.reduce((s,w)=>s+w.duration,0);
+  const pct=Math.min(Math.round(totalMiles/GOAL*100),100);
+  
+  // SVG ring
+  const r=50,circ=2*Math.PI*r,offset=circ-(pct/100)*circ;
+  
+  let walkHtml=`
+    <div class="walk-goal">
+      <svg class="walk-ring" viewBox="0 0 120 120">
+        <circle cx="60" cy="60" r="${r}" fill="none" stroke="rgba(255,255,255,.06)" stroke-width="8"/>
+        <circle cx="60" cy="60" r="${r}" fill="none" stroke="#10b981" stroke-width="8" 
+          stroke-dasharray="${circ}" stroke-dashoffset="${offset}" stroke-linecap="round"
+          transform="rotate(-90 60 60)" style="transition:stroke-dashoffset 1s"/>
+        <text x="60" y="55" text-anchor="middle" fill="#f1f5f9" font-size="22" font-weight="800">${totalMiles}</text>
+        <text x="60" y="72" text-anchor="middle" fill="#94a3b8" font-size="10">of ${GOAL} miles</text>
+      </svg>
+      <div class="walk-stat"><span>${totalMin} min</span> total · <span>${walks.length} walks</span> planned</div>
+    </div>
+    <div class="walk-plan">`;
+  
+  for(const w of walks){
+    const h12=w.hour%12||12;
+    const ampm=w.hour<12?'AM':'PM';
+    const end=w.hour*60+w.duration;
+    const endH=Math.floor(end/60)%12||12;
+    const endM=end%60;
+    const warn=w.temp>85?'🥵 Hot — hydrate!':w.temp>75?'☀️ Warm':w.rain?'🌧️ Possible rain':'🌤️ Great conditions';
+    walkHtml+=`<div class="walk-slot">
+      <div class="ws-time">${h12}:00 ${ampm}</div>
+      <div class="ws-info"><strong>1 mile</strong> · ${w.duration} min · ${w.temp}°F · ${warn}</div>
+    </div>`;
+  }
+  walkHtml+='</div>';
+  document.getElementById('walkContent').innerHTML=walkHtml;
+}
+
+// Meetings (sample data - will connect to Google Calendar API)
+function loadMeetings(){
+  const meetings=[
+    {time:'9:00 AM',end:'9:30 AM',title:'Daily Standup',who:'CEM Team',type:'recurring'},
+    {time:'11:00 AM',end:'11:30 AM',title:'Payroll Review',who:'Cherie Llewellyn',type:'important'},
+    {time:'1:00 PM',end:'1:30 PM',title:'Networks Revenue Call',who:'Joe Ruiz, Kitwana Freeman',type:'important'},
+    {time:'3:00 PM',end:'3:30 PM',title:'Forth Credit Report Follow-up',who:'Alexandra Martinez',type:'urgent'},
+  ];
+  document.getElementById('meetCount').textContent=meetings.length;
+  const now=new Date();
+  let html='';
+  for(const m of meetings){
+    const [th,tm,tap]=m.time.match(/(\d+):(\d+)\s*(AM|PM)/).slice(1);
+    let mh=parseInt(th);if(tap==='PM'&&mh!==12)mh+=12;if(tap==='AM'&&mh===12)mh=0;
+    const isNow=now.getHours()===mh;
+    const isPast=now.getHours()>mh;
+    html+=`<div class="meeting${isNow?' now':''}${isPast?' past':''}">
+      <div class="time-col"><div class="t">${m.time}</div><div class="dur">${m.end}</div></div>
+      <div class="info"><div class="title">${m.title}</div><div class="who">${m.who}</div></div>
+    </div>`;
+  }
+  html+='<div style="text-align:center;padding:12px;color:var(--dim);font-size:.78rem;margin-top:8px;border-top:1px solid var(--border)">Connect Google Calendar for live data</div>';
+  document.getElementById('meetContent').innerHTML=html;
+}
+
+// Emails (sample data - will connect to Gmail API)
+function loadEmails(){
+  const emails=[
+    {from:'Mark Muzzini',subj:'CEM Employment Contract',time:'10:23 AM',priority:'urgent',note:'Requesting copy of countersigned contract'},
+    {from:'Alexandra Martinez',subj:'Re: 1959095 - Urgent Issues with pulling credit report',time:'12:05 PM',priority:'urgent',note:'Forth credit report issue — needs reply'},
+    {from:'Cherie Llewellyn',subj:'Payroll 05/20/26',time:'2:39 PM',priority:'action',note:'CEM ~$11K, Networks ~$30.4K — due 05/20'},
+    {from:'Sudha Gupta',subj:'Reconnecting to Discuss Opportunities',time:'3:44 PM',priority:'action',note:'Business inquiry — wants to reconnect'},
+    {from:'Westlake Accounting',subj:'Invoice - Reminder: Your payment is due',time:'12:51 PM',priority:'action',note:'$3,180.69 balance due'},
+  ];
+  document.getElementById('emailCount').textContent=emails.length;
+  let html='';
+  for(const e of emails){
+    const pcls=e.priority==='urgent'?'p-urgent':e.priority==='action'?'p-action':'p-info';
+    const plbl=e.priority==='urgent'?'Needs Reply':e.priority==='action'?'Action Required':'FYI';
+    html+=`<div class="email-item">
+      <div class="from">${e.from}<span class="time">${e.time}</span></div>
+      <div class="subj">${e.subj}</div>
+      <div style="font-size:.75rem;color:var(--dim);margin-top:3px">${e.note}</div>
+      <span class="priority ${pcls}">${plbl}</span>
+    </div>`;
+  }
+  html+='<div style="text-align:center;padding:12px;color:var(--dim);font-size:.78rem;margin-top:8px;border-top:1px solid var(--border)">Say "check my emails" to refresh</div>';
+  document.getElementById('emailContent').innerHTML=html;
+}
+
+// Init
+loadWeather();
+loadMeetings();
+loadEmails();
+
+// Chat
+const GEMINI_KEY_STORAGE='gemini_api_key';
+function toggleChat(){
+  const p=document.getElementById('chatPanel');
+  const b=document.getElementById('chatToggle');
+  const open=p.classList.toggle('open');
+  b.textContent=open?'✕':'💬';
+  b.classList.toggle('open',open);
+  if(open)initChat();
+}
+function initChat(){
+  const key=localStorage.getItem(GEMINI_KEY_STORAGE);
+  const area=document.getElementById('chatInputArea');
+  if(key){area.innerHTML='<div class="chat-input"><input id="chatIn" placeholder="Ask me anything..." onkeydown="if(event.key===\'Enter\')sendMsg()"><button onclick="sendMsg()">→</button></div>';}
+  else{area.innerHTML='<div class="api-setup"><p>Connect your free Gemini API key:</p><input id="apiKeyIn" placeholder="Paste API key here..."><button onclick="saveKey()">Connect</button><p><a href="https://aistudio.google.com/apikey" target="_blank">Get free key →</a></p></div>';}
+}
+function saveKey(){
+  const k=document.getElementById('apiKeyIn').value.trim();
+  if(k){localStorage.setItem(GEMINI_KEY_STORAGE,k);initChat();addMsg('ai','Connected! How can I help you today?');}
+}
+function addMsg(type,text){
+  const d=document.getElementById('chatMsgs');
+  const m=document.createElement('div');
+  m.className='msg '+type;
+  m.innerHTML=text;
+  d.appendChild(m);
+  d.scrollTop=d.scrollHeight;
+  return m;
+}
+async function sendMsg(){
+  const input=document.getElementById('chatIn');
+  const text=input.value.trim();
+  if(!text)return;
+  addMsg('user',text);
+  input.value='';
+  const thinking=addMsg('ai','<span class="thinking">Thinking...</span>');
+  const key=localStorage.getItem(GEMINI_KEY_STORAGE);
+  const sysPrompt=`You are Tommy Heuges' personal AI assistant. You help manage his schedule, emails, and daily tasks. Context: Tommy runs multiple companies under Loyal Companies (CEM, Networks, Remix Dynamix, Digify, CareOne). He walks 3 miles/day at 19min/mile pace. Keep responses brief and actionable. Current time: ${new Date().toLocaleString()}`;
+  try{
+    const r=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${key}`,{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({system_instruction:{parts:[{text:sysPrompt}]},contents:[{parts:[{text}]}]})
+    });
+    const d=await r.json();
+    const reply=d.candidates?.[0]?.content?.parts?.[0]?.text||'Sorry, I could not process that.';
+    thinking.innerHTML=reply.replace(/\n/g,'<br>');
+  }catch(e){thinking.innerHTML='Error connecting to Gemini. Check your API key.';}
+}
+</script>
+</body>
+</html>
