@@ -641,7 +641,7 @@ function showCalendarConnect() {
 
 function requestCalendarAccess() {
   if (gcalTokenClient) {
-    gcalTokenClient.requestAccessToken({ prompt: '' });
+    gcalTokenClient.requestAccessToken({ prompt: 'consent' });
   }
 }
 
