@@ -293,29 +293,20 @@ function planWalks(temps,codes){
   document.getElementById('walkContent').innerHTML=walkHtml;
 }
 
-// Meetings (sample data - will connect to Google Calendar API)
+// Meetings - requires Google Calendar API connection
 function loadMeetings(){
-  const meetings=[
-    {time:'9:00 AM',end:'9:30 AM',title:'Daily Standup',who:'CEM Team',type:'recurring'},
-    {time:'11:00 AM',end:'11:30 AM',title:'Payroll Review',who:'Cherie Llewellyn',type:'important'},
-    {time:'1:00 PM',end:'1:30 PM',title:'Networks Revenue Call',who:'Joe Ruiz, Kitwana Freeman',type:'important'},
-    {time:'3:00 PM',end:'3:30 PM',title:'Forth Credit Report Follow-up',who:'Alexandra Martinez',type:'urgent'},
-  ];
-  document.getElementById('meetCount').textContent=meetings.length;
-  const now=new Date();
-  let html='';
-  for(const m of meetings){
-    const [th,tm,tap]=m.time.match(/(\d+):(\d+)\s*(AM|PM)/).slice(1);
-    let mh=parseInt(th);if(tap==='PM'&&mh!==12)mh+=12;if(tap==='AM'&&mh===12)mh=0;
-    const isNow=now.getHours()===mh;
-    const isPast=now.getHours()>mh;
-    html+=`<div class="meeting${isNow?' now':''}${isPast?' past':''}">
-      <div class="time-col"><div class="t">${m.time}</div><div class="dur">${m.end}</div></div>
-      <div class="info"><div class="title">${m.title}</div><div class="who">${m.who}</div></div>
+  const today=new Date().toLocaleDateString('en-US',{weekday:'long',month:'short',day:'numeric'});
+  document.getElementById('meetCount').textContent='—';
+  document.getElementById('meetContent').innerHTML=`
+    <div style="text-align:center;padding:30px 10px">
+      <div style="font-size:2rem;margin-bottom:12px">📅</div>
+      <div style="font-size:.95rem;font-weight:700;margin-bottom:4px">${today}</div>
+      <div style="font-size:.82rem;color:var(--dim);margin-bottom:16px">Calendar not connected yet</div>
+      <div style="font-size:.78rem;color:var(--muted);line-height:1.6">
+        To see your real meetings here,<br>we need to connect Google Calendar API.<br><br>
+        <span style="color:var(--blue)">Tell Antigravity: "connect my calendar"</span>
+      </div>
     </div>`;
-  }
-  html+='<div style="text-align:center;padding:12px;color:var(--dim);font-size:.78rem;margin-top:8px;border-top:1px solid var(--border)">Connect Google Calendar for live data</div>';
-  document.getElementById('meetContent').innerHTML=html;
 }
 
 // Emails (sample data - will connect to Gmail API)
@@ -447,7 +438,7 @@ async function sendMsg(){
       method:'POST',headers:{'Content-Type':'application/json'},
       body:JSON.stringify({system_instruction:{parts:[{text:sysPrompt}]},contents:[{parts:[{text:text}]}]})
     });
-    if(!r.ok){const err=await r.text();console.error('Gemini API error:',r.status,err);if(r.status===400||r.status===403){thinking.innerHTML='API key invalid or expired. <a href="https://aistudio.google.com/apikey" target="_blank">Get a new key</a>';localStorage.removeItem(GEMINI_KEY_STORAGE);setTimeout(()=>initChat(),2000);}else{thinking.innerHTML='API error ('+r.status+'). Try again in a moment.';}return;}
+    if(!r.ok){const err=await r.text();console.error('Gemini API error:',r.status,err);if(r.status===429){thinking.innerHTML='⏳ Rate limit hit — waiting 5 seconds and retrying...';await new Promise(r=>setTimeout(r,5000));const r2=await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key='+key,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({system_instruction:{parts:[{text:sysPrompt}]},contents:[{parts:[{text:text}]}]})});if(r2.ok){const d2=await r2.json();const reply2=d2.candidates?.[0]?.content?.parts?.[0]?.text;if(reply2){thinking.innerHTML=reply2.replace(/\n/g,'<br>').replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>').replace(/\*(.+?)\*/g,'<em>$1</em>');return;}}thinking.innerHTML='Still rate limited. Wait 30 seconds and try again.';return;}if(r.status===400||r.status===403){thinking.innerHTML='API key invalid or expired. <a href="https://aistudio.google.com/apikey" target="_blank">Get a new key</a>';localStorage.removeItem(GEMINI_KEY_STORAGE);setTimeout(()=>initChat(),2000);}else{thinking.innerHTML='API error ('+r.status+'). Try again in a moment.';}return;}
     const d=await r.json();
     const reply=d.candidates?.[0]?.content?.parts?.[0]?.text;
     if(!reply){console.error('Gemini response:',JSON.stringify(d));thinking.innerHTML='No response received. The model may be busy — try again.';return;}
