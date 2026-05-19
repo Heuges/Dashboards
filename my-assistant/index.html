@@ -1130,11 +1130,11 @@ async function downloadAttachments(msgId) {
     const r = await fetch(`https://gmail.googleapis.com/gmail/v1/users/me/messages/${msgId}?format=full`,
       { headers: { 'Authorization': `Bearer ${gcalAccessToken}` } });
     const msg = await r.json();
+    const from = getHeader(msg, 'From') || '';
     const subject = getHeader(msg, 'Subject') || 'email';
     const parts = msg.payload?.parts || [];
     const attachments = parts.filter(p => p.filename && p.body?.attachmentId);
     if (attachments.length === 0) {
-      // Check nested parts (multipart messages)
       for (const part of parts) {
         if (part.parts) {
           attachments.push(...part.parts.filter(p => p.filename && p.body?.attachmentId));
@@ -1145,35 +1145,128 @@ async function downloadAttachments(msgId) {
       alert('No downloadable attachments found in this email.');
       return;
     }
+
+    const el = document.getElementById(`email-${msgId}`);
+    const statusDiv = el && !el.querySelector('.downloaded-tag')
+      ? (el.insertAdjacentHTML('beforeend', '<div class="downloaded-tag" style="font-size:.7rem;color:var(--purple);font-weight:700;margin-top:4px">⏳ Processing...</div>'), el.querySelector('.downloaded-tag'))
+      : null;
+
+    let savedCount = 0;
     for (const att of attachments) {
       const ar = await fetch(
         `https://gmail.googleapis.com/gmail/v1/users/me/messages/${msgId}/attachments/${att.body.attachmentId}`,
         { headers: { 'Authorization': `Bearer ${gcalAccessToken}` } }
       );
       const ad = await ar.json();
-      const raw = ad.data.replace(/-/g,'+').replace(/_/g,'/');
+      const b64data = ad.data; // URL-safe base64 from Gmail
+      const raw = b64data.replace(/-/g,'+').replace(/_/g,'/');
+
+      // 1. Local download
       const binary = atob(raw);
       const bytes = new Uint8Array(binary.length);
       for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
       const blob = new Blob([bytes], { type: att.mimeType || 'application/octet-stream' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
-      a.href = url;
-      a.download = att.filename;
-      document.body.appendChild(a);
-      a.click();
+      a.href = url; a.download = att.filename;
+      document.body.appendChild(a); a.click();
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
+
+      // Detect statement type for folder routing
+      const fnLower = (att.filename || '').toLowerCase();
+      const fromLower = from.toLowerCase();
+      const subjLower = subject.toLowerCase();
+      let gitFolder = 'Bank-Statements/Other';
+      let driveFolder = 'Other';
+      if (fnLower.includes('amex') || fnLower.includes('american express') || subjLower.includes('amex') || subjLower.includes('american express')) {
+        gitFolder = 'Bank-Statements/AMEX'; driveFolder = 'AMEX';
+      } else if (fnLower.includes('chase') || subjLower.includes('chase') || fromLower.includes('chase')) {
+        gitFolder = 'Bank-Statements/Chase'; driveFolder = 'Chase';
+      } else if (subjLower.includes('invoice') || fromLower.includes('westlake') || fromLower.includes('accounting')) {
+        gitFolder = 'Invoices'; driveFolder = 'Invoices';
+      } else if (subjLower.includes('payroll') || fromLower.includes('helpside')) {
+        gitFolder = 'Payroll'; driveFolder = 'Payroll';
+      }
+
+      // 2. Push to GitHub (Heuges/Financials)
+      try {
+        const ghToken = localStorage.getItem('gh_token') || '';
+        if (ghToken) {
+          const now = new Date();
+          const monthName = now.toLocaleString('en-US', { month: 'short' });
+          const year = now.getFullYear();
+          const safeName = att.filename.replace(/[^a-zA-Z0-9._-]/g, '_');
+          const ghPath = `${gitFolder}/${year}/${monthName}_${safeName}`;
+          const ghUrl = `https://api.github.com/repos/Heuges/Financials/contents/${ghPath}`;
+          const ghReq = await fetch(ghUrl, {
+            method: 'PUT',
+            headers: { 'Authorization': `token ${ghToken}`, 'Content-Type': 'application/json' },
+            body: JSON.stringify({ message: `Add ${att.filename} from ${from}`, content: raw })
+          });
+          if (ghReq.ok) console.log('✅ Pushed to GitHub:', ghPath);
+          else console.warn('GitHub push failed:', ghReq.status);
+        }
+      } catch (e) { console.warn('GitHub push error:', e); }
+
+      // 3. Upload to Google Drive
+      try {
+        // Find or create folder
+        const folderId = await getOrCreateDriveFolder('Bank Statements');
+        const subFolderId = await getOrCreateDriveFolder(driveFolder, folderId);
+        // Upload file
+        const metadata = { name: att.filename, parents: [subFolderId] };
+        const form = new FormData();
+        form.append('metadata', new Blob([JSON.stringify(metadata)], { type: 'application/json' }));
+        form.append('file', blob);
+        const dr = await fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart', {
+          method: 'POST',
+          headers: { 'Authorization': `Bearer ${gcalAccessToken}` },
+          body: form
+        });
+        if (dr.ok) console.log('✅ Uploaded to Google Drive:', driveFolder + '/' + att.filename);
+        else console.warn('Drive upload failed:', dr.status);
+      } catch (e) { console.warn('Drive upload error:', e); }
+
+      savedCount++;
     }
-    // Mark email in UI as downloaded
-    const el = document.getElementById(`email-${msgId}`);
-    if (el && !el.querySelector('.downloaded-tag')) {
-      el.insertAdjacentHTML('beforeend', '<div class="downloaded-tag" style="font-size:.7rem;color:var(--purple);font-weight:700;margin-top:4px">⬇️ Downloaded ' + attachments.length + ' file(s)</div>');
+
+    if (statusDiv) {
+      statusDiv.innerHTML = `✅ ${savedCount} file(s) → Downloads + GitHub + Drive`;
     }
   } catch (e) {
     console.error('Download error:', e);
     alert('Failed to download: ' + e.message);
   }
+}
+
+// Google Drive folder helper
+const driveFolderCache = {};
+async function getOrCreateDriveFolder(name, parentId) {
+  const cacheKey = `${parentId || 'root'}_${name}`;
+  if (driveFolderCache[cacheKey]) return driveFolderCache[cacheKey];
+  // Search for existing folder
+  let q = `name='${name}' and mimeType='application/vnd.google-apps.folder' and trashed=false`;
+  if (parentId) q += ` and '${parentId}' in parents`;
+  const sr = await fetch(`https://www.googleapis.com/drive/v3/files?q=${encodeURIComponent(q)}&fields=files(id,name)`, {
+    headers: { 'Authorization': `Bearer ${gcalAccessToken}` }
+  });
+  const sd = await sr.json();
+  if (sd.files && sd.files.length > 0) {
+    driveFolderCache[cacheKey] = sd.files[0].id;
+    return sd.files[0].id;
+  }
+  // Create folder
+  const meta = { name, mimeType: 'application/vnd.google-apps.folder' };
+  if (parentId) meta.parents = [parentId];
+  const cr = await fetch('https://www.googleapis.com/drive/v3/files', {
+    method: 'POST',
+    headers: { 'Authorization': `Bearer ${gcalAccessToken}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify(meta)
+  });
+  const cd = await cr.json();
+  driveFolderCache[cacheKey] = cd.id;
+  return cd.id;
 }
 
 function updateEmailCount() {
