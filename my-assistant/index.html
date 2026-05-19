@@ -425,6 +425,19 @@ async function sendMsg(){
   if(!text)return;
   addMsg('user',text);
   input.value='';
+
+  const lowerText = text.toLowerCase();
+  if (lowerText.includes('good night') || lowerText.includes('good morning')) {
+    const thinking = addMsg('ai','<span class="thinking">Syncing your brain to GitHub...</span>');
+    try {
+      await fetch('http://localhost:8888/sync', { method: 'POST' });
+      thinking.innerHTML = '✅ Sync complete! Your workspaces are now up to date.<br><br><i>' + (lowerText.includes('night') ? 'Have a great night!' : 'Have a productive day!') + '</i>';
+    } catch (e) {
+      thinking.innerHTML = '❌ Sync failed. Is the Brain Server running on port 8888?';
+    }
+    return;
+  }
+
   const thinking=addMsg('ai','<span class="thinking">Thinking...</span>');
   const key=localStorage.getItem(GEMINI_KEY_STORAGE);
   const sysPrompt=`You are Tommy Heuges' personal AI assistant. You help manage his schedule, emails, and daily tasks. Context: Tommy runs multiple companies under Loyal Companies (CEM, Networks, Remix Dynamix, Digify, CareOne). He walks 3 miles/day at 19min/mile pace. Keep responses brief and actionable. Current time: ${new Date().toLocaleString()}`;
