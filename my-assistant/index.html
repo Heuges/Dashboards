@@ -74,6 +74,8 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
 .email-btn.download:hover{background:rgba(139,92,246,.25)}
 .email-btn.view{background:rgba(255,255,255,.06);color:var(--muted);border:1px solid var(--border)}
 .email-btn.view:hover{background:rgba(255,255,255,.1);color:var(--text)}
+.email-btn.delete{background:rgba(239,68,68,.1);color:var(--red);border:1px solid rgba(239,68,68,.25)}
+.email-btn.delete:hover{background:rgba(239,68,68,.2)}
 .email-modal-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.7);backdrop-filter:blur(4px);z-index:2000;display:none;align-items:center;justify-content:center}
 .email-modal-overlay.open{display:flex}
 .email-modal{background:var(--card);border:1px solid var(--border);border-radius:20px;width:90%;max-width:640px;max-height:85vh;overflow-y:auto;padding:28px}
@@ -942,12 +944,9 @@ function renderEmails(emails) {
     if (e.triage.tier === 'attention' || e.triage.tier === 'draft') {
       actions.push(`<button class="email-btn draft" onclick="openEmailDraft('${e.id}')">✏️ Draft Reply</button>`);
     }
-    if (e.triage.tier === 'file' || e.triage.tier === 'auto') {
-      actions.push(`<button class="email-btn file" onclick="archiveEmail('${e.id}',this)">📁 File It</button>`);
-    }
-    if (e.hasAttachments) {
-      actions.push(`<button class="email-btn download" onclick="viewEmail('${e.id}')">📎 Attachments</button>`);
-    }
+    actions.push(`<button class="email-btn file" onclick="archiveEmail('${e.id}')">📁 File</button>`);
+    actions.push(`<button class="email-btn download" onclick="downloadAttachments('${e.id}')">⬇️ Download</button>`);
+    actions.push(`<button class="email-btn delete" onclick="deleteEmail('${e.id}')">🗑 Delete</button>`);
     actions.push(`<button class="email-btn view" onclick="viewEmail('${e.id}')">👁 View</button>`);
 
     html += `<div class="email-item" id="email-${e.id}">
@@ -998,7 +997,9 @@ async function viewEmail(msgId) {
     document.getElementById('emActions').innerHTML = `
       <button class="modal-btn cancel" onclick="closeEmailModal()">Close</button>
       <button class="modal-btn edit" onclick="openEmailDraft('${msgId}')">✏️ Draft Reply</button>
-      <button class="modal-btn" style="background:var(--green);color:#fff" onclick="archiveEmail('${msgId}');closeEmailModal()">📁 File It</button>`;
+      <button class="modal-btn" style="background:var(--purple);color:#fff" onclick="downloadAttachments('${msgId}')">⬇️ Download</button>
+      <button class="modal-btn" style="background:var(--green);color:#fff" onclick="archiveEmail('${msgId}');closeEmailModal()">📁 File</button>
+      <button class="modal-btn" style="background:var(--red);color:#fff" onclick="deleteEmail('${msgId}');closeEmailModal()">🗑 Delete</button>`;
   } catch (e) {
     document.getElementById('emBody').textContent = 'Failed to load email: ' + e.message;
   }
@@ -1103,6 +1104,76 @@ async function archiveEmail(msgId, btn) {
       setTimeout(() => { el.remove(); updateEmailCount(); }, 300);
     }
   } catch (e) { console.error('Archive error:', e); }
+}
+
+async function deleteEmail(msgId) {
+  if (!confirm('Delete this email? It will be moved to Trash.')) return;
+  try {
+    await fetch(`https://gmail.googleapis.com/gmail/v1/users/me/messages/${msgId}/trash`, {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${gcalAccessToken}` }
+    });
+    const el = document.getElementById(`email-${msgId}`);
+    if (el) {
+      el.style.transition = 'all .3s';
+      el.style.opacity = '0';
+      el.style.maxHeight = '0';
+      el.style.padding = '0';
+      el.style.margin = '0';
+      setTimeout(() => { el.remove(); updateEmailCount(); }, 300);
+    }
+  } catch (e) { console.error('Delete error:', e); }
+}
+
+async function downloadAttachments(msgId) {
+  try {
+    const r = await fetch(`https://gmail.googleapis.com/gmail/v1/users/me/messages/${msgId}?format=full`,
+      { headers: { 'Authorization': `Bearer ${gcalAccessToken}` } });
+    const msg = await r.json();
+    const subject = getHeader(msg, 'Subject') || 'email';
+    const parts = msg.payload?.parts || [];
+    const attachments = parts.filter(p => p.filename && p.body?.attachmentId);
+    if (attachments.length === 0) {
+      // Check nested parts (multipart messages)
+      for (const part of parts) {
+        if (part.parts) {
+          attachments.push(...part.parts.filter(p => p.filename && p.body?.attachmentId));
+        }
+      }
+    }
+    if (attachments.length === 0) {
+      alert('No downloadable attachments found in this email.');
+      return;
+    }
+    for (const att of attachments) {
+      const ar = await fetch(
+        `https://gmail.googleapis.com/gmail/v1/users/me/messages/${msgId}/attachments/${att.body.attachmentId}`,
+        { headers: { 'Authorization': `Bearer ${gcalAccessToken}` } }
+      );
+      const ad = await ar.json();
+      const raw = ad.data.replace(/-/g,'+').replace(/_/g,'/');
+      const binary = atob(raw);
+      const bytes = new Uint8Array(binary.length);
+      for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+      const blob = new Blob([bytes], { type: att.mimeType || 'application/octet-stream' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = att.filename;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
+    // Mark email in UI as downloaded
+    const el = document.getElementById(`email-${msgId}`);
+    if (el && !el.querySelector('.downloaded-tag')) {
+      el.insertAdjacentHTML('beforeend', '<div class="downloaded-tag" style="font-size:.7rem;color:var(--purple);font-weight:700;margin-top:4px">⬇️ Downloaded ' + attachments.length + ' file(s)</div>');
+    }
+  } catch (e) {
+    console.error('Download error:', e);
+    alert('Failed to download: ' + e.message);
+  }
 }
 
 function updateEmailCount() {
