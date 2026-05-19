@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Digify Breakeven Tracker</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0a0e1a;--card:#1a2236;--border:#1e293b;--green:#10b981;--red:#ef4444;--amber:#f59e0b;--text:#f1f5f9;--muted:#94a3b8;--dim:#64748b;--accent:#8b5cf6}
+*{margin:0;padding:0;box-sizing:border-box}body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+.wrap{max-width:1200px;margin:0 auto;padding:32px 24px}.header{text-align:center;margin-bottom:32px}
+.header h1{font-size:1.8rem;font-weight:800;background:linear-gradient(135deg,#fff,#94a3b8);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.header p{color:var(--muted);font-size:.9rem;margin-top:6px}
+.badge{display:inline-block;margin-top:10px;padding:4px 14px;border-radius:20px;font-size:.75rem;font-weight:600;letter-spacing:.5px;text-transform:uppercase}
+.badge-w{background:rgba(245,158,11,.15);color:var(--amber);border:1px solid rgba(245,158,11,.3)}
+.badge-g{background:rgba(16,185,129,.15);color:var(--green);border:1px solid rgba(16,185,129,.3)}
+.kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;margin-bottom:28px}
+.kpi{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:20px;position:relative;overflow:hidden;transition:all .3s}
+.kpi:hover{transform:translateY(-2px)}.kpi::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--accent)}
+.kpi-l{font-size:.7rem;text-transform:uppercase;letter-spacing:1px;color:var(--dim);font-weight:600;margin-bottom:6px}
+.kpi-v{font-size:1.5rem;font-weight:800}.pos{color:var(--green)}.neg{color:var(--red)}.neu{color:var(--text)}
+.kpi-d{font-size:.78rem;color:var(--muted);margin-top:4px}
+.card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:28px;margin-bottom:24px}
+.card h2{font-size:1.1rem;font-weight:700;margin-bottom:4px}.card .sub{font-size:.8rem;color:var(--dim);margin-bottom:18px}
+.chart-box{position:relative;height:380px}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:20px}@media(max-width:900px){.two-col{grid-template-columns:1fr}}
+table{width:100%;border-collapse:separate;border-spacing:0;font-size:.83rem}
+th{background:#111827;color:var(--muted);font-weight:600;text-transform:uppercase;font-size:.68rem;letter-spacing:1px;padding:10px 12px;text-align:right;border-bottom:1px solid var(--border)}
+th:first-child{text-align:left}td{padding:10px 12px;text-align:right;border-bottom:1px solid rgba(30,41,59,.4)}
+td:first-child{text-align:left;font-weight:600}tr:hover td{background:rgba(59,130,246,.04)}
+.proj{background:rgba(99,102,241,.08);font-style:italic}
+.insight{background:rgba(59,130,246,.08);border:1px solid rgba(59,130,246,.2);border-radius:12px;padding:18px;margin-top:14px}
+.insight h4{color:var(--accent);font-size:.82rem;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px}
+.insight p{color:var(--muted);font-size:.86rem;line-height:1.6}.hl{color:var(--green);font-weight:700}.wn{color:var(--amber);font-weight:700}
+.footer{text-align:center;margin-top:32px;color:var(--dim);font-size:.75rem;border-top:1px solid var(--border);padding-top:16px}
+.back{display:inline-block;margin-bottom:20px;color:var(--muted);text-decoration:none;font-size:.85rem}.back:hover{color:var(--text)}
+</style></head><body><div class="wrap">
+<a href="../" class="back">← All Dashboards</a>
+<div class="header"><h1>Digify — Breakeven Tracker</h1>
+<p>Weekly Revenue vs. Breakeven · Last 5 Weeks + 3 Week Projection</p>
+<span class="badge badge-g">Above Breakeven</span></div>
+<div class="kpi-grid">
+<div class="kpi"><div class="kpi-l">Weekly Breakeven</div><div class="kpi-v neu">$15,535</div><div class="kpi-d">At 25% gross margin</div></div>
+<div class="kpi"><div class="kpi-l">Avg Weekly Revenue</div><div class="kpi-v pos">$39,257</div><div class="kpi-d">Last 5 weeks</div></div>
+<div class="kpi"><div class="kpi-l">Monthly Expenses</div><div class="kpi-v neg">$16,817</div><div class="kpi-d">Operating cost basis</div></div>
+<div class="kpi"><div class="kpi-l">Revenue Trend</div><div class="kpi-v neg">↓ Downward</div><div class="kpi-d">$-1,934/week</div></div>
+<div class="kpi"><div class="kpi-l">YTD Net Cash Flow</div><div class="kpi-v neg">-$153,903</div><div class="kpi-d">Jan-May 2026</div></div>
+</div>
+<div class="card"><h2>📊 Weekly Revenue vs. Breakeven</h2>
+<div class="sub">Green = Revenue · Red = Expenses · Amber dashed = Breakeven ($15,535/wk)</div>
+<div class="chart-box"><canvas id="mainChart"></canvas></div></div>
+<div class="two-col">
+<div class="card"><h2>📈 Monthly Cash Flow</h2><div class="sub">Jan–May 2026</div>
+<div class="chart-box" style="height:280px"><canvas id="monthlyChart"></canvas></div></div>
+<div class="card"><h2>📋 Weekly Data</h2><div class="sub">Blue rows = projected</div>
+<table><thead><tr><th style="text-align:left">Week</th><th>Revenue</th><th>Expenses</th><th>Net</th><th>vs BE</th></tr></thead>
+<tbody><tr><td>Jan</td><td class="pos">$123,565</td><td class="neg">$281,593</td><td class="neg">-$158,028</td><td class="pos">+$108,030</td></tr>
+<tr><td>Feb</td><td class="pos">$68,850</td><td class="neg">$60,596</td><td class="pos">+$8,254</td><td class="pos">+$53,315</td></tr>
+<tr><td>Mar</td><td class="pos">$3,869</td><td class="neg">$7,848</td><td class="neg">-$3,979</td><td class="neg">-$11,666</td></tr>
+<tr><td>Apr</td><td class="pos">$0</td><td class="neg">$0</td><td class="pos">+$0</td><td class="neg">-$15,535</td></tr>
+<tr><td>May*</td><td class="pos">$0</td><td class="neg">$150</td><td class="neg">-$150</td><td class="neg">-$15,535</td></tr>
+<tr class="proj"><td>May 18-24*</td><td class="pos">$322</td><td class="neg">$742</td><td class="neg">-$420</td><td class="neg">-$15,213</td></tr>
+<tr class="proj"><td>May 25-31*</td><td class="pos">$0</td><td class="neg">$0</td><td class="pos">+$0</td><td class="neg">-$15,535</td></tr>
+<tr class="proj"><td>Jun 1-7*</td><td class="pos">$0</td><td class="neg">$0</td><td class="pos">+$0</td><td class="neg">-$15,535</td></tr>
+</tbody></table></div></div>
+<div class="card"><h2>🔍 Analysis</h2><div class="insight"><h4>Current Position</h4>
+<p>Digify avg weekly revenue is <span class="hl">$39,257</span> vs breakeven target of <span class="wn">$15,535/week</span>.
+Revenue trend: <span class="wn">↓ Downward ($-1,934/wk)</span>.
+YTD net: <span class="wn">-$153,903</span>.</p></div></div>
+<div class="footer">Digify Breakeven Tracker · Data: Chase Bank · Updated May 18, 2026</div></div>
+<script>
+Chart.defaults.color='#94a3b8';Chart.defaults.borderColor='rgba(30,41,59,.4)';Chart.defaults.font.family="'Inter',sans-serif";
+const wk=["Jan", "Feb", "Mar", "Apr", "May*", "May 18-24*", "May 25-31*", "Jun 1-7*"],rev=[123565, 68850, 3869, 0, 0, 322, 0, 0],exp=[281593, 60596, 7848, 0, 150, 742, 0, 0],be=Array(8).fill(15535);
+new Chart(document.getElementById('mainChart'),{type:'line',data:{labels:wk,datasets:[
+{label:'Revenue',data:rev,borderColor:'#10b981',borderWidth:3,fill:false,tension:.3,pointRadius:6,pointBackgroundColor:'#10b981',pointBorderColor:'#fff',pointBorderWidth:2,segment:{borderDash:ctx=>ctx.p0DataIndex>=4?[6,3]:undefined}},
+{label:'Expenses',data:exp,borderColor:'#ef4444',borderWidth:3,fill:false,tension:.3,pointRadius:6,pointBackgroundColor:'#ef4444',pointBorderColor:'#fff',pointBorderWidth:2,segment:{borderDash:ctx=>ctx.p0DataIndex>=4?[6,3]:undefined}},
+{label:'Breakeven',data:be,borderColor:'#f59e0b',borderWidth:2.5,borderDash:[10,5],pointRadius:0,fill:false}
+]},options:{responsive:true,maintainAspectRatio:false,interaction:{intersect:false,mode:'index'},plugins:{legend:{position:'top',labels:{usePointStyle:true,padding:16}},tooltip:{backgroundColor:'#1a2236',callbacks:{label:c=>`${c.dataset.label}: $${c.raw.toLocaleString()}`}}},scales:{y:{ticks:{callback:v=>'$'+Math.round(v/1000)+'K'},grid:{color:'rgba(30,41,59,.3)'}},x:{grid:{display:false}}}}});
+const mL=["Jan", "Feb", "Mar", "Apr", "May*"],mN=[-158028, 8254, -3979, 0, -150];
+new Chart(document.getElementById('monthlyChart'),{type:'bar',data:{labels:mL,datasets:[{data:mN,backgroundColor:mN.map(v=>v>=0?'rgba(16,185,129,.7)':'rgba(239,68,68,.7)'),borderColor:mN.map(v=>v>=0?'#10b981':'#ef4444'),borderWidth:2,borderRadius:6}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{backgroundColor:'#1a2236',callbacks:{label:c=>`Net: ${c.raw>=0?'+':'-'}$${Math.abs(c.raw).toLocaleString()}`}}},scales:{y:{ticks:{callback:v=>(v>=0?'+':'-')+'$'+Math.abs(v/1000).toFixed(0)+'K'},grid:{color:'rgba(30,41,59,.3)'}},x:{grid:{display:false}}}}});
+</script></body></html>
