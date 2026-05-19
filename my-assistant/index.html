@@ -63,6 +63,39 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
 .back{display:inline-block;margin-bottom:16px;color:var(--muted);text-decoration:none;font-size:.85rem}.back:hover{color:var(--text)}
 .badge-count{background:var(--red);color:#fff;font-size:.7rem;padding:2px 7px;border-radius:10px;margin-left:6px;font-weight:700}
 .loading{color:var(--dim);font-size:.85rem;padding:20px;text-align:center}
+/* Email Assistant */
+.email-actions{display:flex;gap:6px;margin-top:6px;flex-wrap:wrap}
+.email-btn{border:none;border-radius:8px;padding:4px 10px;font-size:.68rem;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;transition:all .2s}
+.email-btn.draft{background:rgba(59,130,246,.15);color:var(--blue);border:1px solid rgba(59,130,246,.3)}
+.email-btn.draft:hover{background:rgba(59,130,246,.25)}
+.email-btn.file{background:rgba(16,185,129,.15);color:var(--green);border:1px solid rgba(16,185,129,.3)}
+.email-btn.file:hover{background:rgba(16,185,129,.25)}
+.email-btn.download{background:rgba(139,92,246,.15);color:var(--purple);border:1px solid rgba(139,92,246,.3)}
+.email-btn.download:hover{background:rgba(139,92,246,.25)}
+.email-btn.view{background:rgba(255,255,255,.06);color:var(--muted);border:1px solid var(--border)}
+.email-btn.view:hover{background:rgba(255,255,255,.1);color:var(--text)}
+.email-modal-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.7);backdrop-filter:blur(4px);z-index:2000;display:none;align-items:center;justify-content:center}
+.email-modal-overlay.open{display:flex}
+.email-modal{background:var(--card);border:1px solid var(--border);border-radius:20px;width:90%;max-width:640px;max-height:85vh;overflow-y:auto;padding:28px}
+.email-modal h3{font-size:1.05rem;font-weight:700;margin-bottom:4px}
+.email-modal .meta{font-size:.78rem;color:var(--dim);margin-bottom:16px}
+.email-modal .body{font-size:.85rem;line-height:1.7;color:var(--muted);margin-bottom:20px;white-space:pre-wrap;background:rgba(255,255,255,.02);border-radius:12px;padding:16px;border:1px solid var(--border)}
+.email-modal .draft-area{margin-top:16px}
+.email-modal textarea{width:100%;min-height:140px;background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:12px;padding:14px;color:var(--text);font-size:.84rem;font-family:'Inter',sans-serif;outline:none;resize:vertical;line-height:1.6}
+.email-modal textarea:focus{border-color:var(--blue)}
+.email-modal .modal-actions{display:flex;gap:10px;margin-top:14px;justify-content:flex-end}
+.email-modal .modal-btn{border:none;border-radius:10px;padding:10px 20px;font-size:.82rem;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;transition:all .2s}
+.email-modal .modal-btn.send{background:var(--green);color:#fff}
+.email-modal .modal-btn.send:hover{background:#059669}
+.email-modal .modal-btn.edit{background:var(--blue);color:#fff}
+.email-modal .modal-btn.edit:hover{background:#2563eb}
+.email-modal .modal-btn.cancel{background:rgba(255,255,255,.06);color:var(--muted)}
+.email-modal .modal-btn.cancel:hover{color:var(--text)}
+.email-tier{display:inline-block;padding:2px 8px;border-radius:8px;font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:.5px}
+.tier-auto{background:rgba(239,68,68,.12);color:var(--red);border:1px solid rgba(239,68,68,.25)}
+.tier-draft{background:rgba(245,158,11,.12);color:var(--amber);border:1px solid rgba(245,158,11,.25)}
+.tier-file{background:rgba(16,185,129,.12);color:var(--green);border:1px solid rgba(16,185,129,.25)}
+.tier-attention{background:rgba(59,130,246,.12);color:var(--blue);border:1px solid rgba(59,130,246,.25)}
 .chat-toggle{position:fixed;bottom:24px;right:24px;width:60px;height:60px;border-radius:50%;background:linear-gradient(135deg,var(--blue),var(--purple));border:none;color:#fff;font-size:1.5rem;cursor:pointer;box-shadow:0 4px 20px rgba(59,130,246,.4);z-index:1000;transition:all .3s;display:flex;align-items:center;justify-content:center}
 .chat-toggle:hover{transform:scale(1.1);box-shadow:0 6px 30px rgba(59,130,246,.6)}
 .chat-toggle.open{border-radius:14px;width:48px;height:48px}
@@ -320,6 +353,27 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
 </div>
 </div>
 
+<!-- Email Modal -->
+<div class="email-modal-overlay" id="emailModal" onclick="if(event.target===this)closeEmailModal()">
+<div class="email-modal">
+<div style="display:flex;justify-content:space-between;align-items:start">
+<div><h3 id="emSubject">Subject</h3><div class="meta" id="emMeta">From · Date</div></div>
+<button onclick="closeEmailModal()" style="background:none;border:none;color:var(--dim);cursor:pointer;font-size:1.3rem;padding:4px">✕</button>
+</div>
+<div class="body" id="emBody">Loading...</div>
+<div class="draft-area" id="emDraftArea" style="display:none">
+<div style="font-size:.8rem;font-weight:700;margin-bottom:8px;color:var(--blue)">📝 Draft Response</div>
+<textarea id="emDraftText" placeholder="AI-generated draft will appear here..."></textarea>
+<div class="modal-actions">
+<button class="modal-btn cancel" onclick="closeEmailModal()">Cancel</button>
+<button class="modal-btn edit" onclick="regenerateDraft()">🔄 Regenerate</button>
+<button class="modal-btn send" onclick="sendDraftReply()">✉️ Send Reply</button>
+</div>
+</div>
+<div id="emActions" class="modal-actions"></div>
+</div>
+</div>
+
 <!-- Chat Panel -->
 <button class="chat-toggle" id="chatToggle" onclick="toggleChat()">💬</button>
 <div class="chat-panel" id="chatPanel">
@@ -472,7 +526,7 @@ function planWalks(temps,codes){
 
 // ─── Google Calendar Integration ───
 const GCAL_CLIENT_ID = ''; // Will be set via UI
-const GCAL_SCOPES = 'https://www.googleapis.com/auth/calendar.readonly';
+const GCAL_SCOPES = 'https://www.googleapis.com/auth/calendar.readonly https://www.googleapis.com/auth/gmail.readonly https://www.googleapis.com/auth/gmail.modify https://www.googleapis.com/auth/gmail.send';
 let gcalTokenClient = null;
 let gcalAccessToken = localStorage.getItem('gcal_access_token') || null;
 let gcalTokenExpiry = parseInt(localStorage.getItem('gcal_token_expiry') || '0');
@@ -751,30 +805,319 @@ setInterval(() => {
   }
 }, 300000);
 
-// Emails (sample data - will connect to Gmail API)
-function loadEmails(){
-  const emails=[
-    {from:'Mark Muzzini',subj:'CEM Employment Contract',time:'10:23 AM',priority:'urgent',note:'Requesting copy of countersigned contract'},
-    {from:'Alexandra Martinez',subj:'Re: 1959095 - Urgent Issues with pulling credit report',time:'12:05 PM',priority:'urgent',note:'Forth credit report issue — needs reply'},
-    {from:'Cherie Llewellyn',subj:'Payroll 05/20/26',time:'2:39 PM',priority:'action',note:'CEM ~$11K, Networks ~$30.4K — due 05/20'},
-    {from:'Sudha Gupta',subj:'Reconnecting to Discuss Opportunities',time:'3:44 PM',priority:'action',note:'Business inquiry — wants to reconnect'},
-    {from:'Westlake Accounting',subj:'Invoice - Reminder: Your payment is due',time:'12:51 PM',priority:'action',note:'$3,180.69 balance due'},
-  ];
-  document.getElementById('emailCount').textContent=emails.length;
-  let html='';
-  for(const e of emails){
-    const pcls=e.priority==='urgent'?'p-urgent':e.priority==='action'?'p-action':'p-info';
-    const plbl=e.priority==='urgent'?'Needs Reply':e.priority==='action'?'Action Required':'FYI';
-    html+=`<div class="email-item">
-      <div class="from">${e.from}<span class="time">${e.time}</span></div>
-      <div class="subj">${e.subj}</div>
-      <div style="font-size:.75rem;color:var(--dim);margin-top:3px">${e.note}</div>
-      <span class="priority ${pcls}">${plbl}</span>
+// ─── Gmail Email Assistant ───
+let cachedEmails = [];
+let currentEmailId = null;
+let currentEmailMsg = null;
+
+const KNOWN_CONTACTS = {
+  'chad': { tier: 'auto', role: 'Finance', label: 'Statement' },
+  'cherie': { tier: 'attention', role: 'Accounting', label: 'Payroll/Statement' },
+  'kitwana': { tier: 'draft', role: 'Operations' },
+  'mark.muzzini': { tier: 'attention', role: 'CEM Team' },
+  'alexandra': { tier: 'attention', role: 'Forth Support' },
+  'sudha': { tier: 'draft', role: 'Business Dev' },
+  'jolene': { tier: 'attention', role: 'Finance' },
+  'joe': { tier: 'draft', role: 'Networks Team' },
+  'westlake': { tier: 'attention', role: 'Accounting' },
+  'helpside': { tier: 'attention', role: 'Payroll' },
+};
+
+function triageEmail(from, subject, hasAttachments) {
+  const fromLower = (from || '').toLowerCase();
+  const subjLower = (subject || '').toLowerCase();
+  // Auto-process: statements from Chad/Cherie
+  if ((fromLower.includes('chad') || (fromLower.includes('cherie') && hasAttachments)) &&
+      (subjLower.includes('statement') || subjLower.includes('credit card') || subjLower.includes('amex'))) {
+    return { tier: 'auto', label: '🔴 Auto-Process', cls: 'tier-auto', action: 'Download & file statement' };
+  }
+  // File & Skip: newsletters, bank alerts, orders
+  if (subjLower.includes('newsletter') || fromLower.includes('linkedin') || fromLower.includes('apollo') ||
+      fromLower.includes('meta for business') || subjLower.includes('banking holiday') ||
+      fromLower.includes('ipostal') || fromLower.includes('thread logic') || subjLower.includes('shipping')) {
+    return { tier: 'file', label: '🟢 File & Skip', cls: 'tier-file', action: 'Auto-archive' };
+  }
+  // Needs attention: legal, payroll, credit, client
+  if (subjLower.includes('contract') || subjLower.includes('legal') || subjLower.includes('employment') ||
+      subjLower.includes('payroll') || fromLower.includes('helpside') ||
+      subjLower.includes('credit report') || fromLower.includes('alexandra') || fromLower.includes('forth')) {
+    return { tier: 'attention', label: '🔵 Needs Attention', cls: 'tier-attention', action: 'Review & respond' };
+  }
+  // Check known contacts
+  for (const [key, info] of Object.entries(KNOWN_CONTACTS)) {
+    if (fromLower.includes(key)) {
+      if (info.tier === 'auto') return { tier: 'auto', label: '🔴 Auto-Process', cls: 'tier-auto', action: info.label || 'Process' };
+      if (info.tier === 'attention') return { tier: 'attention', label: '🔵 Needs Attention', cls: 'tier-attention', action: 'Review' };
+      return { tier: 'draft', label: '🟡 Draft Response', cls: 'tier-draft', action: 'Prepare reply' };
+    }
+  }
+  // Default: draft response for unknown senders
+  return { tier: 'draft', label: '🟡 Draft Response', cls: 'tier-draft', action: 'Review & respond' };
+}
+
+async function loadEmails() {
+  if (!gcalAccessToken || Date.now() >= gcalTokenExpiry) {
+    document.getElementById('emailCount').textContent = '—';
+    document.getElementById('emailContent').innerHTML = `
+      <div style="text-align:center;padding:30px 10px">
+        <div style="font-size:2rem;margin-bottom:10px">📧</div>
+        <div style="font-size:.85rem;color:var(--dim);margin-bottom:14px">Sign in with Google to connect your inbox</div>
+        <button onclick="requestCalendarAccess()" style="background:var(--blue);border:none;border-radius:10px;padding:9px 20px;color:#fff;cursor:pointer;font-size:.82rem;font-weight:600">🔑 Sign In with Google</button>
+      </div>`;
+    return;
+  }
+  document.getElementById('emailContent').innerHTML = '<div class="loading">Scanning inbox...</div>';
+  try {
+    const r = await fetch(
+      'https://gmail.googleapis.com/gmail/v1/users/me/messages?maxResults=15&q=is:inbox+is:unread',
+      { headers: { 'Authorization': `Bearer ${gcalAccessToken}` } }
+    );
+    if (r.status === 401 || r.status === 403) {
+      document.getElementById('emailContent').innerHTML = `
+        <div style="text-align:center;padding:20px 10px">
+          <div style="font-size:.85rem;color:var(--dim);margin-bottom:10px">Gmail access needed — re-sign in to grant email permissions</div>
+          <button onclick="gcalAccessToken=null;localStorage.removeItem('gcal_access_token');requestCalendarAccess()" 
+            style="background:var(--blue);border:none;border-radius:10px;padding:9px 20px;color:#fff;cursor:pointer;font-size:.82rem;font-weight:600">🔑 Re-authorize</button>
+        </div>`;
+      return;
+    }
+    if (!r.ok) throw new Error(`Gmail API: ${r.status}`);
+    const data = await r.json();
+    const messageIds = (data.messages || []).slice(0, 12);
+    if (messageIds.length === 0) {
+      document.getElementById('emailCount').textContent = '0';
+      document.getElementById('emailContent').innerHTML = '<div style="text-align:center;padding:30px;color:var(--dim);font-size:.85rem">🎉 Inbox zero!</div>';
+      return;
+    }
+    // Fetch message details in parallel
+    const emails = await Promise.all(messageIds.map(async (msg) => {
+      const mr = await fetch(
+        `https://gmail.googleapis.com/gmail/v1/users/me/messages/${msg.id}?format=metadata&metadataHeaders=From&metadataHeaders=Subject&metadataHeaders=Date`,
+        { headers: { 'Authorization': `Bearer ${gcalAccessToken}` } }
+      );
+      if (!mr.ok) return null;
+      return mr.json();
+    }));
+    cachedEmails = emails.filter(Boolean);
+    renderEmails(cachedEmails);
+  } catch (e) {
+    console.error('Gmail error:', e);
+    document.getElementById('emailContent').innerHTML = `<div class="loading">Failed to load emails<br><button onclick="loadEmails()" style="background:var(--blue);border:none;border-radius:8px;padding:6px 14px;color:#fff;cursor:pointer;font-size:.78rem;margin-top:8px">Retry</button></div>`;
+  }
+}
+
+function getHeader(msg, name) {
+  const h = (msg.payload?.headers || []).find(h => h.name.toLowerCase() === name.toLowerCase());
+  return h ? h.value : '';
+}
+
+function renderEmails(emails) {
+  // Sort: attention first, then auto, then draft, then file
+  const tierOrder = { attention: 0, auto: 1, draft: 2, file: 3 };
+  const processed = emails.map(msg => {
+    const from = getHeader(msg, 'From');
+    const subject = getHeader(msg, 'Subject');
+    const date = getHeader(msg, 'Date');
+    const hasAttachments = (msg.payload?.parts || []).some(p => p.filename && p.filename.length > 0);
+    const fromName = from.includes('<') ? from.split('<')[0].trim().replace(/"/g, '') : from.split('@')[0];
+    const triage = triageEmail(from, subject, hasAttachments);
+    const dateObj = new Date(date);
+    const timeStr = dateObj.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+    return { id: msg.id, from, fromName, subject, date, timeStr, triage, hasAttachments, snippet: msg.snippet || '' };
+  });
+  processed.sort((a, b) => (tierOrder[a.triage.tier] || 9) - (tierOrder[b.triage.tier] || 9));
+
+  // Count by tier for the badge
+  const needsAction = processed.filter(e => e.triage.tier !== 'file').length;
+  document.getElementById('emailCount').textContent = needsAction;
+
+  let html = `<div style="font-size:.72rem;color:var(--dim);margin-bottom:8px;display:flex;justify-content:space-between;align-items:center">
+    <span>${processed.length} unread</span>
+    <span style="cursor:pointer;color:var(--blue)" onclick="loadEmails()">↻ Refresh</span>
+  </div>`;
+
+  for (const e of processed) {
+    const actions = [];
+    if (e.triage.tier === 'attention' || e.triage.tier === 'draft') {
+      actions.push(`<button class="email-btn draft" onclick="openEmailDraft('${e.id}')">✏️ Draft Reply</button>`);
+    }
+    if (e.triage.tier === 'file' || e.triage.tier === 'auto') {
+      actions.push(`<button class="email-btn file" onclick="archiveEmail('${e.id}',this)">📁 File It</button>`);
+    }
+    if (e.hasAttachments) {
+      actions.push(`<button class="email-btn download" onclick="viewEmail('${e.id}')">📎 Attachments</button>`);
+    }
+    actions.push(`<button class="email-btn view" onclick="viewEmail('${e.id}')">👁 View</button>`);
+
+    html += `<div class="email-item" id="email-${e.id}">
+      <div class="from">${e.fromName}<span class="time">${e.timeStr}</span></div>
+      <div class="subj">${e.subject || '(no subject)'}</div>
+      <div style="font-size:.73rem;color:var(--dim);margin-top:3px">${e.snippet.slice(0, 80)}${e.snippet.length > 80 ? '…' : ''}</div>
+      <div style="display:flex;align-items:center;gap:8px;margin-top:6px;flex-wrap:wrap">
+        <span class="email-tier ${e.triage.cls}">${e.triage.label}</span>
+        <div class="email-actions">${actions.join('')}</div>
+      </div>
     </div>`;
   }
-  html+='<div style="text-align:center;padding:12px;color:var(--dim);font-size:.78rem;margin-top:8px;border-top:1px solid var(--border)">Say "check my emails" to refresh</div>';
-  document.getElementById('emailContent').innerHTML=html;
+
+  document.getElementById('emailContent').innerHTML = html;
 }
+
+async function viewEmail(msgId) {
+  currentEmailId = msgId;
+  document.getElementById('emailModal').classList.add('open');
+  document.getElementById('emBody').textContent = 'Loading...';
+  document.getElementById('emDraftArea').style.display = 'none';
+  try {
+    const r = await fetch(`https://gmail.googleapis.com/gmail/v1/users/me/messages/${msgId}?format=full`,
+      { headers: { 'Authorization': `Bearer ${gcalAccessToken}` } });
+    const msg = await r.json();
+    currentEmailMsg = msg;
+    const from = getHeader(msg, 'From');
+    const subject = getHeader(msg, 'Subject');
+    const date = new Date(getHeader(msg, 'Date')).toLocaleString();
+    document.getElementById('emSubject').textContent = subject || '(no subject)';
+    document.getElementById('emMeta').textContent = `From: ${from} · ${date}`;
+    // Extract body
+    let body = '';
+    if (msg.payload?.body?.data) {
+      body = atob(msg.payload.body.data.replace(/-/g,'+').replace(/_/g,'/'));
+    } else if (msg.payload?.parts) {
+      const textPart = msg.payload.parts.find(p => p.mimeType === 'text/plain');
+      if (textPart?.body?.data) body = atob(textPart.body.data.replace(/-/g,'+').replace(/_/g,'/'));
+      else {
+        const htmlPart = msg.payload.parts.find(p => p.mimeType === 'text/html');
+        if (htmlPart?.body?.data) {
+          const raw = atob(htmlPart.body.data.replace(/-/g,'+').replace(/_/g,'/'));
+          body = raw.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
+        }
+      }
+    }
+    document.getElementById('emBody').textContent = body || msg.snippet || '(empty)';
+    document.getElementById('emActions').innerHTML = `
+      <button class="modal-btn cancel" onclick="closeEmailModal()">Close</button>
+      <button class="modal-btn edit" onclick="openEmailDraft('${msgId}')">✏️ Draft Reply</button>
+      <button class="modal-btn" style="background:var(--green);color:#fff" onclick="archiveEmail('${msgId}');closeEmailModal()">📁 File It</button>`;
+  } catch (e) {
+    document.getElementById('emBody').textContent = 'Failed to load email: ' + e.message;
+  }
+}
+
+async function openEmailDraft(msgId) {
+  currentEmailId = msgId;
+  document.getElementById('emailModal').classList.add('open');
+  document.getElementById('emDraftArea').style.display = 'block';
+  document.getElementById('emDraftText').value = 'Generating draft...';
+  document.getElementById('emActions').innerHTML = '';
+  // Fetch the email if not loaded
+  if (!currentEmailMsg || currentEmailMsg.id !== msgId) {
+    const r = await fetch(`https://gmail.googleapis.com/gmail/v1/users/me/messages/${msgId}?format=full`,
+      { headers: { 'Authorization': `Bearer ${gcalAccessToken}` } });
+    currentEmailMsg = await r.json();
+  }
+  const from = getHeader(currentEmailMsg, 'From');
+  const subject = getHeader(currentEmailMsg, 'Subject');
+  document.getElementById('emSubject').textContent = 'Re: ' + (subject || '');
+  document.getElementById('emMeta').textContent = `Replying to: ${from}`;
+  let body = currentEmailMsg.snippet || '';
+  // Generate draft using Gemini
+  const fromName = from.includes('<') ? from.split('<')[0].trim().replace(/"/g,'') : from.split('@')[0];
+  const prompt = `You are Tommy Heuges's email assistant. Draft a brief, professional reply to this email.
+From: ${from}
+Subject: ${subject}
+Content: ${body.slice(0,500)}
+
+Rules: Keep it brief (2-4 sentences). Professional but warm. Sign as "Tommy Heuges". If it's about financials/statements, acknowledge receipt. If it's a business inquiry, express interest or politely decline. If it's team/employee related, be supportive and clear.`;
+
+  document.getElementById('emBody').textContent = body || '(loading...)';
+  try {
+    const GEMINI_KEY = localStorage.getItem('gemini_api_key') || '';
+    if (GEMINI_KEY) {
+      const gr = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_KEY}`, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
+      });
+      const gd = await gr.json();
+      const draft = gd.candidates?.[0]?.content?.parts?.[0]?.text || 'Could not generate draft.';
+      document.getElementById('emDraftText').value = draft;
+    } else {
+      document.getElementById('emDraftText').value = `Hi ${fromName},\n\nThank you for your email. I've reviewed the details and will follow up shortly.\n\nBest,\nTommy Heuges`;
+    }
+  } catch (e) {
+    document.getElementById('emDraftText').value = `Hi ${fromName},\n\nThank you for your email. I'll review and get back to you.\n\nBest,\nTommy Heuges`;
+  }
+}
+
+function regenerateDraft() {
+  if (currentEmailId) openEmailDraft(currentEmailId);
+}
+
+async function sendDraftReply() {
+  const draft = document.getElementById('emDraftText').value;
+  if (!draft.trim()) return;
+  const from = getHeader(currentEmailMsg, 'From');
+  const subject = getHeader(currentEmailMsg, 'Subject');
+  const msgId = getHeader(currentEmailMsg, 'Message-ID') || currentEmailMsg.id;
+  const toEmail = from.includes('<') ? from.match(/<(.+)>/)?.[1] || from : from;
+  const raw = [
+    `To: ${toEmail}`,
+    `Subject: Re: ${subject}`,
+    `In-Reply-To: ${msgId}`,
+    `References: ${msgId}`,
+    'Content-Type: text/plain; charset="UTF-8"',
+    '',
+    draft
+  ].join('\r\n');
+  const encoded = btoa(unescape(encodeURIComponent(raw))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
+  try {
+    const r = await fetch('https://gmail.googleapis.com/gmail/v1/users/me/messages/send', {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${gcalAccessToken}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ raw: encoded, threadId: currentEmailMsg.threadId })
+    });
+    if (r.ok) {
+      closeEmailModal();
+      const el = document.getElementById(`email-${currentEmailId}`);
+      if (el) { el.style.opacity = '.4'; el.innerHTML += '<div style="font-size:.72rem;color:var(--green);font-weight:700;margin-top:4px">✅ Reply sent</div>'; }
+    } else {
+      alert('Failed to send. Error: ' + r.status);
+    }
+  } catch (e) { alert('Send error: ' + e.message); }
+}
+
+async function archiveEmail(msgId, btn) {
+  try {
+    await fetch(`https://gmail.googleapis.com/gmail/v1/users/me/messages/${msgId}/modify`, {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${gcalAccessToken}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ removeLabelIds: ['INBOX', 'UNREAD'] })
+    });
+    const el = document.getElementById(`email-${msgId}`);
+    if (el) {
+      el.style.transition = 'all .3s';
+      el.style.opacity = '0';
+      el.style.maxHeight = '0';
+      el.style.padding = '0';
+      el.style.margin = '0';
+      setTimeout(() => { el.remove(); updateEmailCount(); }, 300);
+    }
+  } catch (e) { console.error('Archive error:', e); }
+}
+
+function updateEmailCount() {
+  const items = document.querySelectorAll('.email-item');
+  document.getElementById('emailCount').textContent = items.length;
+}
+
+function closeEmailModal() {
+  document.getElementById('emailModal').classList.remove('open');
+  currentEmailId = null;
+}
+
+// Auto-refresh emails every 3 minutes
+setInterval(() => {
+  if (gcalAccessToken && Date.now() < gcalTokenExpiry) loadEmails();
+}, 180000);
 
 // AI Cost Tracker
 function loadCosts(){
