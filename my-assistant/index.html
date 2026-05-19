@@ -566,6 +566,7 @@ function setupTokenClient(clientId) {
       localStorage.setItem('gcal_access_token', gcalAccessToken);
       localStorage.setItem('gcal_token_expiry', gcalTokenExpiry.toString());
       fetchCalendarEvents();
+      loadEmails();
     },
   });
 
