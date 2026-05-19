@@ -470,21 +470,254 @@ function planWalks(temps,codes){
   document.getElementById('walkContent').innerHTML=walkHtml;
 }
 
-// Meetings - requires Google Calendar API connection
-function loadMeetings(){
-  const today=new Date().toLocaleDateString('en-US',{weekday:'long',month:'short',day:'numeric'});
-  document.getElementById('meetCount').textContent='—';
-  document.getElementById('meetContent').innerHTML=`
-    <div style="text-align:center;padding:30px 10px">
-      <div style="font-size:2rem;margin-bottom:12px">📅</div>
+// ─── Google Calendar Integration ───
+const GCAL_CLIENT_ID = ''; // Will be set via UI
+const GCAL_SCOPES = 'https://www.googleapis.com/auth/calendar.readonly';
+let gcalTokenClient = null;
+let gcalAccessToken = localStorage.getItem('gcal_access_token') || null;
+let gcalTokenExpiry = parseInt(localStorage.getItem('gcal_token_expiry') || '0');
+
+function initGoogleCalendar() {
+  const storedClientId = localStorage.getItem('gcal_client_id');
+  if (!storedClientId) {
+    showCalendarSetup();
+    return;
+  }
+  // Load GIS library if not already loaded
+  if (!window.google?.accounts?.oauth2) {
+    const script = document.createElement('script');
+    script.src = 'https://accounts.google.com/gsi/client';
+    script.onload = () => setupTokenClient(storedClientId);
+    script.onerror = () => {
+      document.getElementById('meetContent').innerHTML = '<div class="loading">Failed to load Google Identity Services</div>';
+    };
+    document.head.appendChild(script);
+  } else {
+    setupTokenClient(storedClientId);
+  }
+}
+
+function setupTokenClient(clientId) {
+  gcalTokenClient = google.accounts.oauth2.initTokenClient({
+    client_id: clientId,
+    scope: GCAL_SCOPES,
+    callback: (response) => {
+      if (response.error) {
+        console.error('OAuth error:', response);
+        showCalendarSetup('Authorization failed. Check your Client ID.');
+        return;
+      }
+      gcalAccessToken = response.access_token;
+      gcalTokenExpiry = Date.now() + (response.expires_in * 1000);
+      localStorage.setItem('gcal_access_token', gcalAccessToken);
+      localStorage.setItem('gcal_token_expiry', gcalTokenExpiry.toString());
+      fetchCalendarEvents();
+    },
+  });
+
+  // Check if we have a valid cached token
+  if (gcalAccessToken && Date.now() < gcalTokenExpiry) {
+    fetchCalendarEvents();
+  } else {
+    // Token expired or missing — show connect button
+    gcalAccessToken = null;
+    localStorage.removeItem('gcal_access_token');
+    showCalendarConnect();
+  }
+}
+
+function showCalendarSetup(errorMsg) {
+  const today = new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' });
+  document.getElementById('meetCount').textContent = '—';
+  document.getElementById('meetContent').innerHTML = `
+    <div style="text-align:center;padding:20px 10px">
+      <div style="font-size:2rem;margin-bottom:10px">📅</div>
       <div style="font-size:.95rem;font-weight:700;margin-bottom:4px">${today}</div>
-      <div style="font-size:.82rem;color:var(--dim);margin-bottom:16px">Calendar not connected yet</div>
-      <div style="font-size:.78rem;color:var(--muted);line-height:1.6">
-        To see your real meetings here,<br>we need to connect Google Calendar API.<br><br>
-        <span style="color:var(--blue)">Tell Antigravity: "connect my calendar"</span>
+      ${errorMsg ? `<div style="font-size:.78rem;color:var(--red);margin-bottom:10px">${errorMsg}</div>` : ''}
+      <div style="font-size:.82rem;color:var(--dim);margin-bottom:14px">Connect Google Calendar for live schedule</div>
+      <div style="text-align:left;margin:0 auto;max-width:280px">
+        <div style="font-size:.75rem;color:var(--muted);margin-bottom:6px">Google OAuth Client ID:</div>
+        <input id="gcalClientIdInput" type="text" placeholder="xxxx.apps.googleusercontent.com" 
+          style="width:100%;background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:10px;padding:9px 12px;color:var(--text);font-size:.78rem;font-family:'Inter',sans-serif;outline:none;margin-bottom:8px"
+          value="${localStorage.getItem('gcal_client_id') || ''}">
+        <button onclick="saveCalendarClientId()" 
+          style="width:100%;background:var(--blue);border:none;border-radius:10px;padding:9px;color:#fff;cursor:pointer;font-size:.82rem;font-weight:600;transition:all .2s">
+          Connect Calendar
+        </button>
+        <div style="font-size:.7rem;color:var(--dim);margin-top:8px;line-height:1.5">
+          <a href="https://console.cloud.google.com/apis/credentials" target="_blank" style="color:var(--blue)">Get Client ID →</a><br>
+          Enable Calendar API → Create OAuth Client → Web App<br>
+          Add <strong>https://heuges.github.io</strong> as authorized origin
+        </div>
       </div>
     </div>`;
 }
+
+function saveCalendarClientId() {
+  const input = document.getElementById('gcalClientIdInput');
+  const clientId = input.value.trim();
+  if (!clientId || !clientId.includes('.apps.googleusercontent.com')) {
+    input.style.borderColor = 'var(--red)';
+    return;
+  }
+  localStorage.setItem('gcal_client_id', clientId);
+  initGoogleCalendar();
+}
+
+function showCalendarConnect() {
+  const today = new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' });
+  document.getElementById('meetCount').textContent = '—';
+  document.getElementById('meetContent').innerHTML = `
+    <div style="text-align:center;padding:30px 10px">
+      <div style="font-size:2rem;margin-bottom:12px">📅</div>
+      <div style="font-size:.95rem;font-weight:700;margin-bottom:4px">${today}</div>
+      <div style="font-size:.82rem;color:var(--dim);margin-bottom:16px">Session expired — sign in again</div>
+      <button onclick="requestCalendarAccess()" 
+        style="background:var(--blue);border:none;border-radius:12px;padding:10px 24px;color:#fff;cursor:pointer;font-size:.85rem;font-weight:600;transition:all .2s">
+        🔑 Sign In with Google
+      </button>
+      <div style="margin-top:10px">
+        <button onclick="localStorage.removeItem('gcal_client_id');localStorage.removeItem('gcal_access_token');localStorage.removeItem('gcal_token_expiry');initGoogleCalendar()" 
+          style="background:none;border:none;color:var(--dim);cursor:pointer;font-size:.72rem;text-decoration:underline">
+          Change Client ID
+        </button>
+      </div>
+    </div>`;
+}
+
+function requestCalendarAccess() {
+  if (gcalTokenClient) {
+    gcalTokenClient.requestAccessToken({ prompt: '' });
+  }
+}
+
+async function fetchCalendarEvents() {
+  const today = new Date();
+  const startOfDay = new Date(today.getFullYear(), today.getMonth(), today.getDate()).toISOString();
+  const endOfDay = new Date(today.getFullYear(), today.getMonth(), today.getDate(), 23, 59, 59).toISOString();
+
+  document.getElementById('meetContent').innerHTML = '<div class="loading">Loading calendar...</div>';
+
+  try {
+    const r = await fetch(
+      `https://www.googleapis.com/calendar/v3/calendars/primary/events?` +
+      `timeMin=${encodeURIComponent(startOfDay)}&timeMax=${encodeURIComponent(endOfDay)}` +
+      `&singleEvents=true&orderBy=startTime&maxResults=20`,
+      { headers: { 'Authorization': `Bearer ${gcalAccessToken}` } }
+    );
+
+    if (r.status === 401) {
+      // Token expired
+      gcalAccessToken = null;
+      localStorage.removeItem('gcal_access_token');
+      showCalendarConnect();
+      return;
+    }
+
+    if (!r.ok) {
+      throw new Error(`API error: ${r.status}`);
+    }
+
+    const data = await r.json();
+    renderCalendarEvents(data.items || []);
+  } catch (e) {
+    console.error('Calendar fetch error:', e);
+    document.getElementById('meetContent').innerHTML = `
+      <div class="loading">
+        Failed to load calendar<br>
+        <button onclick="fetchCalendarEvents()" style="background:var(--blue);border:none;border-radius:8px;padding:6px 14px;color:#fff;cursor:pointer;font-size:.78rem;margin-top:8px">Retry</button>
+      </div>`;
+  }
+}
+
+function renderCalendarEvents(events) {
+  const now = new Date();
+  const todayStr = now.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' });
+
+  if (events.length === 0) {
+    document.getElementById('meetCount').textContent = '0';
+    document.getElementById('meetContent').innerHTML = `
+      <div style="text-align:center;padding:30px 10px">
+        <div style="font-size:2rem;margin-bottom:12px">🎉</div>
+        <div style="font-size:.95rem;font-weight:700;margin-bottom:4px">${todayStr}</div>
+        <div style="font-size:.82rem;color:var(--dim)">No meetings today — focus time!</div>
+        <div style="font-size:.72rem;color:var(--dim);margin-top:12px">
+          <span style="cursor:pointer;color:var(--blue)" onclick="fetchCalendarEvents()">↻ Refresh</span>
+        </div>
+      </div>`;
+    return;
+  }
+
+  document.getElementById('meetCount').textContent = events.length;
+
+  let html = `<div style="font-size:.72rem;color:var(--dim);margin-bottom:10px;display:flex;justify-content:space-between;align-items:center">
+    <span>${todayStr}</span>
+    <span style="cursor:pointer;color:var(--blue)" onclick="fetchCalendarEvents()">↻ Refresh</span>
+  </div>`;
+
+  for (const event of events) {
+    const summary = event.summary || 'Untitled Event';
+    const isAllDay = !!event.start.date;
+    let timeStr = '', durStr = '', isNow = false, isPast = false;
+
+    if (isAllDay) {
+      timeStr = 'All Day';
+      durStr = '';
+    } else {
+      const start = new Date(event.start.dateTime);
+      const end = new Date(event.end.dateTime);
+      const startH = start.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+      const endH = end.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+      const durMin = Math.round((end - start) / 60000);
+      timeStr = startH;
+      durStr = durMin >= 60 ? `${Math.floor(durMin/60)}h${durMin%60 > 0 ? ' ' + durMin%60 + 'm' : ''}` : `${durMin}m`;
+
+      isNow = now >= start && now <= end;
+      isPast = now > end;
+    }
+
+    // Attendees
+    const attendees = (event.attendees || [])
+      .filter(a => !a.self)
+      .map(a => a.displayName || a.email.split('@')[0])
+      .slice(0, 3);
+    const attendeeStr = attendees.length > 0 ? attendees.join(', ') : '';
+    const extraCount = (event.attendees || []).filter(a => !a.self).length - 3;
+
+    // Meeting link
+    const meetLink = event.hangoutLink || event.conferenceData?.entryPoints?.[0]?.uri || '';
+
+    // Status/location
+    const location = event.location || '';
+
+    const cls = isNow ? ' now' : '';
+    const opacity = isPast ? 'opacity:.5;' : '';
+
+    html += `<div class="meeting${cls}" style="${opacity}">
+      <div class="time-col">
+        <div class="t">${timeStr}</div>
+        <div class="dur">${durStr}${isNow ? ' · <span style="color:var(--green);font-weight:700">NOW</span>' : ''}</div>
+      </div>
+      <div class="info">
+        <div class="title">${summary}${meetLink ? ` <a href="${meetLink}" target="_blank" style="font-size:.7rem;color:var(--blue);text-decoration:none">📹 Join</a>` : ''}</div>
+        <div class="who">${attendeeStr}${extraCount > 0 ? ` +${extraCount} more` : ''}${!attendeeStr && location ? location : attendeeStr && location ? ' · ' + location : ''}</div>
+      </div>
+    </div>`;
+  }
+
+  document.getElementById('meetContent').innerHTML = html;
+}
+
+function loadMeetings() {
+  initGoogleCalendar();
+}
+
+// Auto-refresh calendar every 5 minutes
+setInterval(() => {
+  if (gcalAccessToken && Date.now() < gcalTokenExpiry) {
+    fetchCalendarEvents();
+  }
+}, 300000);
 
 // Emails (sample data - will connect to Gmail API)
 function loadEmails(){
