@@ -59,6 +59,20 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
 .walk-slot .ws-time{font-size:.85rem;font-weight:700;color:var(--green);min-width:90px}
 .walk-slot .ws-info{font-size:.8rem;color:var(--muted)}
 .walk-slot .ws-info strong{color:var(--text)}
+/* Walk Log */
+.walk-log-input{display:flex;gap:8px;margin-top:14px;align-items:center;padding:12px;background:rgba(16,185,129,.06);border:1px solid rgba(16,185,129,.2);border-radius:12px}
+.walk-log-input input{width:70px;background:rgba(255,255,255,.06);border:1px solid var(--border);border-radius:8px;padding:7px 8px;color:var(--text);font-size:.85rem;font-family:'Inter',sans-serif;outline:none;text-align:center}
+.walk-log-input input:focus{border-color:var(--green)}
+.walk-log-input button{background:var(--green);border:none;border-radius:8px;padding:7px 14px;color:#fff;cursor:pointer;font-size:.8rem;font-weight:700;transition:background .2s}
+.walk-log-input button:hover{background:#059669}
+.walk-log-input select{background:rgba(255,255,255,.06);border:1px solid var(--border);border-radius:8px;padding:7px 8px;color:var(--text);font-size:.78rem;font-family:'Inter',sans-serif;outline:none;color-scheme:dark}
+.walk-entry{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid rgba(30,41,59,.3);font-size:.78rem}
+.walk-entry:last-child{border-bottom:none}
+.walk-entry .we-date{color:var(--dim);min-width:70px}
+.walk-entry .we-miles{color:var(--green);font-weight:700;min-width:50px}
+.walk-entry .we-note{color:var(--muted);flex:1}
+.walk-entry .we-del{background:none;border:none;color:var(--dim);cursor:pointer;font-size:.8rem;padding:2px 6px;border-radius:6px}
+.walk-entry .we-del:hover{color:var(--red);background:rgba(239,68,68,.1)}
 .full-width{grid-column:1/-1}
 .back{display:inline-block;margin-bottom:16px;color:var(--muted);text-decoration:none;font-size:.85rem}.back:hover{color:var(--text)}
 .badge-count{background:var(--red);color:#fff;font-size:.7rem;padding:2px 7px;border-radius:10px;margin-left:6px;font-weight:700}
@@ -454,30 +468,159 @@ async function loadWeather(){
   }
 }
 
-// Walking Planner
+// Walking Planner + Tracker
+let walkLog = [];
+
+async function loadWalkLog() {
+  try {
+    const r = await fetch('http://localhost:8888/data/walklog');
+    walkLog = await r.json();
+  } catch(e) { walkLog = JSON.parse(localStorage.getItem('walkLog') || '[]'); }
+}
+
+async function saveWalkLog() {
+  localStorage.setItem('walkLog', JSON.stringify(walkLog));
+  try { await fetch('http://localhost:8888/data/walklog', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(walkLog) }); } catch(e) {}
+}
+
+function logWalk() {
+  const miles = parseFloat(document.getElementById('walkMilesInput').value);
+  const note = document.getElementById('walkNoteSelect').value;
+  if (!miles || miles <= 0) return;
+  walkLog.unshift({
+    id: Date.now(),
+    miles,
+    note: note || '',
+    date: new Date().toISOString()
+  });
+  document.getElementById('walkMilesInput').value = '';
+  saveWalkLog();
+  // Re-render just the tracker portion
+  renderWalkTracker();
+}
+
+function deleteWalkEntry(id) {
+  walkLog = walkLog.filter(w => w.id !== id);
+  saveWalkLog();
+  renderWalkTracker();
+}
+
+function getTodayMiles() {
+  const today = new Date().toISOString().slice(0, 10);
+  return walkLog.filter(w => w.date.slice(0, 10) === today).reduce((s, w) => s + w.miles, 0);
+}
+
+function getWeekMiles() {
+  const now = new Date();
+  const weekAgo = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 6);
+  return walkLog.filter(w => new Date(w.date) >= weekAgo).reduce((s, w) => s + w.miles, 0);
+}
+
+function renderWalkTracker() {
+  const GOAL = 3;
+  const todayMiles = getTodayMiles();
+  const weekMiles = getWeekMiles();
+  const pct = Math.min(Math.round(todayMiles / GOAL * 100), 100);
+  const r = 50, circ = 2 * Math.PI * r, offset = circ - (pct / 100) * circ;
+  const ringColor = pct >= 100 ? '#10b981' : pct >= 50 ? '#f59e0b' : '#3b82f6';
+
+  // Get last 7 days of history
+  const days = [];
+  for (let i = 0; i < 7; i++) {
+    const d = new Date();
+    d.setDate(d.getDate() - i);
+    const dateStr = d.toISOString().slice(0, 10);
+    const dayMiles = walkLog.filter(w => w.date.slice(0, 10) === dateStr).reduce((s, w) => s + w.miles, 0);
+    const dayLabel = i === 0 ? 'Today' : i === 1 ? 'Yesterday' : d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+    days.push({ dateStr, dayMiles, dayLabel });
+  }
+
+  // Today's log entries
+  const todayDate = new Date().toISOString().slice(0, 10);
+  const todayEntries = walkLog.filter(w => w.date.slice(0, 10) === todayDate);
+
+  let html = `
+    <div class="walk-goal">
+      <svg class="walk-ring" viewBox="0 0 120 120">
+        <circle cx="60" cy="60" r="${r}" fill="none" stroke="rgba(255,255,255,.06)" stroke-width="8"/>
+        <circle cx="60" cy="60" r="${r}" fill="none" stroke="${ringColor}" stroke-width="8"
+          stroke-dasharray="${circ}" stroke-dashoffset="${offset}" stroke-linecap="round"
+          transform="rotate(-90 60 60)" style="transition:stroke-dashoffset 1s"/>
+        <text x="60" y="52" text-anchor="middle" fill="#f1f5f9" font-size="20" font-weight="800">${todayMiles.toFixed(1)}</text>
+        <text x="60" y="68" text-anchor="middle" fill="#94a3b8" font-size="9">of ${GOAL} mi goal</text>
+        ${pct >= 100 ? '<text x="60" y="82" text-anchor="middle" fill="#10b981" font-size="9" font-weight="700">🎉 GOAL MET!</text>' : ''}
+      </svg>
+      <div class="walk-stat"><span>${weekMiles.toFixed(1)} mi</span> this week · <span>${GOAL * 7} mi</span> weekly goal</div>
+    </div>
+
+    <div class="walk-log-input">
+      <span style="font-size:.8rem;color:var(--green)">🚶</span>
+      <input type="number" id="walkMilesInput" placeholder="Miles" step="0.1" min="0.1" max="20" onkeydown="if(event.key==='Enter')logWalk()">
+      <select id="walkNoteSelect">
+        <option value="Morning walk">Morning</option>
+        <option value="Lunch walk">Lunch</option>
+        <option value="Evening walk">Evening</option>
+        <option value="Dog walk">Dog walk</option>
+        <option value="Errands">Errands</option>
+      </select>
+      <button onclick="logWalk()">+ Log</button>
+    </div>`;
+
+  // Today's entries
+  if (todayEntries.length > 0) {
+    html += '<div style="margin-top:12px">';
+    html += '<div style="font-size:.72rem;color:var(--dim);font-weight:600;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px">Today\'s Walks</div>';
+    for (const w of todayEntries) {
+      const t = new Date(w.date).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+      html += `<div class="walk-entry">
+        <span class="we-date">${t}</span>
+        <span class="we-miles">${w.miles.toFixed(1)} mi</span>
+        <span class="we-note">${w.note}</span>
+        <button class="we-del" onclick="deleteWalkEntry(${w.id})" title="Delete">✕</button>
+      </div>`;
+    }
+    html += '</div>';
+  }
+
+  // 7-day history
+  html += '<div style="margin-top:14px;border-top:1px solid var(--border);padding-top:10px">';
+  html += '<div style="font-size:.72rem;color:var(--dim);font-weight:600;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px">7-Day History</div>';
+  html += '<div style="display:flex;gap:4px;align-items:end;height:60px;margin-bottom:8px">';
+  const maxMiles = Math.max(...days.map(d => d.dayMiles), GOAL);
+  for (const d of [...days].reverse()) {
+    const h = maxMiles > 0 ? Math.max((d.dayMiles / maxMiles) * 50, 2) : 2;
+    const barColor = d.dayMiles >= GOAL ? 'var(--green)' : d.dayMiles > 0 ? 'var(--blue)' : 'rgba(255,255,255,.06)';
+    const dayAbbr = d.dayLabel === 'Today' ? 'T' : d.dayLabel === 'Yesterday' ? 'Y' : d.dayLabel.slice(0, 2);
+    html += `<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:2px">
+      <div style="font-size:.6rem;color:var(--dim)">${d.dayMiles > 0 ? d.dayMiles.toFixed(1) : ''}</div>
+      <div style="width:100%;height:${h}px;background:${barColor};border-radius:4px;transition:height .3s"></div>
+      <div style="font-size:.6rem;color:var(--dim)">${dayAbbr}</div>
+    </div>`;
+  }
+  html += '</div></div>';
+
+  document.getElementById('walkContent').innerHTML = html;
+}
+
 function planWalks(temps,codes){
   const now=new Date().getHours();
-  const PACE=19; // min per mile
-  const GOAL=3; // miles
+  const PACE=19;
+  const GOAL=3;
   const rainCodes=[51,53,55,61,63,65,80,81,82,95];
-  
-  // Score each hour (lower is better)
   let slots=[];
   for(let h=Math.max(now,6);h<21;h++){
     const t=temps[h];
     let score=0;
-    if(t<60) score+=1; // cool, ok
-    else if(t<75) score+=0; // ideal
-    else if(t<85) score+=3; // warm
-    else if(t<95) score+=6; // hot
-    else score+=10; // very hot
+    if(t<60) score+=1;
+    else if(t<75) score+=0;
+    else if(t<85) score+=3;
+    else if(t<95) score+=6;
+    else score+=10;
     if(rainCodes.includes(codes[h])) score+=8;
-    if(h<9) score-=1; // morning bonus
+    if(h<9) score-=1;
     slots.push({hour:h,temp:Math.round(t),score,rain:rainCodes.includes(codes[h])});
   }
   slots.sort((a,b)=>a.score-b.score);
-  
-  // Pick best 3 non-overlapping slots (each walk = ~19min = 1 hour block)
   let walks=[];
   let usedHours=new Set();
   for(const s of slots){
@@ -488,42 +631,27 @@ function planWalks(temps,codes){
     }
   }
   walks.sort((a,b)=>a.hour-b.hour);
-  
-  const totalMiles=walks.reduce((s,w)=>s+w.miles,0);
-  const totalMin=walks.reduce((s,w)=>s+w.duration,0);
-  const pct=Math.min(Math.round(totalMiles/GOAL*100),100);
-  
-  // SVG ring
-  const r=50,circ=2*Math.PI*r,offset=circ-(pct/100)*circ;
-  
-  let walkHtml=`
-    <div class="walk-goal">
-      <svg class="walk-ring" viewBox="0 0 120 120">
-        <circle cx="60" cy="60" r="${r}" fill="none" stroke="rgba(255,255,255,.06)" stroke-width="8"/>
-        <circle cx="60" cy="60" r="${r}" fill="none" stroke="#10b981" stroke-width="8" 
-          stroke-dasharray="${circ}" stroke-dashoffset="${offset}" stroke-linecap="round"
-          transform="rotate(-90 60 60)" style="transition:stroke-dashoffset 1s"/>
-        <text x="60" y="55" text-anchor="middle" fill="#f1f5f9" font-size="22" font-weight="800">${totalMiles}</text>
-        <text x="60" y="72" text-anchor="middle" fill="#94a3b8" font-size="10">of ${GOAL} miles</text>
-      </svg>
-      <div class="walk-stat"><span>${totalMin} min</span> total · <span>${walks.length} walks</span> planned</div>
-    </div>
-    <div class="walk-plan">`;
-  
-  for(const w of walks){
-    const h12=w.hour%12||12;
-    const ampm=w.hour<12?'AM':'PM';
-    const end=w.hour*60+w.duration;
-    const endH=Math.floor(end/60)%12||12;
-    const endM=end%60;
-    const warn=w.temp>85?'🥵 Hot — hydrate!':w.temp>75?'☀️ Warm':w.rain?'🌧️ Possible rain':'🌤️ Great conditions';
-    walkHtml+=`<div class="walk-slot">
-      <div class="ws-time">${h12}:00 ${ampm}</div>
-      <div class="ws-info"><strong>1 mile</strong> · ${w.duration} min · ${w.temp}°F · ${warn}</div>
-    </div>`;
-  }
-  walkHtml+='</div>';
-  document.getElementById('walkContent').innerHTML=walkHtml;
+
+  // Load walk log then render both planner + tracker
+  loadWalkLog().then(() => {
+    renderWalkTracker();
+    // Append suggested walks below the tracker
+    if (walks.length > 0) {
+      let planHtml = '<div style="margin-top:14px;border-top:1px solid var(--border);padding-top:10px">';
+      planHtml += '<div style="font-size:.72rem;color:var(--dim);font-weight:600;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px">Suggested Walk Times</div>';
+      for(const w of walks){
+        const h12=w.hour%12||12;
+        const ampm=w.hour<12?'AM':'PM';
+        const warn=w.temp>85?'🥵 Hot — hydrate!':w.temp>75?'☀️ Warm':w.rain?'🌧️ Possible rain':'🌤️ Great conditions';
+        planHtml+=`<div class="walk-slot">
+          <div class="ws-time">${h12}:00 ${ampm}</div>
+          <div class="ws-info"><strong>1 mile</strong> · ${w.duration} min · ${w.temp}°F · ${warn}</div>
+        </div>`;
+      }
+      planHtml += '</div>';
+      document.getElementById('walkContent').innerHTML += planHtml;
+    }
+  });
 }
 
 // ─── Google Calendar Integration ───
