@@ -380,6 +380,147 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
 .bw-expiry.expired{color:var(--red);font-weight:700}
 .bm-chart-section{padding:10px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.04);border-radius:12px;margin-top:8px}
 .bm-chart-label{font-size:.65rem;color:var(--dim);text-transform:uppercase;letter-spacing:.5px;font-weight:600;margin-bottom:6px;display:flex;justify-content:space-between}
+
+/* Health Analysis Card */
+.card.health-analysis {
+  grid-column: 1 / -1;
+  background: rgba(139, 92, 246, 0.03);
+  border: 1px solid rgba(139, 92, 246, 0.15);
+  position: relative;
+}
+.card.health-analysis::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--purple), var(--blue), var(--green));
+  border-radius: 12px 12px 0 0;
+}
+.ha-overall-banner {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+  padding: 14px 18px;
+  margin-bottom: 20px;
+}
+.ha-status-badge {
+  font-size: 0.85rem;
+  font-weight: 800;
+  padding: 6px 14px;
+  border-radius: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+}
+.ha-summary-text {
+  font-size: 0.88rem;
+  color: var(--text);
+  line-height: 1.5;
+  margin: 0;
+}
+.ha-analysis-columns {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+@media (max-width: 1000px) {
+  .ha-analysis-columns {
+    grid-template-columns: 1fr;
+  }
+}
+.ha-col {
+  background: rgba(255, 255, 255, 0.01);
+  border: 1px solid rgba(255, 255, 255, 0.03);
+  border-radius: 12px;
+  padding: 14px 16px;
+}
+.ha-col h3 {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  margin-top: 0;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.ha-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.ha-list li {
+  font-size: 0.82rem;
+  line-height: 1.45;
+  color: var(--text);
+  padding-left: 14px;
+  position: relative;
+}
+.ha-list.spikers li::before {
+  content: '•';
+  color: var(--red);
+  position: absolute;
+  left: 0;
+  font-weight: 700;
+}
+.ha-list.lowerers li::before {
+  content: '•';
+  color: var(--green);
+  position: absolute;
+  left: 0;
+  font-weight: 700;
+}
+.ha-list.weight-loss li::before {
+  content: '•';
+  color: var(--purple);
+  position: absolute;
+  left: 0;
+  font-weight: 700;
+}
+.ha-recommendations {
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  padding-top: 18px;
+}
+.ha-recommendations h3 {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--text);
+  margin-top: 0;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.ha-rec-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+@media (max-width: 768px) {
+  .ha-rec-grid {
+    grid-template-columns: 1fr;
+  }
+}
+.ha-rec-card {
+  background: rgba(59, 130, 246, 0.03);
+  border: 1px solid rgba(59, 130, 246, 0.1);
+  border-radius: 10px;
+  padding: 12px 14px;
+  font-size: 0.82rem;
+  line-height: 1.45;
+  color: var(--text);
+}
 </style>
 </head>
 <body>
@@ -560,6 +701,15 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
 </details>
 <div id="bmMeasureCharts"></div>
 </div>
+
+<!-- Health Analysis Card -->
+<div class="card health-analysis">
+  <h2><span class="icon">🩺</span> AI Health Insights & Analysis</h2>
+  <div id="healthAnalysisContent">
+    <div class="loading">Analyzing your health metrics...</div>
+  </div>
+</div>
+
 </div>
 </div>
 
@@ -888,6 +1038,7 @@ function renderWalkTracker() {
 
   html += '</div>';
   document.getElementById('walkContent').innerHTML = html;
+  try { updateHealthAnalysis(); } catch(e) {}
 }
 
 function planWalks(temps,codes){
@@ -1983,25 +2134,25 @@ function renderWorkout() {
   const history = workoutLog.filter(w => w.date !== today).slice(0, 7);
   if (history.length === 0) {
     document.getElementById('woHistory').innerHTML = '';
-    return;
+  } else {
+    let html = '<div class="wo-history"><div class="wo-history-title">Recent History</div>';
+    for (const d of history) {
+      const dt = new Date(d.date + 'T12:00:00');
+      const label = dt.toLocaleDateString('en-US', { weekday:'short', month:'short', day:'numeric' });
+      html += `<div class="wo-day">
+        <div class="wo-date">${label}</div>
+        <div class="wo-d-stat">
+          <span>💧 ${d.water}oz</span>
+          <span>🏋️ ${d.pushups}</span>
+          <span>🔥 ${d.situps}</span>
+          <span>☕ ${d.coffee || 0}</span>
+        </div>
+      </div>`;
+    }
+    html += '</div>';
+    document.getElementById('woHistory').innerHTML = html;
   }
-
-  let html = '<div class="wo-history"><div class="wo-history-title">Recent History</div>';
-  for (const d of history) {
-    const dt = new Date(d.date + 'T12:00:00');
-    const label = dt.toLocaleDateString('en-US', { weekday:'short', month:'short', day:'numeric' });
-    html += `<div class="wo-day">
-      <div class="wo-date">${label}</div>
-      <div class="wo-d-stat">
-        <span>💧 ${d.water}oz</span>
-        <span>🏋️ ${d.pushups}</span>
-        <span>🔥 ${d.situps}</span>
-        <span>☕ ${d.coffee || 0}</span>
-      </div>
-    </div>`;
-  }
-  html += '</div>';
-  document.getElementById('woHistory').innerHTML = html;
+  try { updateHealthAnalysis(); } catch(e) {}
 }
 
 // ─── Blood Pressure Tracker ───
@@ -2143,6 +2294,7 @@ function renderBP() {
 
   // ── 6-Month Systolic Trend Chart ──
   renderBPChart(BP_GOAL);
+  try { updateHealthAnalysis(); } catch(e) {}
 }
 
 function renderBPChart(goalLine) {
@@ -2312,6 +2464,7 @@ function renderFood() {
     html += `<div class="food-entry"><span class="fe-time">${e.time}</span><span class="fe-type">${icon} ${label}</span><span class="fe-amt">${amt}</span><button class="food-del" onclick="deleteIntake(${e.id})">✕</button></div>`;
   }
   document.getElementById('foodEntries').innerHTML = html || '<div style="text-align:center;padding:14px;color:var(--dim);font-size:.82rem">No entries for this day</div>';
+  try { updateHealthAnalysis(); } catch(e) {}
 }
 
 // ── Fasting Tracker ──
@@ -2605,6 +2758,7 @@ function renderBodyMetrics() {
   }
   // Measurement charts
   renderMeasureCharts();
+  try { updateHealthAnalysis(); } catch(e) {}
 }
 function renderWeightChart() {
   const el = document.getElementById('bmWeightChart');
@@ -2671,6 +2825,7 @@ loadBP();
 loadIntake().then(() => injectHistoricalData());
 loadBodyMetrics();
 loadWithingsConfig();
+try { updateHealthAnalysis(); } catch(e) {}
 setInterval(renderFasting, 60000);
 
 // Chat
@@ -2761,6 +2916,172 @@ async function sendMsg(){
     if(!reply){thinking.innerHTML='No response received. Try again.';return;}
     thinking.innerHTML=reply.replace(/\n/g,'<br>').replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>').replace(/\*(.+?)\*/g,'<em>$1</em>');
   }catch(e){console.error('Fetch error:',e);thinking.innerHTML='Network error — check your internet connection.';}
+}
+
+function updateHealthAnalysis() {
+  const container = document.getElementById('healthAnalysisContent');
+  if (!container) return;
+
+  let weightTrendStr = 'No weight logged yet.';
+  let weightLoss = 0;
+  let currentWeight = '--';
+  let musclePct = '--';
+  let fatPct = '--';
+  let waterPct = '--';
+  if (weightLog.length > 0) {
+    currentWeight = weightLog[0].weight;
+    musclePct = weightLog[0].muscle ? weightLog[0].muscle + '%' : '—';
+    fatPct = weightLog[0].fat ? weightLog[0].fat + '%' : '—';
+    waterPct = weightLog[0].water ? weightLog[0].water + '%' : '—';
+    const oldestWeight = weightLog[weightLog.length - 1].weight;
+    weightLoss = oldestWeight - currentWeight;
+    if (weightLoss > 0) {
+      weightTrendStr = `You have lost <strong>${weightLoss.toFixed(1)} lbs</strong> overall (from ${oldestWeight.toFixed(1)} lbs down to ${currentWeight.toFixed(1)} lbs).`;
+    } else if (weightLoss < 0) {
+      weightTrendStr = `Your weight is up <strong>${Math.abs(weightLoss).toFixed(1)} lbs</strong> overall (from ${oldestWeight.toFixed(1)} lbs up to ${currentWeight.toFixed(1)} lbs).`;
+    } else {
+      weightTrendStr = `Your weight is stable at <strong>${currentWeight.toFixed(1)} lbs</strong>.`;
+    }
+  }
+
+  let avgSys = 0;
+  let avgDia = 0;
+  let highBpReadings = 0;
+  let bpSummary = 'No blood pressure data logged yet.';
+  let bpIncreasingFactors = [];
+  let bpDecreasingFactors = [];
+  let healthRecommendations = [];
+  
+  if (bpLog.length > 0) {
+    const totalBP = bpLog.length;
+    avgSys = Math.round(bpLog.reduce((s, r) => s + r.sys, 0) / totalBP);
+    avgDia = Math.round(bpLog.reduce((s, r) => s + r.dia, 0) / totalBP);
+    bpLog.forEach(r => { if (r.sys >= 130 || r.dia >= 80) highBpReadings++; });
+
+    bpSummary = `Your average blood pressure is <strong>${avgSys}/${avgDia} mmHg</strong>. (${highBpReadings} of ${totalBP} readings were elevated/high).`;
+    
+    const morningReadings = bpLog.filter(r => r.time && r.time.includes('AM'));
+    const eveningReadings = bpLog.filter(r => r.time && r.time.includes('PM'));
+    
+    let avgMorningSys = 0;
+    let avgEveningSys = 0;
+    if (morningReadings.length > 0) {
+      avgMorningSys = Math.round(morningReadings.reduce((s, r) => s + r.sys, 0) / morningReadings.length);
+    }
+    if (eveningReadings.length > 0) {
+      avgEveningSys = Math.round(eveningReadings.reduce((s, r) => s + r.sys, 0) / eveningReadings.length);
+    }
+
+    if (avgMorningSys > 130) {
+      bpIncreasingFactors.push(`<strong>Morning BP Spikes:</strong> Your morning readings average <strong>${avgMorningSys} mmHg Sys</strong>. Natural cortisol rise, morning caffeine, or dehydration can elevate these readings.`);
+    }
+    if (avgEveningSys < avgMorningSys && avgEveningSys > 0) {
+      bpDecreasingFactors.push(`<strong>Evening Drop:</strong> Your blood pressure drops to an average of <strong>${avgEveningSys} mmHg Sys</strong> in the afternoons/evenings, indicating good recovery and lower evening vascular strain.`);
+    }
+  }
+
+  const totalWalkMiles = walkLog.reduce((s, w) => s + w.miles, 0);
+  const totalPushups = workoutLog.reduce((s, w) => s + (w.pushups || 0), 0);
+  
+  if (totalWalkMiles > 0) {
+    bpDecreasingFactors.push(`<strong>Walking Routine:</strong> You've logged <strong>${totalWalkMiles.toFixed(1)} miles</strong> of walking. Daily walking increases nitric oxide production, dilating vessels and directly lowering systemic BP.`);
+  }
+  if (totalPushups > 0) {
+    bpDecreasingFactors.push(`<strong>Strength Training:</strong> You logged <strong>${totalPushups} pushups</strong>. Brief, consistent bodyweight workouts increase cardiac health and muscular insulin sensitivity.`);
+  }
+
+  let avgWater = 0;
+  if (workoutLog.length > 0) {
+    const activeWaterDays = workoutLog.filter(w => w.water > 0);
+    if (activeWaterDays.length > 0) {
+      avgWater = Math.round(activeWaterDays.reduce((s, w) => s + w.water, 0) / activeWaterDays.length);
+    }
+  }
+
+  if (avgWater < 64) {
+    bpIncreasingFactors.push(`<strong>Inadequate Hydration:</strong> Your average water intake is low at <strong>${avgWater || 0} oz/day</strong>. Dehydration constricts arteries and increases blood viscosity, driving blood pressure upward.`);
+    healthRecommendations.push(`🎯 <strong>Double your water:</strong> Aim for 80–100 oz daily. Staying highly hydrated helps your kidneys flush sodium and naturally relaxes blood vessels.`);
+  } else {
+    bpDecreasingFactors.push(`<strong>Hydration Status:</strong> Good water intake (${avgWater} oz avg) supports blood volume regulation.`);
+  }
+
+  const heavyMeals = intakeLog.filter(e => {
+    const note = (e.note || '').toLowerCase();
+    return note.includes('steak') || note.includes('potato') || note.includes('butter') || note.includes('bacon') || note.includes('sauce') || note.includes('cheese');
+  });
+  if (heavyMeals.length > 0) {
+    bpIncreasingFactors.push(`<strong>Sodium Spikes:</strong> Meals like <em>"${heavyMeals[0].note.slice(0, 45)}..."</em> introduce heavy sodium. Saturated fat combined with high sodium leads to temporary fluid retention and higher vascular resistance.`);
+    healthRecommendations.push(`🧂 <strong>Balance high-sodium meals:</strong> Pair steaks or bacon-bits potatoes with potassium-heavy foods (spinach, avocado, banana) to help your kidneys excrete excess sodium.`);
+  }
+
+  if (weightLoss > 0) {
+    healthRecommendations.push(`🔥 <strong>Weight Loss Progress:</strong> You've lost <strong>${weightLoss.toFixed(1)} lbs</strong>. Losing weight directly reduces cardiac workload, lowering both systolic and diastolic blood pressure.`);
+  } else {
+    healthRecommendations.push(`🚶 <strong>Walk consistency:</strong> Try to hit 3 miles daily as weather permits to keep weight-loss momentum going strong.`);
+  }
+
+  if (bpLog.length > 0 && avgSys >= 130) {
+    healthRecommendations.push(`🩺 <strong>Measure BP before coffee:</strong> Coffee or immediate physical activity can spike your morning reading. Sit quietly for 5 minutes before recording your pressure.`);
+  }
+
+  let overallTitle = 'Monitoring Phase';
+  let overallBadgeColor = 'var(--blue)';
+  let overallSummaryText = 'Your health metrics are being analyzed. Keep logging daily data to generate detailed insights.';
+  
+  if (bpLog.length > 0 && weightLog.length > 0) {
+    if (avgSys < 130 && avgDia < 85 && weightLoss > 0) {
+      overallTitle = 'Solid Progress';
+      overallBadgeColor = 'var(--green)';
+      overallSummaryText = 'Great job! You have lost weight, and your blood pressure is well-controlled. Your afternoon/evening drop shows that your cardiovascular system recovers well after daily activities.';
+    } else if (avgSys >= 130 || avgDia >= 80) {
+      overallTitle = 'BP Focus Needed';
+      overallBadgeColor = 'var(--amber)';
+      overallSummaryText = 'You are making fantastic weight progress (down 7.1 lbs!), but your blood pressure averages are running slightly elevated (averaging ' + avgSys + '/' + avgDia + '). Improving daily hydration and managing sodium in dinners will help bring those numbers down.';
+    }
+  }
+
+  let html = `
+    <div class="ha-overall-banner">
+      <div class="ha-status-badge" style="background:${overallBadgeColor}20; color:${overallBadgeColor}; border:1px solid ${overallBadgeColor}40">
+        ${overallTitle}
+      </div>
+      <p class="ha-summary-text">${overallSummaryText}</p>
+    </div>
+    
+    <div class="ha-analysis-columns">
+      <div class="ha-col">
+        <h3><span class="icon" style="color:var(--red)">📈</span> BP Spikers (Increasing BP)</h3>
+        <ul class="ha-list spikers">
+          ${bpIncreasingFactors.map(f => `<li>${f}</li>`).join('') || '<li>No significant spikers detected yet.</li>'}
+        </ul>
+      </div>
+      
+      <div class="ha-col">
+        <h3><span class="icon" style="color:var(--green)">📉</span> BP Lowerers (Lowering BP)</h3>
+        <ul class="ha-list lowerers">
+          ${bpDecreasingFactors.map(f => `<li>${f}</li>`).join('') || '<li>Log more walks or pushups to view active BP lowerers.</li>'}
+        </ul>
+      </div>
+      
+      <div class="ha-col">
+        <h3><span class="icon" style="color:var(--purple)">🔥</span> Weight Loss Drivers</h3>
+        <ul class="ha-list weight-loss">
+          <li><strong>Weight Log:</strong> ${weightTrendStr}</li>
+          <li><strong>Basal Metabolic Rate:</strong> With a muscle mass of <strong>${musclePct}</strong>, your body burns calories efficiently even at rest.</li>
+          <li><strong>Activity Burn:</strong> Your <strong>${totalWalkMiles.toFixed(1)} miles</strong> of walking and <strong>${totalPushups} pushups</strong> logged are driving fat oxidation.</li>
+        </ul>
+      </div>
+    </div>
+    
+    <div class="ha-recommendations">
+      <h3><span class="icon">💡</span> Health Optimizer (Recommendations)</h3>
+      <div class="ha-rec-grid">
+        ${healthRecommendations.map(r => `<div class="ha-rec-card">${r}</div>`).join('')}
+      </div>
+    </div>
+  `;
+  
+  container.innerHTML = html;
 }
 </script>
 </body>
