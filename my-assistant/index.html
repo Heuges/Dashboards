@@ -255,10 +255,17 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
 .bp-status-high{background:rgba(239,68,68,.15);color:var(--red);border:1px solid rgba(239,68,68,.3)}
 .bp-del{background:none;border:none;color:var(--dim);cursor:pointer;font-size:.8rem;padding:2px 4px;border-radius:4px;transition:all .2s}
 .bp-del:hover{color:var(--red);background:rgba(239,68,68,.1)}
-.bp-avg{display:flex;justify-content:space-around;padding:14px;background:rgba(239,68,68,.06);border:1px solid rgba(239,68,68,.15);border-radius:12px}
+.bp-avg{display:flex;justify-content:space-around;padding:12px 14px;background:rgba(239,68,68,.06);border:1px solid rgba(239,68,68,.15);border-radius:12px;margin-bottom:8px}
 .bp-avg-item{text-align:center}
 .bp-avg-item .bp-avg-val{font-size:1.3rem;font-weight:800}
 .bp-avg-item .bp-avg-lbl{font-size:.65rem;color:var(--dim);text-transform:uppercase;letter-spacing:.5px;margin-top:2px}
+.bp-alltime{display:flex;justify-content:space-around;padding:10px 14px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:12px;margin-bottom:12px}
+.bp-alltime-item{text-align:center}
+.bp-alltime-item .bp-at-val{font-size:1.05rem;font-weight:700;color:var(--muted)}
+.bp-alltime-item .bp-at-lbl{font-size:.6rem;color:var(--dim);text-transform:uppercase;letter-spacing:.5px;margin-top:2px}
+.bp-chart-wrap{margin-top:8px;padding:12px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.05);border-radius:12px}
+.bp-chart-title{font-size:.72rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center}
+.bp-chart-title span{color:var(--green);font-weight:600}
 .bp-empty{text-align:center;padding:20px;color:var(--dim);font-size:.82rem}
 .bp-date-nav{display:flex;align-items:center;justify-content:center;gap:12px;margin-bottom:14px}
 .bp-date-nav button{background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:8px;padding:5px 10px;color:var(--text);cursor:pointer;font-size:.8rem;transition:all .2s}
@@ -360,6 +367,8 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
 </div>
 <div id="bpReadings"></div>
 <div id="bpAvg"></div>
+<div id="bpAllTime"></div>
+<div id="bpChartWrap"></div>
 </div>
 <!-- Walking Planner -->
 <div class="card walking">
@@ -1639,13 +1648,7 @@ setInterval(renderReminders, 60000);
 // ─── Workout Tracker ───
 let workoutLog = [];
 
-function getTodayStr() {
-  const now = new Date();
-  const y = now.getFullYear();
-  const m = String(now.getMonth() + 1).padStart(2, '0');
-  const d = String(now.getDate()).padStart(2, '0');
-  return `${y}-${m}-${d}`;
-}
+function getTodayStr() { return new Date().toISOString().slice(0,10); }
 
 async function loadWorkout() {
   try {
@@ -1736,7 +1739,7 @@ function addBP() {
   const now = new Date();
   bpLog.unshift({
     id: Date.now(),
-    date: getTodayStr(),
+    date: now.toISOString().slice(0,10),
     time: now.toLocaleTimeString('en-US', { hour:'numeric', minute:'2-digit' }),
     sys, dia, pul,
     timestamp: now.toISOString()
@@ -1774,7 +1777,8 @@ function getBPStatus(sys, dia) {
 function renderBP() {
   const today = getTodayStr();
   const isToday = bpViewDate === today;
-  
+  const BP_GOAL = 118;
+
   // Date label
   if (isToday) {
     document.getElementById('bpDateLabel').textContent = 'Today';
@@ -1782,50 +1786,163 @@ function renderBP() {
     const d = new Date(bpViewDate + 'T12:00:00');
     document.getElementById('bpDateLabel').textContent = d.toLocaleDateString('en-US', { weekday:'short', month:'short', day:'numeric' });
   }
-  
+
   // Filter readings for selected date
   const readings = bpLog.filter(b => b.date === bpViewDate);
-  
+
   if (readings.length === 0) {
     document.getElementById('bpReadings').innerHTML = '<div class="bp-empty">❤️ No readings for this date. ' + (isToday ? 'Record your first reading above!' : '') + '</div>';
     document.getElementById('bpAvg').innerHTML = '';
-    return;
+  } else {
+    // Sort newest first
+    readings.sort((a,b) => new Date(b.timestamp) - new Date(a.timestamp));
+
+    let html = '<div class="bp-readings">';
+    for (const r of readings) {
+      const st = getBPStatus(r.sys, r.dia);
+      html += `<div class="bp-reading">
+        <div class="bp-time">${r.time}</div>
+        <div class="bp-vals">
+          <div><div class="bp-num bp-sys">${r.sys}</div><div class="bp-lbl">SYS</div></div>
+          <span class="bp-slash">/</span>
+          <div><div class="bp-num bp-dia">${r.dia}</div><div class="bp-lbl">DIA</div></div>
+          <span class="bp-slash">·</span>
+          <div><div class="bp-num bp-pul">${r.pul}</div><div class="bp-lbl">PUL</div></div>
+        </div>
+        <span class="bp-status ${st.cls}">${st.label}</span>
+        <button class="bp-del" onclick="deleteBP(${r.id})" title="Delete">✕</button>
+      </div>`;
+    }
+    html += '</div>';
+    document.getElementById('bpReadings').innerHTML = html;
+
+    // ── Today avg ──
+    const avgSys = Math.round(readings.reduce((s,r) => s+r.sys, 0) / readings.length);
+    const avgDia = Math.round(readings.reduce((s,r) => s+r.dia, 0) / readings.length);
+    const avgPul = Math.round(readings.reduce((s,r) => s+r.pul, 0) / readings.length);
+    const avgSt  = getBPStatus(avgSys, avgDia);
+    document.getElementById('bpAvg').innerHTML = `
+      <div style="font-size:.65rem;color:var(--dim);text-transform:uppercase;letter-spacing:.6px;font-weight:700;margin-bottom:6px">Today's Average · ${readings.length} Reading${readings.length>1?'s':''}</div>
+      <div class="bp-avg">
+        <div class="bp-avg-item"><div class="bp-avg-val" style="color:var(--red)">${avgSys}</div><div class="bp-avg-lbl">SYS</div></div>
+        <div class="bp-avg-item"><div class="bp-avg-val" style="color:var(--amber)">${avgDia}</div><div class="bp-avg-lbl">DIA</div></div>
+        <div class="bp-avg-item"><div class="bp-avg-val" style="color:var(--cyan)">${avgPul}</div><div class="bp-avg-lbl">PUL</div></div>
+        <div class="bp-avg-item"><div class="bp-avg-val"><span class="bp-status ${avgSt.cls}">${avgSt.label}</span></div><div class="bp-avg-lbl">Status</div></div>
+      </div>`;
   }
-  
-  // Sort by time (newest first for display)
-  readings.sort((a,b) => new Date(b.timestamp) - new Date(a.timestamp));
-  
-  let html = '<div class="bp-readings">';
-  for (const r of readings) {
-    const st = getBPStatus(r.sys, r.dia);
-    html += `<div class="bp-reading">
-      <div class="bp-time">${r.time}</div>
-      <div class="bp-vals">
-        <div><div class="bp-num bp-sys">${r.sys}</div><div class="bp-lbl">SYS</div></div>
-        <span class="bp-slash">/</span>
-        <div><div class="bp-num bp-dia">${r.dia}</div><div class="bp-lbl">DIA</div></div>
-        <span class="bp-slash">·</span>
-        <div><div class="bp-num bp-pul">${r.pul}</div><div class="bp-lbl">PUL</div></div>
-      </div>
-      <span class="bp-status ${st.cls}">${st.label}</span>
-      <button class="bp-del" onclick="deleteBP(${r.id})" title="Delete">✕</button>
+
+  // ── All-Time avg (all logs) ──
+  if (bpLog.length > 0) {
+    const atSys = Math.round(bpLog.reduce((s,r) => s+r.sys, 0) / bpLog.length);
+    const atDia = Math.round(bpLog.reduce((s,r) => s+r.dia, 0) / bpLog.length);
+    const atPul = Math.round(bpLog.reduce((s,r) => s+r.pul, 0) / bpLog.length);
+    const atSt  = getBPStatus(atSys, atDia);
+    const sysColor = atSys <= BP_GOAL ? 'var(--green)' : atSys <= 130 ? 'var(--amber)' : 'var(--red)';
+    document.getElementById('bpAllTime').innerHTML = `
+      <div style="font-size:.65rem;color:var(--dim);text-transform:uppercase;letter-spacing:.6px;font-weight:700;margin-bottom:6px">All-Time Average · ${bpLog.length} Total Reading${bpLog.length>1?'s':''}</div>
+      <div class="bp-alltime">
+        <div class="bp-alltime-item"><div class="bp-at-val" style="color:${sysColor}">${atSys}</div><div class="bp-at-lbl">SYS</div></div>
+        <div class="bp-alltime-item"><div class="bp-at-val" style="color:var(--amber)">${atDia}</div><div class="bp-at-lbl">DIA</div></div>
+        <div class="bp-alltime-item"><div class="bp-at-val" style="color:var(--cyan)">${atPul}</div><div class="bp-at-lbl">PUL</div></div>
+        <div class="bp-alltime-item"><div class="bp-at-val"><span class="bp-status ${atSt.cls}">${atSt.label}</span></div><div class="bp-at-lbl">Status</div></div>
+      </div>`;
+  } else {
+    document.getElementById('bpAllTime').innerHTML = '';
+  }
+
+  // ── 6-Month Systolic Trend Chart ──
+  renderBPChart(BP_GOAL);
+}
+
+function renderBPChart(goalLine) {
+  const wrap = document.getElementById('bpChartWrap');
+  if (bpLog.length === 0) { wrap.innerHTML = ''; return; }
+
+  // Build monthly buckets for last 6 months
+  const now = new Date();
+  const months = [];
+  for (let i = 5; i >= 0; i--) {
+    const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+    months.push({
+      key: `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`,
+      label: d.toLocaleString('en-US', { month: 'short' }),
+      readings: []
+    });
+  }
+
+  for (const r of bpLog) {
+    const monthKey = r.date.slice(0,7);
+    const bucket = months.find(m => m.key === monthKey);
+    if (bucket) bucket.readings.push(r.sys);
+  }
+
+  // Only months with data
+  const dataMonths = months.filter(m => m.readings.length > 0);
+  if (dataMonths.length === 0) { wrap.innerHTML = ''; return; }
+
+  const avgs = dataMonths.map(m => Math.round(m.readings.reduce((s,v)=>s+v,0)/m.readings.length));
+  const labels = dataMonths.map(m => m.label);
+
+  // Canvas chart
+  const W = 320, H = 140, PAD = { top:18, right:16, bottom:28, left:36 };
+  const chartW = W - PAD.left - PAD.right;
+  const chartH = H - PAD.top - PAD.bottom;
+
+  const allVals = [...avgs, goalLine];
+  const minVal = Math.max(0, Math.min(...allVals) - 10);
+  const maxVal = Math.max(...allVals) + 10;
+
+  const xStep = chartW / Math.max(dataMonths.length - 1, 1);
+  const toY = v => PAD.top + chartH - ((v - minVal) / (maxVal - minVal)) * chartH;
+  const toX = i => PAD.left + i * xStep;
+
+  // SVG approach for crisp rendering
+  let pts = avgs.map((v,i) => `${toX(i).toFixed(1)},${toY(v).toFixed(1)}`).join(' ');
+  let goalY = toY(goalLine).toFixed(1);
+
+  // Color each point based on vs goal
+  const dotColors = avgs.map(v => v <= goalLine ? '#10b981' : v <= 130 ? '#f59e0b' : '#ef4444');
+  const lineColor = '#ef4444';
+
+  let svgDots = avgs.map((v,i) =>
+    `<circle cx="${toX(i).toFixed(1)}" cy="${toY(v).toFixed(1)}" r="4" fill="${dotColors[i]}" stroke="#0f172a" stroke-width="1.5"/>`
+  ).join('');
+
+  let svgLabelsX = labels.map((l,i) =>
+    `<text x="${toX(i).toFixed(1)}" y="${H - 6}" text-anchor="middle" fill="#64748b" font-size="10">${l}</text>`
+  ).join('');
+
+  let svgLabelsY = '';
+  const yTicks = 4;
+  for (let t = 0; t <= yTicks; t++) {
+    const v = Math.round(minVal + (maxVal - minVal) * t / yTicks);
+    const y = toY(v).toFixed(1);
+    svgLabelsY += `<text x="${PAD.left - 5}" y="${parseFloat(y)+3}" text-anchor="end" fill="#64748b" font-size="9">${v}</text>`;
+    svgLabelsY += `<line x1="${PAD.left}" y1="${y}" x2="${W - PAD.right}" y2="${y}" stroke="rgba(255,255,255,.04)" stroke-width="1"/>`;
+  }
+
+  // Value labels above each dot
+  let svgValLabels = avgs.map((v,i) =>
+    `<text x="${toX(i).toFixed(1)}" y="${(toY(v)-8).toFixed(1)}" text-anchor="middle" fill="${dotColors[i]}" font-size="9" font-weight="700">${v}</text>`
+  ).join('');
+
+  const svg = `<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:${H}px">
+    ${svgLabelsY}
+    <!-- Goal line -->
+    <line x1="${PAD.left}" y1="${goalY}" x2="${W-PAD.right}" y2="${goalY}" stroke="#10b981" stroke-width="1.5" stroke-dasharray="5,3"/>
+    <text x="${W-PAD.right+2}" y="${parseFloat(goalY)+3}" fill="#10b981" font-size="8.5" font-weight="700">Goal</text>
+    <!-- Trend line -->
+    ${avgs.length > 1 ? `<polyline points="${pts}" fill="none" stroke="${lineColor}" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" opacity=".7"/>` : ''}
+    ${svgDots}
+    ${svgValLabels}
+    ${svgLabelsX}
+  </svg>`;
+
+  wrap.innerHTML = `
+    <div class="bp-chart-wrap">
+      <div class="bp-chart-title">6-Month Systolic Trend <span>Goal: ${goalLine}</span></div>
+      ${svg}
     </div>`;
-  }
-  html += '</div>';
-  document.getElementById('bpReadings').innerHTML = html;
-  
-  // Averages
-  const avgSys = Math.round(readings.reduce((s,r) => s+r.sys, 0) / readings.length);
-  const avgDia = Math.round(readings.reduce((s,r) => s+r.dia, 0) / readings.length);
-  const avgPul = Math.round(readings.reduce((s,r) => s+r.pul, 0) / readings.length);
-  const avgSt = getBPStatus(avgSys, avgDia);
-  
-  document.getElementById('bpAvg').innerHTML = `<div class="bp-avg">
-    <div class="bp-avg-item"><div class="bp-avg-val" style="color:var(--red)">${avgSys}</div><div class="bp-avg-lbl">Avg SYS</div></div>
-    <div class="bp-avg-item"><div class="bp-avg-val" style="color:var(--amber)">${avgDia}</div><div class="bp-avg-lbl">Avg DIA</div></div>
-    <div class="bp-avg-item"><div class="bp-avg-val" style="color:var(--cyan)">${avgPul}</div><div class="bp-avg-lbl">Avg PUL</div></div>
-    <div class="bp-avg-item"><div class="bp-avg-val"><span class="bp-status ${avgSt.cls}">${avgSt.label}</span></div><div class="bp-avg-lbl">${readings.length} Reading${readings.length>1?'s':''}</div></div>
-  </div>`;
 }
 
 // Init
@@ -1876,12 +1993,37 @@ async function sendMsg(){
 
   const lowerText = text.toLowerCase();
   if (lowerText.includes('good night') || lowerText.includes('good morning')) {
-    const thinking = addMsg('ai','<span class="thinking">Syncing your brain to GitHub...</span>');
+    const isNight = lowerText.includes('night');
+    const thinking = addMsg('ai','<span class="thinking">⏳ Syncing workspaces to GitHub...</span>');
     try {
-      await fetch('http://localhost:8888/sync', { method: 'POST' });
-      thinking.innerHTML = '✅ Sync complete! Your workspaces are now up to date.<br><br><i>' + (lowerText.includes('night') ? 'Have a great night!' : 'Have a productive day!') + '</i>';
+      // 15-second timeout so it can never silently hang
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 15000);
+      let data;
+      try {
+        const resp = await fetch('http://localhost:8888/sync', { method: 'POST', signal: controller.signal });
+        clearTimeout(timeout);
+        data = await resp.json();
+      } catch (fetchErr) {
+        clearTimeout(timeout);
+        if (fetchErr.name === 'AbortError') {
+          thinking.innerHTML = '⚠️ Sync timed out after 15 seconds. The server may be stuck.<br><small style="color:var(--dim)">Try restarting sync-server.js and run Good Morning/Night again.</small>';
+        } else {
+          thinking.innerHTML = '❌ Sync failed — is the Brain Server running on port 8888?';
+        }
+        return;
+      }
+      // Build per-directory result rows
+      const rows = (data.dirs || []).map(d => {
+        const icon = d.status === 'error' ? '❌' : d.status === 'pushed' ? '🚀' : '✅';
+        const label = d.status === 'error' ? `<span style="color:var(--red)">${d.message || 'Error'}</span>` : d.status === 'pushed' ? 'Pushed' : 'Already up to date';
+        return `<div style="font-size:.78rem;margin-top:4px">${icon} <strong>${d.dir}</strong> — ${label} <span style="color:var(--dim)">@ ${d.completedAt}</span></div>`;
+      }).join('');
+      const completedAt = data.completedAt || new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', second: '2-digit' });
+      const allOk = data.status !== 'error';
+      thinking.innerHTML = `${allOk ? '✅' : '⚠️'} Sync ${allOk ? 'complete' : 'finished with errors'} <span style="color:var(--dim);font-size:.78rem">@ ${completedAt}</span>${rows}<br><i>${isNight ? 'Have a great night!' : 'Have a productive day!'}</i>`;
     } catch (e) {
-      thinking.innerHTML = '❌ Sync failed. Is the Brain Server running on port 8888?';
+      thinking.innerHTML = '❌ Unexpected error: ' + e.message;
     }
     return;
   }
