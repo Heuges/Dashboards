@@ -1,1 +1,5 @@
 server.log
+server-error.log
+my-assistant/node_modules/
+my-assistant/server.log
+my-assistant/server-error.log

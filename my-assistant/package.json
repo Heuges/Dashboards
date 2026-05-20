@@ -1,0 +1,15 @@
+{
+  "name": "my-assistant",
+  "version": "1.0.0",
+  "main": "sync-server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "puppeteer": "^25.0.4"
+  }
+}

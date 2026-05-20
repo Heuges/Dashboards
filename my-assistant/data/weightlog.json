@@ -1,0 +1,15 @@
+[
+  {
+    "id": 1716243859000,
+    "date": "2026-05-20",
+    "time": "8:30 AM",
+    "timestamp": "2026-05-20T15:30:00.000Z",
+    "weight": 264.2,
+    "unit": "lbs",
+    "source": "withings",
+    "fat": 36,
+    "muscle": 61,
+    "bone": 3,
+    "water": 55
+  }
+]
