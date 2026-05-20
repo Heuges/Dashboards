@@ -272,6 +272,46 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
 .bp-date-nav button{background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:8px;padding:5px 10px;color:var(--text);cursor:pointer;font-size:.8rem;transition:all .2s}
 .bp-date-nav button:hover{background:rgba(255,255,255,.1)}
 .bp-date-nav .bp-date-label{font-size:.85rem;font-weight:700;min-width:120px;text-align:center}
+/* Food Tile */
+.card.food::before{background:linear-gradient(90deg,#f97316,#f59e0b)}
+.food-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:12px}
+.food-stat{text-align:center;background:rgba(255,255,255,.03);border-radius:12px;padding:12px 6px}
+.food-stat .fs-icon{font-size:1.4rem;margin-bottom:4px}
+.food-stat .fs-val{font-size:1.6rem;font-weight:800;margin:2px 0}
+.food-stat .fs-label{font-size:.6rem;text-transform:uppercase;letter-spacing:.8px;color:var(--dim);font-weight:600}
+.food-stat.meals .fs-val{color:#f97316}
+.food-stat.soda .fs-val{color:var(--cyan)}
+.food-stat.beer .fs-val{color:#f59e0b}
+.food-meal-btn{width:100%;background:linear-gradient(135deg,#f97316,#f59e0b);border:none;border-radius:10px;padding:10px;color:#fff;cursor:pointer;font-size:.85rem;font-weight:700;margin-bottom:8px;transition:all .2s}
+.food-meal-btn:hover{opacity:.85;transform:scale(1.01)}
+.food-meal-note{width:100%;background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:8px;padding:7px 10px;color:var(--text);font-size:.78rem;font-family:'Inter',sans-serif;outline:none;margin-bottom:10px;box-sizing:border-box}
+.food-meal-note:focus{border-color:#f97316}
+.food-add-row{display:flex;gap:6px;margin-bottom:8px;align-items:center}
+.food-add-row label{font-size:.75rem;color:var(--dim);min-width:50px}
+.food-add-row input{width:70px;background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:8px;padding:7px 8px;color:var(--text);font-size:.82rem;font-family:'Inter',sans-serif;outline:none;text-align:center}
+.food-add-row button{background:linear-gradient(135deg,#f97316,#f59e0b);border:none;border-radius:8px;padding:7px 12px;color:#fff;cursor:pointer;font-size:.78rem;font-weight:700;transition:all .2s;margin-left:auto}
+.food-add-row button:hover{opacity:.85}
+.food-entry{display:flex;align-items:center;gap:8px;padding:7px 10px;background:rgba(255,255,255,.02);border:1px solid rgba(30,41,59,.4);border-radius:10px;margin-bottom:5px;font-size:.78rem}
+.food-entry .fe-time{color:var(--muted);min-width:55px;font-weight:600;font-size:.72rem}
+.food-entry .fe-type{flex:1;color:var(--text)}
+.food-entry .fe-amt{color:var(--dim);font-size:.72rem}
+.food-del{background:none;border:none;color:var(--dim);cursor:pointer;font-size:.8rem;padding:2px 4px;border-radius:4px;transition:all .2s}
+.food-del:hover{color:var(--red);background:rgba(239,68,68,.1)}
+/* Fasting Tile */
+.card.fasting::before{background:linear-gradient(90deg,#8b5cf6,#06b6d4)}
+.fast-timer{text-align:center;padding:14px;background:rgba(139,92,246,.08);border:1px solid rgba(139,92,246,.2);border-radius:14px;margin-bottom:14px}
+.fast-timer .ft-label{font-size:.7rem;color:var(--dim);text-transform:uppercase;letter-spacing:.8px;margin-bottom:6px;font-weight:600}
+.fast-timer .ft-time{font-size:2rem;font-weight:800;color:#8b5cf6;letter-spacing:.05em}
+.fast-timer .ft-sub{font-size:.72rem;color:var(--dim);margin-top:4px}
+.fast-timer.active .ft-time{animation:fastPulse 2s ease-in-out infinite}
+@keyframes fastPulse{0%,100%{opacity:1}50%{opacity:.65}}
+.fast-stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:10px}
+.fast-stat{text-align:center;background:rgba(255,255,255,.03);border-radius:12px;padding:11px 6px}
+.fast-stat .fst-val{font-size:1.15rem;font-weight:800;color:#8b5cf6}
+.fast-stat .fst-lbl{font-size:.6rem;text-transform:uppercase;letter-spacing:.5px;color:var(--dim);margin-top:3px;font-weight:600}
+.fast-section-title{font-size:.65rem;color:var(--dim);text-transform:uppercase;letter-spacing:.6px;font-weight:700;margin:10px 0 6px}
+.fast-chart-wrap{padding:12px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.05);border-radius:12px;margin-top:8px}
+.fast-chart-title{font-size:.72rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;margin-bottom:8px}
 </style>
 </head>
 <body>
@@ -335,7 +375,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
 <div class="wo-stat water"><div class="wo-icon">💧</div><div class="wo-val" id="woWater">0</div><div class="wo-label">oz Water</div></div>
 <div class="wo-stat pushups"><div class="wo-icon">🏋️</div><div class="wo-val" id="woPushups">0</div><div class="wo-label">Pushups</div></div>
 <div class="wo-stat situps"><div class="wo-icon">🔥</div><div class="wo-val" id="woSitups">0</div><div class="wo-label">Situps</div></div>
-<div class="wo-stat coffee"><div class="wo-icon">☕</div><div class="wo-val" id="woCoffee">0</div><div class="wo-label">Coffees</div></div>
+<div class="wo-stat coffee"><div class="wo-icon">☕</div><div class="wo-val" id="woCoffee">0</div><div class="wo-label">oz Coffee</div></div>
 </div>
 <div class="wo-add-row">
 <label>💧 Water</label><input type="number" id="woAddWater" placeholder="oz" min="0">
@@ -346,7 +386,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
 <button onclick="logWorkout('pushups')">+ Add</button>
 </div>
 <div class="wo-add-row">
-<label>☕ Coffee</label><input type="number" id="woAddCoffee" placeholder="cups" min="0">
+<label>☕ Coffee</label><input type="number" id="woAddCoffee" placeholder="oz" min="0" step="0.5">
 <button onclick="logWorkout('coffee')">+ Add</button>
 </div>
 <div class="wo-add-row">
@@ -380,6 +420,33 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
 <div class="card walking">
 <h2><span class="icon">🚶</span> Walking Planner</h2>
 <div id="walkContent"><div class="loading">Planning walks...</div></div>
+</div>
+<!-- Food & Drinks -->
+<div class="card food">
+<h2><span class="icon">🍽️</span> Food & Drinks</h2>
+<button class="food-meal-btn" onclick="logMeal()">+ Log Meal</button>
+<input type="text" class="food-meal-note" id="foodNote" placeholder="What did you eat? (optional)" onkeydown="if(event.key==='Enter')logMeal()">
+<div class="food-grid">
+  <div class="food-stat meals"><div class="fs-icon">🍽️</div><div class="fs-val" id="fsMeals">0</div><div class="fs-label">Meals</div></div>
+  <div class="food-stat soda"><div class="fs-icon">🥤</div><div class="fs-val" id="fsSoda">0</div><div class="fs-label">oz Soda</div></div>
+  <div class="food-stat beer"><div class="fs-icon">🍺</div><div class="fs-val" id="fsBeer">0</div><div class="fs-label">oz Beer</div></div>
+</div>
+<div class="food-add-row">
+  <label>🥤 Soda</label><input type="number" id="addSoda" placeholder="oz" min="0" step="0.5">
+  <button onclick="logDrink('soda')">+ Add</button>
+</div>
+<div class="food-add-row">
+  <label>🍺 Beer</label><input type="number" id="addBeer" placeholder="oz" min="0" step="0.5">
+  <button onclick="logDrink('beer')">+ Add</button>
+</div>
+<div id="foodEntries"><div style="text-align:center;padding:14px;color:var(--dim);font-size:.82rem">No entries yet today</div></div>
+</div>
+<!-- Fasting Tracker -->
+<div class="card fasting">
+<h2><span class="icon">⏳</span> Fasting Tracker</h2>
+<div id="fastTimer"><div class="fast-timer"><div class="ft-label">Loading...</div></div></div>
+<div id="fastStats"></div>
+<div id="fastChart"></div>
 </div>
 </div>
 </div>
@@ -501,16 +568,19 @@ async function saveWalkLog() {
 function logWalk() {
   const miles = parseFloat(document.getElementById('walkMilesInput').value);
   const note = document.getElementById('walkNoteSelect').value;
+  const paceStr = (document.getElementById('walkPaceInput')?.value || '').trim();
   if (!miles || miles <= 0) return;
   walkLog.unshift({
     id: Date.now(),
     miles,
     note: note || '',
+    pace: paceStr || null,
     date: new Date().toISOString()
   });
   document.getElementById('walkMilesInput').value = '';
+  const pi = document.getElementById('walkPaceInput');
+  if (pi) pi.value = '';
   saveWalkLog();
-  // Re-render just the tracker portion
   renderWalkTracker();
 }
 
@@ -539,20 +609,21 @@ function renderWalkTracker() {
   const r = 50, circ = 2 * Math.PI * r, offset = circ - (pct / 100) * circ;
   const ringColor = pct >= 100 ? '#10b981' : pct >= 50 ? '#f59e0b' : '#3b82f6';
 
-  // Get last 7 days of history
-  const days = [];
-  for (let i = 0; i < 7; i++) {
-    const d = new Date();
-    d.setDate(d.getDate() - i);
-    const dateStr = d.toISOString().slice(0, 10);
-    const dayMiles = walkLog.filter(w => w.date.slice(0, 10) === dateStr).reduce((s, w) => s + w.miles, 0);
-    const dayLabel = i === 0 ? 'Today' : i === 1 ? 'Yesterday' : d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
-    days.push({ dateStr, dayMiles, dayLabel });
-  }
+  // Progressive window based on unique days of data
+  const uniqueDays = [...new Set(walkLog.map(w => w.date.slice(0,10)))];
+  const win = getProgressiveWindow(uniqueDays);
 
-  // Today's log entries
-  const todayDate = new Date().toISOString().slice(0, 10);
-  const todayEntries = walkLog.filter(w => w.date.slice(0, 10) === todayDate);
+  // Today's entries
+  const todayDate = new Date().toISOString().slice(0,10);
+  const todayEntries = walkLog.filter(w => w.date.slice(0,10) === todayDate);
+
+  // Avg pace across window
+  const cutoff = new Date(); cutoff.setDate(cutoff.getDate() - win.days);
+  const windowWalks = walkLog.filter(w => new Date(w.date) >= cutoff);
+  const pacedWalks = windowWalks.filter(w => parsePaceSecs(w.pace));
+  const avgPaceSecs = pacedWalks.length > 0
+    ? pacedWalks.reduce((s,w) => s + parsePaceSecs(w.pace), 0) / pacedWalks.length
+    : null;
 
   let html = `
     <div class="walk-goal">
@@ -567,10 +638,10 @@ function renderWalkTracker() {
       </svg>
       <div class="walk-stat"><span>${weekMiles.toFixed(1)} mi</span> this week · <span>${GOAL * 7} mi</span> weekly goal</div>
     </div>
-
     <div class="walk-log-input">
       <span style="font-size:.8rem;color:var(--green)">🚶</span>
       <input type="number" id="walkMilesInput" placeholder="Miles" step="0.1" min="0.1" max="20" onkeydown="if(event.key==='Enter')logWalk()">
+      <input type="text" id="walkPaceInput" placeholder="MM:SS" style="width:72px;background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:8px;padding:7px 5px;color:var(--text);font-size:.78rem;font-family:'Inter',sans-serif;outline:none;text-align:center" onkeydown="if(event.key==='Enter')logWalk()">
       <select id="walkNoteSelect">
         <option value="Morning walk">Morning</option>
         <option value="Lunch walk">Lunch</option>
@@ -581,39 +652,74 @@ function renderWalkTracker() {
       <button onclick="logWalk()">+ Log</button>
     </div>`;
 
-  // Today's entries
   if (todayEntries.length > 0) {
     html += '<div style="margin-top:12px">';
     html += '<div style="font-size:.72rem;color:var(--dim);font-weight:600;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px">Today\'s Walks</div>';
     for (const w of todayEntries) {
-      const t = new Date(w.date).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+      const t = new Date(w.date).toLocaleTimeString('en-US', { hour:'numeric', minute:'2-digit' });
+      const paceLabel = w.pace ? ` · <span style="color:var(--cyan);font-size:.72rem">${w.pace}/mi</span>` : '';
       html += `<div class="walk-entry">
         <span class="we-date">${t}</span>
         <span class="we-miles">${w.miles.toFixed(1)} mi</span>
-        <span class="we-note">${w.note}</span>
+        <span class="we-note">${w.note}${paceLabel}</span>
         <button class="we-del" onclick="deleteWalkEntry(${w.id})" title="Delete">✕</button>
       </div>`;
     }
     html += '</div>';
   }
 
-  // 7-day history
-  html += '<div style="margin-top:14px;border-top:1px solid var(--border);padding-top:10px">';
-  html += '<div style="font-size:.72rem;color:var(--dim);font-weight:600;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px">7-Day History</div>';
-  html += '<div style="display:flex;gap:4px;align-items:end;height:60px;margin-bottom:8px">';
-  const maxMiles = Math.max(...days.map(d => d.dayMiles), GOAL);
-  for (const d of [...days].reverse()) {
-    const h = maxMiles > 0 ? Math.max((d.dayMiles / maxMiles) * 50, 2) : 2;
-    const barColor = d.dayMiles >= GOAL ? 'var(--green)' : d.dayMiles > 0 ? 'var(--blue)' : 'rgba(255,255,255,.06)';
-    const dayAbbr = d.dayLabel === 'Today' ? 'T' : d.dayLabel === 'Yesterday' ? 'Y' : d.dayLabel.slice(0, 2);
-    html += `<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:2px">
-      <div style="font-size:.6rem;color:var(--dim)">${d.dayMiles > 0 ? d.dayMiles.toFixed(1) : ''}</div>
-      <div style="width:100%;height:${h}px;background:${barColor};border-radius:4px;transition:height .3s"></div>
-      <div style="font-size:.6rem;color:var(--dim)">${dayAbbr}</div>
-    </div>`;
-  }
-  html += '</div></div>';
+  // Progressive history chart
+  const paceLabel = avgPaceSecs ? `Avg Pace: <span style="color:var(--cyan)">${formatPaceSecs(Math.round(avgPaceSecs))}/mi</span>` : '';
+  html += `<div style="margin-top:14px;border-top:1px solid var(--border);padding-top:10px">`;
+  html += `<div style="font-size:.72rem;color:var(--dim);font-weight:600;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;display:flex;justify-content:space-between;align-items:center"><span>${win.label}</span><span>${paceLabel}</span></div>`;
 
+  if (win.days <= 30) {
+    // Daily bars
+    const days = [];
+    for (let i = win.days - 1; i >= 0; i--) {
+      const d = new Date(); d.setDate(d.getDate() - i);
+      const dateStr = d.toISOString().slice(0,10);
+      const dayMiles = walkLog.filter(w => w.date.slice(0,10) === dateStr).reduce((s,w) => s + w.miles, 0);
+      const dayAbbr = i === 0 ? 'T' : i === 1 ? 'Y' : d.toLocaleDateString('en-US',{weekday:'short'}).slice(0,2);
+      days.push({ dayMiles, dayAbbr, showLabel: win.days <= 14 || i % 5 === 0 || i === 0 });
+    }
+    const maxMiles = Math.max(...days.map(d => d.dayMiles), GOAL, 0.1);
+    html += '<div style="display:flex;gap:3px;align-items:end;height:60px;margin-bottom:4px">';
+    for (const d of days) {
+      const h = d.dayMiles > 0 ? Math.max((d.dayMiles / maxMiles) * 50, 3) : 2;
+      const bc = d.dayMiles >= GOAL ? 'var(--green)' : d.dayMiles > 0 ? 'var(--blue)' : 'rgba(255,255,255,.05)';
+      html += `<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:1px">
+        <div style="font-size:.5rem;color:var(--dim)">${d.dayMiles > 0 && win.days <= 14 ? d.dayMiles.toFixed(1) : ''}</div>
+        <div style="width:100%;height:${h}px;background:${bc};border-radius:3px"></div>
+        <div style="font-size:.5rem;color:var(--dim)">${d.showLabel ? d.dayAbbr : ''}</div>
+      </div>`;
+    }
+    html += '</div>';
+  } else {
+    // Weekly bars
+    const weeks = [];
+    const numWeeks = Math.ceil(win.days / 7);
+    for (let i = numWeeks - 1; i >= 0; i--) {
+      const wEnd = new Date(); wEnd.setDate(wEnd.getDate() - i * 7);
+      const wStart = new Date(wEnd); wStart.setDate(wStart.getDate() - 6);
+      const wMiles = walkLog.filter(w => { const d = new Date(w.date); return d >= wStart && d <= wEnd; }).reduce((s,w) => s + w.miles, 0);
+      const lbl = i === 0 ? 'Now' : wStart.toLocaleDateString('en-US',{month:'short',day:'numeric'}).slice(0,5);
+      weeks.push({ wMiles, lbl });
+    }
+    const maxMiles = Math.max(...weeks.map(w => w.wMiles), GOAL * 7, 0.1);
+    html += '<div style="display:flex;gap:4px;align-items:end;height:60px;margin-bottom:4px">';
+    for (const w of weeks) {
+      const h = w.wMiles > 0 ? Math.max((w.wMiles / maxMiles) * 50, 3) : 2;
+      const bc = w.wMiles >= GOAL * 7 ? 'var(--green)' : w.wMiles > 0 ? 'var(--blue)' : 'rgba(255,255,255,.05)';
+      html += `<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:1px">
+        <div style="font-size:.5rem;color:var(--dim)">${w.wMiles > 0 ? w.wMiles.toFixed(0) : ''}</div>
+        <div style="width:100%;height:${h}px;background:${bc};border-radius:3px"></div>
+        <div style="font-size:.5rem;color:var(--dim)">${w.lbl}</div>
+      </div>`;
+    }
+    html += '</div>';
+  }
+  html += '</div>';
   document.getElementById('walkContent').innerHTML = html;
 }
 
@@ -1672,8 +1778,17 @@ async function saveWorkout() {
 function logWorkout(type) {
   const inputMap = { water:'woAddWater', pushups:'woAddPushups', situps:'woAddSitups', coffee:'woAddCoffee' };
   const input = document.getElementById(inputMap[type]);
-  const val = parseInt(input.value);
+  const val = parseFloat(input.value);
   if (!val || val <= 0) return;
+
+  // Coffee soft warning if water already logged today
+  if (type === 'coffee') {
+    const today = getTodayStr();
+    const entry = workoutLog.find(w => w.date === today);
+    if (entry && entry.water > 0) {
+      if (!confirm('☕ You\'ve already logged water today — still want to log coffee?')) return;
+    }
+  }
 
   const today = getTodayStr();
   let entry = workoutLog.find(w => w.date === today);
@@ -1682,7 +1797,7 @@ function logWorkout(type) {
     workoutLog.unshift(entry);
   }
   if (entry[type] === undefined) entry[type] = 0;
-  entry[type] += val;
+  entry[type] = Math.round((entry[type] + val) * 10) / 10;
   input.value = '';
   saveWorkout();
   renderWorkout();
@@ -1867,91 +1982,232 @@ function renderBPChart(goalLine) {
   const wrap = document.getElementById('bpChartWrap');
   if (bpLog.length === 0) { wrap.innerHTML = ''; return; }
 
-  // Build monthly buckets for last 6 months
-  const now = new Date();
-  const months = [];
-  for (let i = 5; i >= 0; i--) {
-    const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
-    months.push({
-      key: `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`,
-      label: d.toLocaleString('en-US', { month: 'short' }),
-      readings: []
-    });
+  const uniqueDays = [...new Set(bpLog.map(r => r.date))];
+  const win = getProgressiveWindow(uniqueDays);
+  const cutoff = new Date(); cutoff.setDate(cutoff.getDate() - win.days);
+  const filtered = bpLog.filter(r => new Date(r.date) >= cutoff);
+  if (filtered.length === 0) { wrap.innerHTML = ''; return; }
+
+  let buckets;
+  if (win.days <= 30) {
+    buckets = [];
+    for (let i = win.days - 1; i >= 0; i--) {
+      const d = new Date(); d.setDate(d.getDate() - i);
+      const dateStr = d.toISOString().slice(0,10);
+      const readings = filtered.filter(r => r.date === dateStr).map(r => r.sys);
+      if (readings.length > 0) buckets.push({ label: d.toLocaleDateString('en-US',{month:'short',day:'numeric'}), readings });
+    }
+  } else {
+    const monthCount = Math.ceil(win.days / 30);
+    const now = new Date();
+    buckets = [];
+    for (let i = monthCount - 1; i >= 0; i--) {
+      const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+      const key = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
+      const readings = filtered.filter(r => r.date.slice(0,7) === key).map(r => r.sys);
+      if (readings.length > 0) buckets.push({ label: d.toLocaleString('en-US',{month:'short'}), readings });
+    }
   }
+  if (buckets.length === 0) { wrap.innerHTML = ''; return; }
 
-  for (const r of bpLog) {
-    const monthKey = r.date.slice(0,7);
-    const bucket = months.find(m => m.key === monthKey);
-    if (bucket) bucket.readings.push(r.sys);
-  }
-
-  // Only months with data
-  const dataMonths = months.filter(m => m.readings.length > 0);
-  if (dataMonths.length === 0) { wrap.innerHTML = ''; return; }
-
-  const avgs = dataMonths.map(m => Math.round(m.readings.reduce((s,v)=>s+v,0)/m.readings.length));
-  const labels = dataMonths.map(m => m.label);
-
-  // Canvas chart
-  const W = 320, H = 140, PAD = { top:18, right:16, bottom:28, left:36 };
+  const avgs = buckets.map(b => Math.round(b.readings.reduce((s,v)=>s+v,0)/b.readings.length));
+  const labels = buckets.map(b => b.label);
+  const W = 320, H = 140, PAD = { top:18, right:28, bottom:28, left:36 };
   const chartW = W - PAD.left - PAD.right;
   const chartH = H - PAD.top - PAD.bottom;
-
   const allVals = [...avgs, goalLine];
   const minVal = Math.max(0, Math.min(...allVals) - 10);
   const maxVal = Math.max(...allVals) + 10;
-
-  const xStep = chartW / Math.max(dataMonths.length - 1, 1);
+  const xStep = chartW / Math.max(buckets.length - 1, 1);
   const toY = v => PAD.top + chartH - ((v - minVal) / (maxVal - minVal)) * chartH;
   const toX = i => PAD.left + i * xStep;
-
-  // SVG approach for crisp rendering
-  let pts = avgs.map((v,i) => `${toX(i).toFixed(1)},${toY(v).toFixed(1)}`).join(' ');
-  let goalY = toY(goalLine).toFixed(1);
-
-  // Color each point based on vs goal
+  const pts = avgs.map((v,i) => `${toX(i).toFixed(1)},${toY(v).toFixed(1)}`).join(' ');
+  const goalY = toY(goalLine).toFixed(1);
   const dotColors = avgs.map(v => v <= goalLine ? '#10b981' : v <= 130 ? '#f59e0b' : '#ef4444');
-  const lineColor = '#ef4444';
-
-  let svgDots = avgs.map((v,i) =>
-    `<circle cx="${toX(i).toFixed(1)}" cy="${toY(v).toFixed(1)}" r="4" fill="${dotColors[i]}" stroke="#0f172a" stroke-width="1.5"/>`
-  ).join('');
-
-  let svgLabelsX = labels.map((l,i) =>
-    `<text x="${toX(i).toFixed(1)}" y="${H - 6}" text-anchor="middle" fill="#64748b" font-size="10">${l}</text>`
-  ).join('');
-
+  const svgDots = avgs.map((v,i) => `<circle cx="${toX(i).toFixed(1)}" cy="${toY(v).toFixed(1)}" r="4" fill="${dotColors[i]}" stroke="#0f172a" stroke-width="1.5"/>`).join('');
+  const svgLabelsX = labels.map((l,i) => `<text x="${toX(i).toFixed(1)}" y="${H-6}" text-anchor="middle" fill="#64748b" font-size="9">${l}</text>`).join('');
   let svgLabelsY = '';
-  const yTicks = 4;
-  for (let t = 0; t <= yTicks; t++) {
-    const v = Math.round(minVal + (maxVal - minVal) * t / yTicks);
+  for (let t = 0; t <= 4; t++) {
+    const v = Math.round(minVal + (maxVal - minVal) * t / 4);
     const y = toY(v).toFixed(1);
-    svgLabelsY += `<text x="${PAD.left - 5}" y="${parseFloat(y)+3}" text-anchor="end" fill="#64748b" font-size="9">${v}</text>`;
-    svgLabelsY += `<line x1="${PAD.left}" y1="${y}" x2="${W - PAD.right}" y2="${y}" stroke="rgba(255,255,255,.04)" stroke-width="1"/>`;
+    svgLabelsY += `<text x="${PAD.left-5}" y="${parseFloat(y)+3}" text-anchor="end" fill="#64748b" font-size="9">${v}</text>`;
+    svgLabelsY += `<line x1="${PAD.left}" y1="${y}" x2="${W-PAD.right}" y2="${y}" stroke="rgba(255,255,255,.04)" stroke-width="1"/>`;
   }
-
-  // Value labels above each dot
-  let svgValLabels = avgs.map((v,i) =>
-    `<text x="${toX(i).toFixed(1)}" y="${(toY(v)-8).toFixed(1)}" text-anchor="middle" fill="${dotColors[i]}" font-size="9" font-weight="700">${v}</text>`
-  ).join('');
-
+  const svgValLabels = avgs.map((v,i) => `<text x="${toX(i).toFixed(1)}" y="${(toY(v)-8).toFixed(1)}" text-anchor="middle" fill="${dotColors[i]}" font-size="9" font-weight="700">${v}</text>`).join('');
   const svg = `<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:${H}px">
     ${svgLabelsY}
-    <!-- Goal line -->
     <line x1="${PAD.left}" y1="${goalY}" x2="${W-PAD.right}" y2="${goalY}" stroke="#10b981" stroke-width="1.5" stroke-dasharray="5,3"/>
     <text x="${W-PAD.right+2}" y="${parseFloat(goalY)+3}" fill="#10b981" font-size="8.5" font-weight="700">Goal</text>
-    <!-- Trend line -->
-    ${avgs.length > 1 ? `<polyline points="${pts}" fill="none" stroke="${lineColor}" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" opacity=".7"/>` : ''}
-    ${svgDots}
-    ${svgValLabels}
-    ${svgLabelsX}
+    ${avgs.length > 1 ? `<polyline points="${pts}" fill="none" stroke="#ef4444" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" opacity=".7"/>` : ''}
+    ${svgDots}${svgValLabels}${svgLabelsX}
   </svg>`;
+  wrap.innerHTML = `<div class="bp-chart-wrap"><div class="bp-chart-title">Systolic Trend — ${win.label} <span>Goal: ${goalLine}</span></div>${svg}</div>`;
+}
 
-  wrap.innerHTML = `
-    <div class="bp-chart-wrap">
-      <div class="bp-chart-title">6-Month Systolic Trend <span>Goal: ${goalLine}</span></div>
-      ${svg}
+// ── Shared Utilities ──
+function getProgressiveWindow(uniqueDaysList) {
+  const n = (uniqueDaysList || []).length;
+  if (n < 7)   return { days: 7,   label: 'Past 7 Days' };
+  if (n <= 30)  return { days: 30,  label: 'Past 30 Days' };
+  if (n <= 60)  return { days: 60,  label: 'Past 2 Months' };
+  if (n <= 90)  return { days: 90,  label: 'Past 3 Months' };
+  if (n <= 120) return { days: 120, label: 'Past 4 Months' };
+  if (n <= 150) return { days: 150, label: 'Past 5 Months' };
+  return { days: 180, label: 'Past 6 Months' };
+}
+function parsePaceSecs(paceStr) {
+  if (!paceStr) return null;
+  const p = paceStr.split(':');
+  if (p.length !== 2) return null;
+  const m = parseInt(p[0]), s = parseInt(p[1]);
+  return (isNaN(m) || isNaN(s)) ? null : m * 60 + s;
+}
+function formatPaceSecs(t) {
+  return `${Math.floor(t/60)}:${String(Math.round(t%60)).padStart(2,'0')}`;
+}
+
+// ── Food & Intake Tracker ──
+let intakeLog = [];
+async function loadIntake() {
+  try {
+    const r = await fetch('http://localhost:8888/data/intake');
+    intakeLog = await r.json();
+  } catch(e) { intakeLog = JSON.parse(localStorage.getItem('intakeLog') || '[]'); }
+  renderFood();
+  renderFasting();
+}
+async function saveIntake() {
+  localStorage.setItem('intakeLog', JSON.stringify(intakeLog));
+  try { await fetch('http://localhost:8888/data/intake', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(intakeLog) }); } catch(e) {}
+}
+function logMeal() {
+  const note = document.getElementById('foodNote').value.trim();
+  const now = new Date();
+  intakeLog.unshift({ id: Date.now(), date: now.toISOString().slice(0,10), time: now.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'}), timestamp: now.toISOString(), type:'food', oz:null, note });
+  document.getElementById('foodNote').value = '';
+  saveIntake(); renderFood(); renderFasting();
+}
+function logDrink(type) {
+  const inputId = type === 'soda' ? 'addSoda' : 'addBeer';
+  const input = document.getElementById(inputId);
+  const oz = parseFloat(input.value);
+  if (!oz || oz <= 0) return;
+  const now = new Date();
+  intakeLog.unshift({ id: Date.now(), date: now.toISOString().slice(0,10), time: now.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'}), timestamp: now.toISOString(), type, oz, note:'' });
+  input.value = '';
+  saveIntake(); renderFood(); renderFasting();
+}
+function deleteIntake(id) {
+  intakeLog = intakeLog.filter(e => e.id !== id);
+  saveIntake(); renderFood(); renderFasting();
+}
+function renderFood() {
+  const today = getTodayStr();
+  const todayEntries = intakeLog.filter(e => e.date === today).sort((a,b) => new Date(b.timestamp) - new Date(a.timestamp));
+  const meals   = todayEntries.filter(e => e.type === 'food').length;
+  const sodaOz  = todayEntries.filter(e => e.type === 'soda').reduce((s,e) => s+(e.oz||0), 0);
+  const beerOz  = todayEntries.filter(e => e.type === 'beer').reduce((s,e) => s+(e.oz||0), 0);
+  document.getElementById('fsMeals').textContent = meals;
+  document.getElementById('fsSoda').textContent  = sodaOz  % 1 === 0 ? sodaOz  : sodaOz.toFixed(1);
+  document.getElementById('fsBeer').textContent  = beerOz  % 1 === 0 ? beerOz  : beerOz.toFixed(1);
+  let html = '';
+  for (const e of todayEntries) {
+    const icon = e.type === 'food' ? '🍽️' : e.type === 'soda' ? '🥤' : '🍺';
+    const label = e.type === 'food' ? `Meal${e.note ? ' — '+e.note : ''}` : e.type.charAt(0).toUpperCase()+e.type.slice(1);
+    const amt = e.oz ? ` · ${e.oz}oz` : '';
+    html += `<div class="food-entry"><span class="fe-time">${e.time}</span><span class="fe-type">${icon} ${label}</span><span class="fe-amt">${amt}</span><button class="food-del" onclick="deleteIntake(${e.id})">✕</button></div>`;
+  }
+  document.getElementById('foodEntries').innerHTML = html || '<div style="text-align:center;padding:14px;color:var(--dim);font-size:.82rem">No entries yet today</div>';
+}
+
+// ── Fasting Tracker ──
+function computeFasts() {
+  const sorted = [...intakeLog].sort((a,b) => new Date(a.timestamp) - new Date(b.timestamp));
+  const THRESH = 8 * 3600000;
+  const periods = [];
+  for (let i = 0; i < sorted.length - 1; i++) {
+    const gap = new Date(sorted[i+1].timestamp) - new Date(sorted[i].timestamp);
+    if (gap > THRESH) periods.push({ start: new Date(sorted[i].timestamp), end: new Date(sorted[i+1].timestamp), hours: gap/3600000, ongoing: false });
+  }
+  if (sorted.length > 0) {
+    const gap = Date.now() - new Date(sorted[sorted.length-1].timestamp);
+    if (gap > THRESH) periods.push({ start: new Date(sorted[sorted.length-1].timestamp), end: null, hours: gap/3600000, ongoing: true });
+  }
+  return periods;
+}
+function renderFasting() {
+  const periods = computeFasts();
+  const ongoing = periods.find(p => p.ongoing);
+  const timerEl = document.getElementById('fastTimer');
+  if (!timerEl) return;
+  if (intakeLog.length === 0) {
+    timerEl.innerHTML = '<div class="fast-timer"><div class="ft-label">No intake logged yet</div><div class="ft-sub">Log a meal or drink in Food & Drinks to start tracking</div></div>';
+  } else if (ongoing) {
+    const hrs = Math.floor(ongoing.hours), mins = Math.round((ongoing.hours - hrs) * 60);
+    timerEl.innerHTML = `<div class="fast-timer active"><div class="ft-label">⏳ Currently Fasting</div><div class="ft-time">${String(hrs).padStart(2,'0')}:${String(mins).padStart(2,'0')}</div><div class="ft-sub">hrs : min · ${(ongoing.hours/24).toFixed(2)} days</div></div>`;
+  } else {
+    const lastEntry = [...intakeLog].sort((a,b)=>new Date(b.timestamp)-new Date(a.timestamp))[0];
+    const hoursAgo = lastEntry ? (Date.now()-new Date(lastEntry.timestamp))/3600000 : 0;
+    timerEl.innerHTML = `<div class="fast-timer"><div class="ft-label">Not Fasting</div><div class="ft-sub">Last intake ${hoursAgo.toFixed(1)} hrs ago</div></div>`;
+  }
+  const completed = periods.filter(p => !p.ongoing);
+  const now = new Date();
+  const weekAgo = new Date(); weekAgo.setDate(now.getDate()-7);
+  const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+  const weekFasts  = completed.filter(p => p.end >= weekAgo);
+  const monthFasts = completed.filter(p => p.end >= monthStart);
+  const weekHrs    = weekFasts.reduce((s,p)=>s+p.hours,0);
+  const monthHrs   = monthFasts.reduce((s,p)=>s+p.hours,0);
+  const monthAvg   = monthFasts.length > 0 ? monthHrs/monthFasts.length : 0;
+  document.getElementById('fastStats').innerHTML = `
+    <div class="fast-section-title">This Week</div>
+    <div class="fast-stats">
+      <div class="fast-stat"><div class="fst-val">${weekFasts.length}</div><div class="fst-lbl">Fasts</div></div>
+      <div class="fast-stat"><div class="fst-val">${weekHrs.toFixed(1)}h</div><div class="fst-lbl">Hours</div></div>
+      <div class="fast-stat"><div class="fst-val">${(weekHrs/24).toFixed(2)}</div><div class="fst-lbl">Days</div></div>
+    </div>
+    <div class="fast-section-title">This Month</div>
+    <div class="fast-stats">
+      <div class="fast-stat"><div class="fst-val">${monthFasts.length}</div><div class="fst-lbl">Fasts</div></div>
+      <div class="fast-stat"><div class="fst-val">${monthHrs.toFixed(1)}h</div><div class="fst-lbl">Hours</div></div>
+      <div class="fast-stat"><div class="fst-val">${monthAvg.toFixed(1)}h</div><div class="fst-lbl">Avg Fast</div></div>
     </div>`;
+  renderFastChart(completed);
+}
+function renderFastChart(fasts) {
+  const wrap = document.getElementById('fastChart');
+  if (!wrap || fasts.length === 0) { if(wrap) wrap.innerHTML=''; return; }
+  const uniqueDays = [...new Set(fasts.map(f => f.end.toISOString().slice(0,10)))];
+  const win = getProgressiveWindow(uniqueDays);
+  const cutoff = new Date(); cutoff.setDate(cutoff.getDate() - win.days);
+  const filtered = fasts.filter(f => f.end >= cutoff);
+  if (filtered.length === 0) { wrap.innerHTML=''; return; }
+  const monthCount = Math.max(Math.ceil(win.days/30), 1);
+  const now = new Date();
+  const months = [];
+  for (let i = monthCount-1; i >= 0; i--) {
+    const d = new Date(now.getFullYear(), now.getMonth()-i, 1);
+    const key = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
+    months.push({ key, label: d.toLocaleString('en-US',{month:'short'}), hours:0, count:0 });
+  }
+  for (const f of filtered) {
+    const mk = f.end.toISOString().slice(0,7);
+    const b = months.find(m=>m.key===mk);
+    if (b) { b.hours+=f.hours; b.count++; }
+  }
+  const W=320,H=100,PAD={top:16,right:10,bottom:24,left:32};
+  const cW=W-PAD.left-PAD.right, cH=H-PAD.top-PAD.bottom;
+  const maxH=Math.max(...months.map(m=>m.hours),1);
+  const barW=Math.max(cW/months.length-4,4), xStep=cW/months.length;
+  let bars='';
+  months.forEach((m,i)=>{
+    const bh=m.hours>0?Math.max((m.hours/maxH)*cH,4):0;
+    const x=PAD.left+i*xStep+2, y=PAD.top+cH-bh;
+    bars+=`<rect x="${x}" y="${y}" width="${barW}" height="${bh}" rx="3" fill="#8b5cf6" opacity="${m.hours>0?.7:0}"/>`;
+    if(m.hours>0) bars+=`<text x="${x+barW/2}" y="${y-3}" text-anchor="middle" fill="#8b5cf6" font-size="8" font-weight="700">${m.hours.toFixed(0)}h</text>`;
+    bars+=`<text x="${x+barW/2}" y="${H-4}" text-anchor="middle" fill="#64748b" font-size="9">${m.label}</text>`;
+  });
+  wrap.innerHTML=`<div class="fast-chart-wrap"><div class="fast-chart-title">${win.label} — Fasting Hours</div><svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:${H}px">${bars}</svg></div>`;
 }
 
 // Init
@@ -1963,6 +2219,8 @@ loadTodos();
 loadReminders();
 loadWorkout();
 loadBP();
+loadIntake();
+setInterval(renderFasting, 60000);
 
 // Chat
 const GEMINI_KEY_STORAGE='gemini_api_key';
