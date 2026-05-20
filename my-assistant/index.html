@@ -209,14 +209,15 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
 .rem-item.overdue{animation:remPulse 2s infinite}
 /* Workout Tracker */
 .card.workout::before{background:linear-gradient(90deg,#06b6d4,#10b981)}
-.wo-today{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:14px}
-.wo-stat{text-align:center;background:rgba(255,255,255,.03);border-radius:12px;padding:14px 8px}
-.wo-stat .wo-icon{font-size:1.6rem;margin-bottom:4px}
-.wo-stat .wo-val{font-size:1.8rem;font-weight:800;margin:2px 0}
-.wo-stat .wo-label{font-size:.65rem;text-transform:uppercase;letter-spacing:.8px;color:var(--dim);font-weight:600}
+.wo-today{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px;margin-bottom:14px}
+.wo-stat{text-align:center;background:rgba(255,255,255,.03);border-radius:12px;padding:12px 6px}
+.wo-stat .wo-icon{font-size:1.4rem;margin-bottom:4px}
+.wo-stat .wo-val{font-size:1.6rem;font-weight:800;margin:2px 0}
+.wo-stat .wo-label{font-size:.6rem;text-transform:uppercase;letter-spacing:.8px;color:var(--dim);font-weight:600}
 .wo-stat.water .wo-val{color:var(--cyan)}
 .wo-stat.pushups .wo-val{color:var(--green)}
 .wo-stat.situps .wo-val{color:var(--amber)}
+.wo-stat.coffee .wo-val{color:#f97316}
 .wo-add-row{display:flex;gap:6px;margin-bottom:10px;align-items:center}
 .wo-add-row label{font-size:.75rem;color:var(--dim);min-width:55px}
 .wo-add-row input{width:70px;background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:8px;padding:7px 8px;color:var(--text);font-size:.82rem;font-family:'Inter',sans-serif;outline:none;text-align:center}
@@ -334,6 +335,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
 <div class="wo-stat water"><div class="wo-icon">💧</div><div class="wo-val" id="woWater">0</div><div class="wo-label">oz Water</div></div>
 <div class="wo-stat pushups"><div class="wo-icon">🏋️</div><div class="wo-val" id="woPushups">0</div><div class="wo-label">Pushups</div></div>
 <div class="wo-stat situps"><div class="wo-icon">🔥</div><div class="wo-val" id="woSitups">0</div><div class="wo-label">Situps</div></div>
+<div class="wo-stat coffee"><div class="wo-icon">☕</div><div class="wo-val" id="woCoffee">0</div><div class="wo-label">Coffees</div></div>
 </div>
 <div class="wo-add-row">
 <label>💧 Water</label><input type="number" id="woAddWater" placeholder="oz" min="0">
@@ -342,6 +344,10 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
 <div class="wo-add-row">
 <label>🏋️ Pushups</label><input type="number" id="woAddPushups" placeholder="#" min="0">
 <button onclick="logWorkout('pushups')">+ Add</button>
+</div>
+<div class="wo-add-row">
+<label>☕ Coffee</label><input type="number" id="woAddCoffee" placeholder="cups" min="0">
+<button onclick="logWorkout('coffee')">+ Add</button>
 </div>
 <div class="wo-add-row">
 <label>🔥 Situps</label><input type="number" id="woAddSitups" placeholder="#" min="0">
@@ -1664,17 +1670,18 @@ async function saveWorkout() {
 }
 
 function logWorkout(type) {
-  const inputMap = { water:'woAddWater', pushups:'woAddPushups', situps:'woAddSitups' };
+  const inputMap = { water:'woAddWater', pushups:'woAddPushups', situps:'woAddSitups', coffee:'woAddCoffee' };
   const input = document.getElementById(inputMap[type]);
   const val = parseInt(input.value);
   if (!val || val <= 0) return;
-  
+
   const today = getTodayStr();
   let entry = workoutLog.find(w => w.date === today);
   if (!entry) {
-    entry = { date: today, water: 0, pushups: 0, situps: 0 };
+    entry = { date: today, water: 0, pushups: 0, situps: 0, coffee: 0 };
     workoutLog.unshift(entry);
   }
+  if (entry[type] === undefined) entry[type] = 0;
   entry[type] += val;
   input.value = '';
   saveWorkout();
@@ -1683,19 +1690,20 @@ function logWorkout(type) {
 
 function renderWorkout() {
   const today = getTodayStr();
-  const entry = workoutLog.find(w => w.date === today) || { water:0, pushups:0, situps:0 };
-  
+  const entry = workoutLog.find(w => w.date === today) || { water:0, pushups:0, situps:0, coffee:0 };
+
   document.getElementById('woWater').textContent = entry.water;
   document.getElementById('woPushups').textContent = entry.pushups;
   document.getElementById('woSitups').textContent = entry.situps;
-  
+  document.getElementById('woCoffee').textContent = entry.coffee || 0;
+
   // History (last 7 days, excluding today)
   const history = workoutLog.filter(w => w.date !== today).slice(0, 7);
   if (history.length === 0) {
     document.getElementById('woHistory').innerHTML = '';
     return;
   }
-  
+
   let html = '<div class="wo-history"><div class="wo-history-title">Recent History</div>';
   for (const d of history) {
     const dt = new Date(d.date + 'T12:00:00');
@@ -1706,6 +1714,7 @@ function renderWorkout() {
         <span>💧 ${d.water}oz</span>
         <span>🏋️ ${d.pushups}</span>
         <span>🔥 ${d.situps}</span>
+        <span>☕ ${d.coffee || 0}</span>
       </div>
     </div>`;
   }
