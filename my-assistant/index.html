@@ -352,6 +352,22 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
 .bm-section-title{font-size:.65rem;color:var(--dim);text-transform:uppercase;letter-spacing:.6px;font-weight:700;margin:12px 0 6px}
 .bm-withings-btn{width:100%;background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:10px;padding:9px;color:var(--muted);cursor:pointer;font-size:.8rem;font-weight:600;transition:all .2s;margin-bottom:10px}
 .bm-withings-btn:hover{background:rgba(255,255,255,.08);border-color:var(--blue)}
+.bm-withings-panel{background:rgba(59,130,246,.06);border:1px solid rgba(59,130,246,.2);border-radius:14px;padding:12px;margin-bottom:12px}
+.bw-status-row{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.bw-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;transition:all .3s}
+.bw-dot.ok{background:var(--green);box-shadow:0 0 6px var(--green)}
+.bw-dot.warn{background:var(--amber);box-shadow:0 0 6px var(--amber)}
+.bw-dot.none{background:var(--dim)}
+.bw-status-text{font-size:.75rem;color:var(--muted);flex:1}
+.bw-sync-btn{background:rgba(59,130,246,.2);border:1px solid var(--blue);border-radius:7px;padding:4px 10px;color:var(--blue);cursor:pointer;font-size:.72rem;font-weight:700;transition:all .2s;white-space:nowrap}
+.bw-sync-btn:hover{background:rgba(59,130,246,.35)}
+.bw-input-row{display:flex;gap:6px;margin-top:8px}
+.bw-input-row input{flex:1;background:rgba(255,255,255,.06);border:1px solid var(--border);border-radius:8px;padding:7px 10px;color:var(--text);font-size:.75rem;font-family:'Inter',sans-serif;outline:none}
+.bw-input-row input:focus{border-color:var(--blue)}
+.bw-input-row button{background:var(--blue);border:none;border-radius:8px;padding:7px 12px;color:#fff;cursor:pointer;font-size:.75rem;font-weight:700;white-space:nowrap;transition:all .2s}
+.bw-expiry{font-size:.68rem;color:var(--dim);margin-top:3px}
+.bw-expiry.warn{color:var(--amber);font-weight:600}
+.bw-expiry.expired{color:var(--red);font-weight:700}
 .bm-chart-section{padding:10px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.04);border-radius:12px;margin-top:8px}
 .bm-chart-label{font-size:.65rem;color:var(--dim);text-transform:uppercase;letter-spacing:.5px;font-weight:600;margin-bottom:6px;display:flex;justify-content:space-between}
 </style>
@@ -503,7 +519,18 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
   <label>⚖️ Weight</label><input type="number" id="addWeight" placeholder="lbs" step="0.1" min="50" max="500" onkeydown="if(event.key==='Enter')logWeight()">
   <button onclick="logWeight()">+ Log</button>
 </div>
-<button class="bm-withings-btn" onclick="connectWithings()">🔗 Connect Withings Scale (Auto-Sync)</button>
+<div class="bm-withings-panel" id="bmWithingsPanel">
+  <div class="bw-status-row">
+    <div class="bw-dot none" id="bwDot"></div>
+    <div class="bw-status-text" id="bwStatusText">Loading Withings status...</div>
+    <button class="bw-sync-btn" id="bwSyncBtn" onclick="syncWithingsNow()" style="display:none">&#8635; Sync Now</button>
+  </div>
+  <div class="bw-expiry" id="bwExpiry"></div>
+  <div class="bw-input-row">
+    <input type="text" id="bwLinkInput" placeholder="Paste Withings Live link here...">
+    <button onclick="saveWithingsLink()">Save Link</button>
+  </div>
+</div>
 <div id="bmWeightChart"></div>
 <div class="bm-section-title">Measurements (inches)</div>
 <div class="bm-measures-grid" id="bmMeasuresGrid"><div style="grid-column:1/-1;text-align:center;padding:10px;color:var(--dim);font-size:.82rem">No measurements yet</div></div>
@@ -2413,8 +2440,80 @@ function saveMeasurements() {
   saveMetricsLog();
   renderBodyMetrics();
 }
-function connectWithings() {
-  alert('🔗 Withings OAuth Setup\n\nTo auto-sync your scale:\n1. Go to developer.withings.com\n2. Create a free account\n3. Create an app → get Client ID + Secret\n4. Come back and I can add the OAuth flow!\n\nFor now, use the manual weight entry above.');
+function connectWithings() {} // replaced by panel
+
+// -- Withings Integration --
+let withingsConfig = null;
+async function loadWithingsConfig() {
+  try {
+    const r = await fetch('http://localhost:8888/withings/config');
+    withingsConfig = await r.json();
+  } catch(e) { withingsConfig = null; }
+  renderWithingsPanel();
+}
+async function saveWithingsLink() {
+  const url = document.getElementById('bwLinkInput').value.trim();
+  if (!url || !url.includes('withings')) { alert('Please paste a valid Withings link.'); return; }
+  try {
+    const r = await fetch('http://localhost:8888/withings/link', {
+      method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ url })
+    });
+    const data = await r.json();
+    withingsConfig = { url, savedAt: new Date().toISOString(), expiresAt: data.expiresAt };
+    document.getElementById('bwLinkInput').value = '';
+    renderWithingsPanel();
+    syncWithingsNow();
+  } catch(e) { alert('Could not reach sync server at localhost:8888. Make sure it is running.'); }
+}
+async function syncWithingsNow() {
+  const btn = document.getElementById('bwSyncBtn');
+  const statusEl = document.getElementById('bwStatusText');
+  if (btn) { btn.textContent = '... Syncing'; btn.disabled = true; }
+  if (statusEl) statusEl.textContent = 'Syncing with Withings (takes ~15 sec)...';
+  try {
+    await fetch('http://localhost:8888/withings/sync');
+    setTimeout(async () => {
+      await loadBodyMetrics();
+      await loadWithingsConfig();
+      if (btn) { btn.textContent = '&#8635; Sync Now'; btn.disabled = false; }
+    }, 18000);
+  } catch(e) {
+    if (statusEl) statusEl.textContent = 'Sync server not reachable.';
+    if (btn) { btn.textContent = '&#8635; Sync Now'; btn.disabled = false; }
+  }
+}
+function renderWithingsPanel() {
+  const dot = document.getElementById('bwDot');
+  const statusEl = document.getElementById('bwStatusText');
+  const expiryEl = document.getElementById('bwExpiry');
+  const syncBtn = document.getElementById('bwSyncBtn');
+  if (!dot || !statusEl) return;
+  if (!withingsConfig || !withingsConfig.url) {
+    dot.className = 'bw-dot none';
+    statusEl.textContent = 'No Withings link set -- paste your link below';
+    if (expiryEl) expiryEl.textContent = '';
+    if (syncBtn) syncBtn.style.display = 'none';
+    return;
+  }
+  const now = new Date();
+  const expires = new Date(withingsConfig.expiresAt);
+  const daysLeft = Math.ceil((expires - now) / 86400000);
+  const isExpired = daysLeft <= 0;
+  const isWarning = daysLeft <= 2 && !isExpired;
+  dot.className = 'bw-dot ' + (isExpired ? 'warn' : 'ok');
+  const lastSync = withingsConfig.lastSyncAt
+    ? ' -- Last sync: ' + new Date(withingsConfig.lastSyncAt).toLocaleString('en-US',{month:'short',day:'numeric',hour:'numeric',minute:'2-digit'})
+    : '';
+  statusEl.textContent = isExpired
+    ? 'Link expired -- paste a new one below'
+    : 'Withings linked' + lastSync;
+  if (expiryEl) {
+    expiryEl.className = 'bw-expiry' + (isExpired ? ' expired' : isWarning ? ' warn' : '');
+    expiryEl.textContent = isExpired
+      ? 'EXPIRED -- paste a fresh link below'
+      : 'Expires in ' + daysLeft + ' day' + (daysLeft===1?'':'s') + ' (' + expires.toLocaleDateString('en-US',{month:'short',day:'numeric'}) + ')';
+  }
+  if (syncBtn) syncBtn.style.display = isExpired ? 'none' : 'inline-block';
 }
 function renderBodyMetrics() {
   // Weight display
@@ -2535,6 +2634,7 @@ loadWorkout();
 loadBP();
 loadIntake().then(() => injectHistoricalData());
 loadBodyMetrics();
+loadWithingsConfig();
 setInterval(renderFasting, 60000);
 
 // Chat
