@@ -1639,7 +1639,13 @@ setInterval(renderReminders, 60000);
 // ─── Workout Tracker ───
 let workoutLog = [];
 
-function getTodayStr() { return new Date().toISOString().slice(0,10); }
+function getTodayStr() {
+  const now = new Date();
+  const y = now.getFullYear();
+  const m = String(now.getMonth() + 1).padStart(2, '0');
+  const d = String(now.getDate()).padStart(2, '0');
+  return `${y}-${m}-${d}`;
+}
 
 async function loadWorkout() {
   try {
@@ -1730,7 +1736,7 @@ function addBP() {
   const now = new Date();
   bpLog.unshift({
     id: Date.now(),
-    date: now.toISOString().slice(0,10),
+    date: getTodayStr(),
     time: now.toLocaleTimeString('en-US', { hour:'numeric', minute:'2-digit' }),
     sys, dia, pul,
     timestamp: now.toISOString()
