@@ -2226,7 +2226,7 @@ function shiftFoodDate(dir) {
 function injectHistoricalData() {
   const exists = intakeLog.find(e => e.id === 20260519190000001);
   if (!exists) {
-    intakeLog.push({ id: 20260519190000001, date:'2026-05-19', time:'7:00 PM', timestamp:'2026-05-19T19:00:00.000Z', type:'food', oz:null, note:'½ steak w/ A1 sauce, baked potato w/ butter, cheddar, sour cream & bacon bits' });
+    intakeLog.push({ id: 20260519190000001, date:'2026-05-19', time:'7:00 PM', timestamp:'2026-05-20T02:00:00.000Z', type:'food', oz:null, note:'½ steak w/ A1 sauce, baked potato w/ butter, cheddar, sour cream & bacon bits' });
     saveIntake();
   }
 }
@@ -2307,15 +2307,19 @@ function renderFasting() {
     const hoursAgo = lastEntry ? (Date.now()-new Date(lastEntry.timestamp))/3600000 : 0;
     timerEl.innerHTML = `<div class="fast-timer"><div class="ft-label">Not Fasting</div><div class="ft-sub">Last intake ${hoursAgo.toFixed(1)} hrs ago</div></div>`;
   }
-  const completed = periods.filter(p => !p.ongoing);
-  const now = new Date();
-  const weekAgo = new Date(); weekAgo.setDate(now.getDate()-7);
-  const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
-  const weekFasts  = completed.filter(p => p.end >= weekAgo);
-  const monthFasts = completed.filter(p => p.end >= monthStart);
-  const weekHrs    = weekFasts.reduce((s,p)=>s+p.hours,0);
-  const monthHrs   = monthFasts.reduce((s,p)=>s+p.hours,0);
-  const monthAvg   = monthFasts.length > 0 ? monthHrs/monthFasts.length : 0;
+  // Include ongoing fast in stats — count its hours up to right now
+  function fastHoursInWindow(fast, winStart, winEnd) {
+    const s = Math.max(fast.start.getTime(), winStart.getTime());
+    const e = fast.ongoing ? winEnd.getTime() : Math.min(fast.end.getTime(), winEnd.getTime());
+    return Math.max(0, (e - s) / 3600000);
+  }
+  const allPeriods = periods; // completed + ongoing
+  const weekFasts  = allPeriods.filter(p => (p.ongoing ? now : p.end) >= weekAgo && p.start <= now);
+  const monthFasts = allPeriods.filter(p => (p.ongoing ? now : p.end) >= monthStart && p.start <= now);
+  const weekHrs    = weekFasts.reduce((s,p)  => s + fastHoursInWindow(p, weekAgo, now), 0);
+  const monthHrs   = monthFasts.reduce((s,p) => s + fastHoursInWindow(p, monthStart, now), 0);
+  const completedMonthFasts = monthFasts.filter(p => !p.ongoing);
+  const monthAvg   = monthFasts.length > 0 ? monthHrs / monthFasts.length : 0;
   document.getElementById('fastStats').innerHTML = `
     <div class="fast-section-title">This Week</div>
     <div class="fast-stats">
@@ -2329,7 +2333,7 @@ function renderFasting() {
       <div class="fast-stat"><div class="fst-val">${monthHrs.toFixed(1)}h</div><div class="fst-lbl">Hours</div></div>
       <div class="fast-stat"><div class="fst-val">${monthAvg.toFixed(1)}h</div><div class="fst-lbl">Avg Fast</div></div>
     </div>`;
-  renderFastChart(completed);
+  renderFastChart(allPeriods.filter(p => !p.ongoing));
 }
 function renderFastChart(fasts) {
   const wrap = document.getElementById('fastChart');
