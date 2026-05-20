@@ -312,6 +312,48 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
 .fast-section-title{font-size:.65rem;color:var(--dim);text-transform:uppercase;letter-spacing:.6px;font-weight:700;margin:10px 0 6px}
 .fast-chart-wrap{padding:12px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.05);border-radius:12px;margin-top:8px}
 .fast-chart-title{font-size:.72rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;margin-bottom:8px}
+/* Walk Tabs */
+.walk-tabs{display:flex;gap:6px;margin-bottom:12px}
+.walk-tab{flex:1;text-align:center;padding:7px 4px;background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:8px;cursor:pointer;font-size:.72rem;font-weight:600;color:var(--dim);transition:all .2s;user-select:none}
+.walk-tab.active{background:rgba(59,130,246,.2);border-color:var(--blue);color:var(--blue)}
+.walk-stats-bar{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin:10px 0}
+.wsb-item{text-align:center;background:rgba(255,255,255,.03);border-radius:10px;padding:9px 4px}
+.wsb-item .wsb-val{font-size:1rem;font-weight:800;color:var(--blue)}
+.wsb-item .wsb-lbl{font-size:.58rem;color:var(--dim);text-transform:uppercase;letter-spacing:.5px;margin-top:2px}
+/* Food Date Nav */
+.food-date-nav{display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:12px}
+.food-date-nav button{background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:8px;padding:5px 10px;color:var(--text);cursor:pointer;font-size:.8rem;transition:all .2s}
+.food-date-nav button:hover{background:rgba(255,255,255,.1)}
+.food-date-nav .fdn-label{font-size:.85rem;font-weight:700;min-width:120px;text-align:center}
+/* Body Metrics Tile */
+.card.body-metrics::before{background:linear-gradient(90deg,#ec4899,#8b5cf6)}
+.bm-weight-display{text-align:center;padding:14px;background:rgba(236,72,153,.08);border:1px solid rgba(236,72,153,.2);border-radius:14px;margin-bottom:12px}
+.bm-weight-display .bm-w-num{font-size:2.6rem;font-weight:800;color:#ec4899;line-height:1}
+.bm-weight-display .bm-w-sub{font-size:.72rem;color:var(--dim);margin-top:4px}
+.bm-weight-display .bm-w-trend{font-size:.82rem;font-weight:700;margin-top:4px}
+.bm-add-row{display:flex;gap:6px;margin-bottom:8px;align-items:center}
+.bm-add-row label{font-size:.75rem;color:var(--dim);min-width:52px}
+.bm-add-row input{width:80px;background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:8px;padding:7px 8px;color:var(--text);font-size:.82rem;font-family:'Inter',sans-serif;outline:none;text-align:center}
+.bm-add-row input:focus{border-color:#ec4899}
+.bm-add-row button{background:linear-gradient(135deg,#ec4899,#8b5cf6);border:none;border-radius:8px;padding:7px 12px;color:#fff;cursor:pointer;font-size:.78rem;font-weight:700;transition:all .2s;margin-left:auto}
+.bm-add-row button:hover{opacity:.85}
+.bm-measures-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:10px 0}
+.bm-measure-card{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:12px;padding:10px 12px;display:flex;align-items:center;gap:10px}
+.bm-mc-name{font-size:.65rem;color:var(--dim);text-transform:uppercase;letter-spacing:.5px;font-weight:600;min-width:50px}
+.bm-mc-val{font-size:1.1rem;font-weight:800;flex:1}
+.bm-mc-trend{font-size:.85rem;font-weight:700}
+.bm-measure-form{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:12px;background:rgba(255,255,255,.02);border-radius:12px;margin:8px 0}
+.bm-measure-input{display:flex;flex-direction:column;gap:3px}
+.bm-measure-input label{font-size:.68rem;color:var(--dim);font-weight:600;text-transform:uppercase;letter-spacing:.4px}
+.bm-measure-input input{background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:7px;padding:7px 8px;color:var(--text);font-size:.82rem;font-family:'Inter',sans-serif;outline:none;text-align:center;width:100%;box-sizing:border-box}
+.bm-measure-input input:focus{border-color:#8b5cf6}
+.bm-save-btn{grid-column:1/-1;background:linear-gradient(135deg,#ec4899,#8b5cf6);border:none;border-radius:10px;padding:10px;color:#fff;cursor:pointer;font-size:.85rem;font-weight:700;transition:all .2s}
+.bm-save-btn:hover{opacity:.85}
+.bm-section-title{font-size:.65rem;color:var(--dim);text-transform:uppercase;letter-spacing:.6px;font-weight:700;margin:12px 0 6px}
+.bm-withings-btn{width:100%;background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:10px;padding:9px;color:var(--muted);cursor:pointer;font-size:.8rem;font-weight:600;transition:all .2s;margin-bottom:10px}
+.bm-withings-btn:hover{background:rgba(255,255,255,.08);border-color:var(--blue)}
+.bm-chart-section{padding:10px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.04);border-radius:12px;margin-top:8px}
+.bm-chart-label{font-size:.65rem;color:var(--dim);text-transform:uppercase;letter-spacing:.5px;font-weight:600;margin-bottom:6px;display:flex;justify-content:space-between}
 </style>
 </head>
 <body>
@@ -424,6 +466,11 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
 <!-- Food & Drinks -->
 <div class="card food">
 <h2><span class="icon">🍽️</span> Food & Drinks</h2>
+<div class="food-date-nav">
+  <button onclick="shiftFoodDate(-1)">‹</button>
+  <span class="fdn-label" id="foodDateLabel">Today</span>
+  <button onclick="shiftFoodDate(1)" id="foodDateNext">›</button>
+</div>
 <button class="food-meal-btn" onclick="logMeal()">+ Log Meal</button>
 <input type="text" class="food-meal-note" id="foodNote" placeholder="What did you eat? (optional)" onkeydown="if(event.key==='Enter')logMeal()">
 <div class="food-grid">
@@ -447,6 +494,34 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
 <div id="fastTimer"><div class="fast-timer"><div class="ft-label">Loading...</div></div></div>
 <div id="fastStats"></div>
 <div id="fastChart"></div>
+</div>
+<!-- Body Metrics -->
+<div class="card body-metrics">
+<h2><span class="icon">⚖️</span> Body Metrics</h2>
+<div id="bmWeightDisplay"><div class="bm-weight-display"><div class="bm-w-num">--</div><div class="bm-w-sub">No weight logged yet</div></div></div>
+<div class="bm-add-row">
+  <label>⚖️ Weight</label><input type="number" id="addWeight" placeholder="lbs" step="0.1" min="50" max="500" onkeydown="if(event.key==='Enter')logWeight()">
+  <button onclick="logWeight()">+ Log</button>
+</div>
+<button class="bm-withings-btn" onclick="connectWithings()">🔗 Connect Withings Scale (Auto-Sync)</button>
+<div id="bmWeightChart"></div>
+<div class="bm-section-title">Measurements (inches)</div>
+<div class="bm-measures-grid" id="bmMeasuresGrid"><div style="grid-column:1/-1;text-align:center;padding:10px;color:var(--dim);font-size:.82rem">No measurements yet</div></div>
+<details style="margin-top:10px">
+  <summary style="cursor:pointer;font-size:.78rem;color:var(--blue);font-weight:600;padding:6px 0;list-style:none">▸ Add / Update Measurements</summary>
+  <div class="bm-measure-form">
+    <div class="bm-measure-input"><label>Neck</label><input type="number" id="bmNeck" placeholder="in" step="0.25"></div>
+    <div class="bm-measure-input"><label>Chest</label><input type="number" id="bmChest" placeholder="in" step="0.25"></div>
+    <div class="bm-measure-input"><label>Belly</label><input type="number" id="bmBelly" placeholder="in" step="0.25"></div>
+    <div class="bm-measure-input"><label>Hips</label><input type="number" id="bmHips" placeholder="in" step="0.25"></div>
+    <div class="bm-measure-input"><label>Thigh</label><input type="number" id="bmThigh" placeholder="in" step="0.25"></div>
+    <div class="bm-measure-input"><label>Calf</label><input type="number" id="bmCalf" placeholder="in" step="0.25"></div>
+    <div class="bm-measure-input"><label>Biceps</label><input type="number" id="bmBiceps" placeholder="in" step="0.25"></div>
+    <div class="bm-measure-input"><label>Forearms</label><input type="number" id="bmForearms" placeholder="in" step="0.25"></div>
+    <button class="bm-save-btn" onclick="saveMeasurements()">Save Measurements</button>
+  </div>
+</details>
+<div id="bmMeasureCharts"></div>
 </div>
 </div>
 </div>
@@ -601,6 +676,31 @@ function getWeekMiles() {
   return walkLog.filter(w => new Date(w.date) >= weekAgo).reduce((s, w) => s + w.miles, 0);
 }
 
+let walkView = '7days';
+function setWalkView(v) { walkView = v; renderWalkTracker(); }
+
+function getWalkStats(walks, periodDays) {
+  const uniqueDaysWalked = [...new Set(walks.map(w => w.date.slice(0,10)))].length;
+  const totalMiles = walks.reduce((s,w) => s + w.miles, 0);
+  const avgDist = walks.length > 0 ? totalMiles / walks.length : 0;
+  const pacedWalks = walks.filter(w => parsePaceSecs(w.pace));
+  const avgPaceSecs = pacedWalks.length > 0 ? pacedWalks.reduce((s,w) => s + parsePaceSecs(w.pace), 0) / pacedWalks.length : null;
+  const avgMph = avgPaceSecs ? (60 / (avgPaceSecs / 60)).toFixed(1) : null;
+  const weeksInPeriod = Math.max(periodDays / 7, 1);
+  const daysPerWeek = (uniqueDaysWalked / weeksInPeriod).toFixed(1);
+  return { uniqueDaysWalked, totalMiles, avgDist, avgMph, daysPerWeek };
+}
+
+function renderWalkStatBar(stats, showDaysPerWeek) {
+  const items = [
+    { val: showDaysPerWeek ? stats.daysPerWeek : stats.uniqueDaysWalked, lbl: showDaysPerWeek ? 'Days/Wk' : 'Days' },
+    { val: stats.totalMiles.toFixed(1), lbl: 'Total Mi' },
+    { val: stats.avgDist.toFixed(2), lbl: 'Avg Mi' },
+    { val: stats.avgMph ? stats.avgMph + ' mph' : '--', lbl: 'Avg Speed' }
+  ];
+  return '<div class="walk-stats-bar">' + items.map(i => `<div class="wsb-item"><div class="wsb-val">${i.val}</div><div class="wsb-lbl">${i.lbl}</div></div>`).join('') + '</div>';
+}
+
 function renderWalkTracker() {
   const GOAL = 3;
   const todayMiles = getTodayMiles();
@@ -608,24 +708,15 @@ function renderWalkTracker() {
   const pct = Math.min(Math.round(todayMiles / GOAL * 100), 100);
   const r = 50, circ = 2 * Math.PI * r, offset = circ - (pct / 100) * circ;
   const ringColor = pct >= 100 ? '#10b981' : pct >= 50 ? '#f59e0b' : '#3b82f6';
-
-  // Progressive window based on unique days of data
-  const uniqueDays = [...new Set(walkLog.map(w => w.date.slice(0,10)))];
-  const win = getProgressiveWindow(uniqueDays);
-
-  // Today's entries
   const todayDate = new Date().toISOString().slice(0,10);
   const todayEntries = walkLog.filter(w => w.date.slice(0,10) === todayDate);
 
-  // Avg pace across window
-  const cutoff = new Date(); cutoff.setDate(cutoff.getDate() - win.days);
-  const windowWalks = walkLog.filter(w => new Date(w.date) >= cutoff);
-  const pacedWalks = windowWalks.filter(w => parsePaceSecs(w.pace));
-  const avgPaceSecs = pacedWalks.length > 0
-    ? pacedWalks.reduce((s,w) => s + parsePaceSecs(w.pace), 0) / pacedWalks.length
-    : null;
-
   let html = `
+    <div class="walk-tabs">
+      <div class="walk-tab ${walkView==='7days'?'active':''}" onclick="setWalkView('7days')">7 Days</div>
+      <div class="walk-tab ${walkView==='mtd'?'active':''}" onclick="setWalkView('mtd')">MTD</div>
+      <div class="walk-tab ${walkView==='history'?'active':''}" onclick="setWalkView('history')">History</div>
+    </div>
     <div class="walk-goal">
       <svg class="walk-ring" viewBox="0 0 120 120">
         <circle cx="60" cy="60" r="${r}" fill="none" stroke="rgba(255,255,255,.06)" stroke-width="8"/>
@@ -641,7 +732,7 @@ function renderWalkTracker() {
     <div class="walk-log-input">
       <span style="font-size:.8rem;color:var(--green)">🚶</span>
       <input type="number" id="walkMilesInput" placeholder="Miles" step="0.1" min="0.1" max="20" onkeydown="if(event.key==='Enter')logWalk()">
-      <input type="text" id="walkPaceInput" placeholder="MM:SS" style="width:72px;background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:8px;padding:7px 5px;color:var(--text);font-size:.78rem;font-family:'Inter',sans-serif;outline:none;text-align:center" onkeydown="if(event.key==='Enter')logWalk()">
+      <input type="text" id="walkPaceInput" placeholder="MM:SS/mi" style="width:80px;background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:8px;padding:7px 5px;color:var(--text);font-size:.78rem;font-family:'Inter',sans-serif;outline:none;text-align:center" onkeydown="if(event.key==='Enter')logWalk()">
       <select id="walkNoteSelect">
         <option value="Morning walk">Morning</option>
         <option value="Lunch walk">Lunch</option>
@@ -653,72 +744,111 @@ function renderWalkTracker() {
     </div>`;
 
   if (todayEntries.length > 0) {
-    html += '<div style="margin-top:12px">';
+    html += '<div style="margin-top:10px">';
     html += '<div style="font-size:.72rem;color:var(--dim);font-weight:600;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px">Today\'s Walks</div>';
     for (const w of todayEntries) {
       const t = new Date(w.date).toLocaleTimeString('en-US', { hour:'numeric', minute:'2-digit' });
-      const paceLabel = w.pace ? ` · <span style="color:var(--cyan);font-size:.72rem">${w.pace}/mi</span>` : '';
+      const ps = parsePaceSecs(w.pace);
+      const speedLabel = ps ? ` · <span style="color:var(--cyan);font-size:.72rem">${(60/(ps/60)).toFixed(1)} mph</span>` : '';
       html += `<div class="walk-entry">
         <span class="we-date">${t}</span>
         <span class="we-miles">${w.miles.toFixed(1)} mi</span>
-        <span class="we-note">${w.note}${paceLabel}</span>
+        <span class="we-note">${w.note}${w.pace ? ' · '+w.pace+'/mi' : ''}${speedLabel}</span>
         <button class="we-del" onclick="deleteWalkEntry(${w.id})" title="Delete">✕</button>
       </div>`;
     }
     html += '</div>';
   }
 
-  // Progressive history chart
-  const paceLabel = avgPaceSecs ? `Avg Pace: <span style="color:var(--cyan)">${formatPaceSecs(Math.round(avgPaceSecs))}/mi</span>` : '';
-  html += `<div style="margin-top:14px;border-top:1px solid var(--border);padding-top:10px">`;
-  html += `<div style="font-size:.72rem;color:var(--dim);font-weight:600;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;display:flex;justify-content:space-between;align-items:center"><span>${win.label}</span><span>${paceLabel}</span></div>`;
+  // View-specific chart + stats
+  html += '<div style="margin-top:12px;border-top:1px solid var(--border);padding-top:10px">';
 
-  if (win.days <= 30) {
-    // Daily bars
+  if (walkView === '7days') {
     const days = [];
-    for (let i = win.days - 1; i >= 0; i--) {
+    for (let i = 6; i >= 0; i--) {
       const d = new Date(); d.setDate(d.getDate() - i);
-      const dateStr = d.toISOString().slice(0,10);
-      const dayMiles = walkLog.filter(w => w.date.slice(0,10) === dateStr).reduce((s,w) => s + w.miles, 0);
-      const dayAbbr = i === 0 ? 'T' : i === 1 ? 'Y' : d.toLocaleDateString('en-US',{weekday:'short'}).slice(0,2);
-      days.push({ dayMiles, dayAbbr, showLabel: win.days <= 14 || i % 5 === 0 || i === 0 });
+      const ds = d.toISOString().slice(0,10);
+      const dm = walkLog.filter(w => w.date.slice(0,10) === ds).reduce((s,w)=>s+w.miles,0);
+      const lbl = i===0?'T':i===1?'Y':d.toLocaleDateString('en-US',{weekday:'short'}).slice(0,2);
+      days.push({dm, lbl});
     }
-    const maxMiles = Math.max(...days.map(d => d.dayMiles), GOAL, 0.1);
-    html += '<div style="display:flex;gap:3px;align-items:end;height:60px;margin-bottom:4px">';
-    for (const d of days) {
-      const h = d.dayMiles > 0 ? Math.max((d.dayMiles / maxMiles) * 50, 3) : 2;
-      const bc = d.dayMiles >= GOAL ? 'var(--green)' : d.dayMiles > 0 ? 'var(--blue)' : 'rgba(255,255,255,.05)';
+    const sevenWalks = walkLog.filter(w => { const d=new Date(); d.setDate(d.getDate()-7); return new Date(w.date)>=d; });
+    const stats = getWalkStats(sevenWalks, 7);
+    html += renderWalkStatBar(stats, false);
+    const mx = Math.max(...days.map(d=>d.dm), GOAL, 0.1);
+    html += '<div style="display:flex;gap:4px;align-items:end;height:56px;margin-top:8px">';
+    days.forEach(d => {
+      const h = d.dm>0 ? Math.max((d.dm/mx)*48,3) : 2;
+      const bc = d.dm>=GOAL?'var(--green)':d.dm>0?'var(--blue)':'rgba(255,255,255,.05)';
       html += `<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:1px">
-        <div style="font-size:.5rem;color:var(--dim)">${d.dayMiles > 0 && win.days <= 14 ? d.dayMiles.toFixed(1) : ''}</div>
+        <div style="font-size:.5rem;color:var(--dim)">${d.dm>0?d.dm.toFixed(1):''}</div>
         <div style="width:100%;height:${h}px;background:${bc};border-radius:3px"></div>
-        <div style="font-size:.5rem;color:var(--dim)">${d.showLabel ? d.dayAbbr : ''}</div>
+        <div style="font-size:.55rem;color:var(--dim)">${d.lbl}</div>
       </div>`;
-    }
+    });
     html += '</div>';
+
+  } else if (walkView === 'mtd') {
+    const now = new Date();
+    const monthStart = now.toISOString().slice(0,8) + '01';
+    const mtdWalks = walkLog.filter(w => w.date.slice(0,10) >= monthStart);
+    const stats = getWalkStats(mtdWalks, now.getDate());
+    const monthLabel = now.toLocaleString('en-US',{month:'long'}) + ' ' + now.getFullYear();
+    html += `<div style="font-size:.7rem;color:var(--dim);font-weight:600;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px">${monthLabel} MTD</div>`;
+    html += renderWalkStatBar(stats, false);
+    // Daily bars for MTD
+    const daysInMonth = now.getDate();
+    const mtdDays = [];
+    for (let i = 1; i <= daysInMonth; i++) {
+      const ds = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(i).padStart(2,'0')}`;
+      const dm = walkLog.filter(w=>w.date.slice(0,10)===ds).reduce((s,w)=>s+w.miles,0);
+      mtdDays.push({dm, lbl:String(i)});
+    }
+    const mx = Math.max(...mtdDays.map(d=>d.dm), GOAL, 0.1);
+    html += '<div style="display:flex;gap:2px;align-items:end;height:56px;margin-top:8px">';
+    mtdDays.forEach((d,i) => {
+      const h = d.dm>0?Math.max((d.dm/mx)*48,3):2;
+      const bc = d.dm>=GOAL?'var(--green)':d.dm>0?'var(--blue)':'rgba(255,255,255,.05)';
+      html += `<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:1px">
+        <div style="width:100%;height:${h}px;background:${bc};border-radius:2px"></div>
+        <div style="font-size:.45rem;color:var(--dim)">${(i+1)%5===0||i===0?d.lbl:''}</div>
+      </div>`;
+    });
+    html += '</div>';
+
   } else {
+    // History tab — progressive window, weekly aggregates, avg stats
+    const uniqueDays = [...new Set(walkLog.map(w=>w.date.slice(0,10)))];
+    const win = getProgressiveWindow(uniqueDays);
+    const cutoff = new Date(); cutoff.setDate(cutoff.getDate()-win.days);
+    const histWalks = walkLog.filter(w=>new Date(w.date)>=cutoff);
+    const stats = getWalkStats(histWalks, win.days);
+    html += `<div style="font-size:.7rem;color:var(--dim);font-weight:600;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px">${win.label}</div>`;
+    html += renderWalkStatBar(stats, true);
     // Weekly bars
+    const numWeeks = Math.ceil(win.days/7);
     const weeks = [];
-    const numWeeks = Math.ceil(win.days / 7);
-    for (let i = numWeeks - 1; i >= 0; i--) {
-      const wEnd = new Date(); wEnd.setDate(wEnd.getDate() - i * 7);
-      const wStart = new Date(wEnd); wStart.setDate(wStart.getDate() - 6);
-      const wMiles = walkLog.filter(w => { const d = new Date(w.date); return d >= wStart && d <= wEnd; }).reduce((s,w) => s + w.miles, 0);
-      const lbl = i === 0 ? 'Now' : wStart.toLocaleDateString('en-US',{month:'short',day:'numeric'}).slice(0,5);
-      weeks.push({ wMiles, lbl });
+    for (let i=numWeeks-1; i>=0; i--) {
+      const wEnd=new Date(); wEnd.setDate(wEnd.getDate()-i*7);
+      const wStart=new Date(wEnd); wStart.setDate(wStart.getDate()-6);
+      const wm=walkLog.filter(w=>{const d=new Date(w.date);return d>=wStart&&d<=wEnd;}).reduce((s,w)=>s+w.miles,0);
+      const lbl=i===0?'Now':wStart.toLocaleDateString('en-US',{month:'short',day:'numeric'}).slice(0,5);
+      weeks.push({wm,lbl});
     }
-    const maxMiles = Math.max(...weeks.map(w => w.wMiles), GOAL * 7, 0.1);
-    html += '<div style="display:flex;gap:4px;align-items:end;height:60px;margin-bottom:4px">';
-    for (const w of weeks) {
-      const h = w.wMiles > 0 ? Math.max((w.wMiles / maxMiles) * 50, 3) : 2;
-      const bc = w.wMiles >= GOAL * 7 ? 'var(--green)' : w.wMiles > 0 ? 'var(--blue)' : 'rgba(255,255,255,.05)';
-      html += `<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:1px">
-        <div style="font-size:.5rem;color:var(--dim)">${w.wMiles > 0 ? w.wMiles.toFixed(0) : ''}</div>
+    const mx=Math.max(...weeks.map(w=>w.wm),GOAL*7,0.1);
+    html+='<div style="display:flex;gap:3px;align-items:end;height:56px;margin-top:8px">';
+    weeks.forEach(w=>{
+      const h=w.wm>0?Math.max((w.wm/mx)*48,3):2;
+      const bc=w.wm>=GOAL*7?'var(--green)':w.wm>0?'var(--blue)':'rgba(255,255,255,.05)';
+      html+=`<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:1px">
+        <div style="font-size:.48rem;color:var(--dim)">${w.wm>0?w.wm.toFixed(0):''}</div>
         <div style="width:100%;height:${h}px;background:${bc};border-radius:3px"></div>
-        <div style="font-size:.5rem;color:var(--dim)">${w.lbl}</div>
+        <div style="font-size:.48rem;color:var(--dim)">${w.lbl}</div>
       </div>`;
-    }
-    html += '</div>';
+    });
+    html+='</div>';
   }
+
   html += '</div>';
   document.getElementById('walkContent').innerHTML = html;
 }
@@ -2080,10 +2210,34 @@ async function saveIntake() {
   localStorage.setItem('intakeLog', JSON.stringify(intakeLog));
   try { await fetch('http://localhost:8888/data/intake', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(intakeLog) }); } catch(e) {}
 }
+// Food date navigation
+let foodViewDate = getTodayStr();
+function shiftFoodDate(dir) {
+  const d = new Date(foodViewDate + 'T12:00:00');
+  d.setDate(d.getDate() + dir);
+  const newDate = d.toISOString().slice(0,10);
+  if (newDate > getTodayStr()) return; // can't go to future
+  foodViewDate = newDate;
+  const lbl = foodViewDate === getTodayStr() ? 'Today' : d.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'});
+  document.getElementById('foodDateLabel').textContent = lbl;
+  document.getElementById('foodDateNext').disabled = foodViewDate === getTodayStr();
+  renderFood();
+}
+function injectHistoricalData() {
+  const exists = intakeLog.find(e => e.id === 20260519190000001);
+  if (!exists) {
+    intakeLog.push({ id: 20260519190000001, date:'2026-05-19', time:'7:00 PM', timestamp:'2026-05-19T19:00:00.000Z', type:'food', oz:null, note:'½ steak w/ A1 sauce, baked potato w/ butter, cheddar, sour cream & bacon bits' });
+    saveIntake();
+  }
+}
 function logMeal() {
   const note = document.getElementById('foodNote').value.trim();
+  const dateStr = foodViewDate;
+  const isToday = dateStr === getTodayStr();
   const now = new Date();
-  intakeLog.unshift({ id: Date.now(), date: now.toISOString().slice(0,10), time: now.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'}), timestamp: now.toISOString(), type:'food', oz:null, note });
+  const ts = isToday ? now.toISOString() : dateStr + 'T12:00:00.000Z';
+  const timeStr = isToday ? now.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'}) : '12:00 PM';
+  intakeLog.unshift({ id: Date.now(), date: dateStr, time: timeStr, timestamp: ts, type:'food', oz:null, note });
   document.getElementById('foodNote').value = '';
   saveIntake(); renderFood(); renderFasting();
 }
@@ -2092,8 +2246,12 @@ function logDrink(type) {
   const input = document.getElementById(inputId);
   const oz = parseFloat(input.value);
   if (!oz || oz <= 0) return;
+  const dateStr = foodViewDate;
+  const isToday = dateStr === getTodayStr();
   const now = new Date();
-  intakeLog.unshift({ id: Date.now(), date: now.toISOString().slice(0,10), time: now.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'}), timestamp: now.toISOString(), type, oz, note:'' });
+  const ts = isToday ? now.toISOString() : dateStr + 'T12:00:00.000Z';
+  const timeStr = isToday ? now.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'}) : '12:00 PM';
+  intakeLog.unshift({ id: Date.now(), date: dateStr, time: timeStr, timestamp: ts, type, oz, note:'' });
   input.value = '';
   saveIntake(); renderFood(); renderFasting();
 }
@@ -2102,22 +2260,21 @@ function deleteIntake(id) {
   saveIntake(); renderFood(); renderFasting();
 }
 function renderFood() {
-  const today = getTodayStr();
-  const todayEntries = intakeLog.filter(e => e.date === today).sort((a,b) => new Date(b.timestamp) - new Date(a.timestamp));
-  const meals   = todayEntries.filter(e => e.type === 'food').length;
-  const sodaOz  = todayEntries.filter(e => e.type === 'soda').reduce((s,e) => s+(e.oz||0), 0);
-  const beerOz  = todayEntries.filter(e => e.type === 'beer').reduce((s,e) => s+(e.oz||0), 0);
+  const viewEntries = intakeLog.filter(e => e.date === foodViewDate).sort((a,b) => new Date(b.timestamp) - new Date(a.timestamp));
+  const meals  = viewEntries.filter(e => e.type === 'food').length;
+  const sodaOz = viewEntries.filter(e => e.type === 'soda').reduce((s,e) => s+(e.oz||0), 0);
+  const beerOz = viewEntries.filter(e => e.type === 'beer').reduce((s,e) => s+(e.oz||0), 0);
   document.getElementById('fsMeals').textContent = meals;
   document.getElementById('fsSoda').textContent  = sodaOz  % 1 === 0 ? sodaOz  : sodaOz.toFixed(1);
   document.getElementById('fsBeer').textContent  = beerOz  % 1 === 0 ? beerOz  : beerOz.toFixed(1);
   let html = '';
-  for (const e of todayEntries) {
+  for (const e of viewEntries) {
     const icon = e.type === 'food' ? '🍽️' : e.type === 'soda' ? '🥤' : '🍺';
     const label = e.type === 'food' ? `Meal${e.note ? ' — '+e.note : ''}` : e.type.charAt(0).toUpperCase()+e.type.slice(1);
     const amt = e.oz ? ` · ${e.oz}oz` : '';
     html += `<div class="food-entry"><span class="fe-time">${e.time}</span><span class="fe-type">${icon} ${label}</span><span class="fe-amt">${amt}</span><button class="food-del" onclick="deleteIntake(${e.id})">✕</button></div>`;
   }
-  document.getElementById('foodEntries').innerHTML = html || '<div style="text-align:center;padding:14px;color:var(--dim);font-size:.82rem">No entries yet today</div>';
+  document.getElementById('foodEntries').innerHTML = html || '<div style="text-align:center;padding:14px;color:var(--dim);font-size:.82rem">No entries for this day</div>';
 }
 
 // ── Fasting Tracker ──
@@ -2210,6 +2367,159 @@ function renderFastChart(fasts) {
   wrap.innerHTML=`<div class="fast-chart-wrap"><div class="fast-chart-title">${win.label} — Fasting Hours</div><svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:${H}px">${bars}</svg></div>`;
 }
 
+// ── Body Metrics ──
+const BM_REDUCE = ['belly','hips','thigh']; // lower is better
+const BM_FIELDS = ['neck','chest','belly','hips','thigh','calf','biceps','forearms'];
+const BM_LABELS = { neck:'Neck', chest:'Chest', belly:'Belly', hips:'Hips', thigh:'Thigh', calf:'Calf', biceps:'Biceps', forearms:'Forearms' };
+let weightLog = [];
+let metricsLog = [];
+async function loadBodyMetrics() {
+  try { const r=await fetch('http://localhost:8888/data/weightlog'); weightLog=await r.json(); } catch(e) { weightLog=JSON.parse(localStorage.getItem('weightLog')||'[]'); }
+  try { const r=await fetch('http://localhost:8888/data/metricslog'); metricsLog=await r.json(); } catch(e) { metricsLog=JSON.parse(localStorage.getItem('metricsLog')||'[]'); }
+  renderBodyMetrics();
+}
+async function saveWeightLog() {
+  localStorage.setItem('weightLog', JSON.stringify(weightLog));
+  try { await fetch('http://localhost:8888/data/weightlog',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(weightLog)}); } catch(e) {}
+}
+async function saveMetricsLog() {
+  localStorage.setItem('metricsLog', JSON.stringify(metricsLog));
+  try { await fetch('http://localhost:8888/data/metricslog',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(metricsLog)}); } catch(e) {}
+}
+function logWeight() {
+  const input = document.getElementById('addWeight');
+  const w = parseFloat(input.value);
+  if (!w || w < 50 || w > 500) return;
+  const now = new Date();
+  weightLog.unshift({ id: Date.now(), date: now.toISOString().slice(0,10), time: now.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'}), timestamp: now.toISOString(), weight: w });
+  input.value = '';
+  saveWeightLog();
+  renderBodyMetrics();
+}
+function saveMeasurements() {
+  const entry = { id: Date.now(), date: new Date().toISOString().slice(0,10), timestamp: new Date().toISOString() };
+  let hasData = false;
+  BM_FIELDS.forEach(f => {
+    const v = parseFloat(document.getElementById('bm'+f.charAt(0).toUpperCase()+f.slice(1))?.value);
+    if (!isNaN(v) && v > 0) { entry[f] = v; hasData = true; }
+  });
+  if (!hasData) return;
+  metricsLog.unshift(entry);
+  BM_FIELDS.forEach(f => { const el = document.getElementById('bm'+f.charAt(0).toUpperCase()+f.slice(1)); if(el) el.value=''; });
+  saveMetricsLog();
+  renderBodyMetrics();
+}
+function connectWithings() {
+  alert('🔗 Withings OAuth Setup\n\nTo auto-sync your scale:\n1. Go to developer.withings.com\n2. Create a free account\n3. Create an app → get Client ID + Secret\n4. Come back and I can add the OAuth flow!\n\nFor now, use the manual weight entry above.');
+}
+function renderBodyMetrics() {
+  // Weight display
+  const wEl = document.getElementById('bmWeightDisplay');
+  if (wEl) {
+    if (weightLog.length === 0) {
+      wEl.innerHTML = '<div class="bm-weight-display"><div class="bm-w-num">--</div><div class="bm-w-sub">No weight logged yet</div></div>';
+    } else {
+      const latest = weightLog[0];
+      const prev = weightLog[1];
+      const diff = prev ? (latest.weight - prev.weight) : null;
+      const trendColor = diff === null ? 'var(--dim)' : diff < 0 ? 'var(--green)' : diff > 0 ? 'var(--red)' : 'var(--dim)';
+      const trendStr = diff === null ? '' : (diff > 0 ? '+' : '') + diff.toFixed(1) + ' lbs vs prev';
+      wEl.innerHTML = `<div class="bm-weight-display">
+        <div class="bm-w-num">${latest.weight}</div>
+        <div class="bm-w-sub">lbs · ${latest.date}</div>
+        ${trendStr ? `<div class="bm-w-trend" style="color:${trendColor}">${trendStr}</div>` : ''}
+      </div>`;
+    }
+  }
+  // Weight chart
+  renderWeightChart();
+  // Measurements grid
+  const mgEl = document.getElementById('bmMeasuresGrid');
+  if (mgEl) {
+    if (metricsLog.length === 0) {
+      mgEl.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:10px;color:var(--dim);font-size:.82rem">No measurements yet — add them below</div>';
+    } else {
+      const latest = metricsLog[0];
+      const prev = metricsLog[1];
+      let html = '';
+      BM_FIELDS.forEach(f => {
+        const val = latest[f];
+        if (!val) return;
+        const prevVal = prev?.[f];
+        const diff = (prevVal && val) ? val - prevVal : null;
+        const reduce = BM_REDUCE.includes(f);
+        const trendGood = diff === null ? null : (reduce ? diff < 0 : diff > 0);
+        const trendColor = diff === null ? 'var(--dim)' : trendGood ? 'var(--green)' : diff === 0 ? 'var(--dim)' : 'var(--red)';
+        const trendIcon = diff === null ? '' : diff < 0 ? '↓' : diff > 0 ? '↑' : '—';
+        const goal = reduce ? '↓ goal' : '↑ goal';
+        html += `<div class="bm-measure-card">
+          <div>
+            <div class="bm-mc-name">${BM_LABELS[f]}</div>
+            <div style="font-size:.58rem;color:var(--dim)">${goal}</div>
+          </div>
+          <div class="bm-mc-val" style="color:${reduce?'var(--amber)':'var(--blue)'}">${val}"</div>
+          ${diff!==null?`<div class="bm-mc-trend" style="color:${trendColor}">${trendIcon}${Math.abs(diff).toFixed(2)}</div>`:''}
+        </div>`;
+      });
+      mgEl.innerHTML = html;
+    }
+  }
+  // Measurement charts
+  renderMeasureCharts();
+}
+function renderWeightChart() {
+  const el = document.getElementById('bmWeightChart');
+  if (!el || weightLog.length < 2) { if(el) el.innerHTML=''; return; }
+  const uniqueDays = [...new Set(weightLog.map(w=>w.date))];
+  const win = getProgressiveWindow(uniqueDays);
+  const cutoff = new Date(); cutoff.setDate(cutoff.getDate()-win.days);
+  const filtered = weightLog.filter(w=>new Date(w.date)>=cutoff).slice().reverse();
+  if (filtered.length < 2) { el.innerHTML=''; return; }
+  const vals = filtered.map(w=>w.weight);
+  const lbls = filtered.map(w=>{ const d=new Date(w.date+' 12:00'); return d.toLocaleDateString('en-US',{month:'short',day:'numeric'}); });
+  const W=320,H=100,PAD={top:16,right:10,bottom:24,left:40};
+  const cW=W-PAD.left-PAD.right, cH=H-PAD.top-PAD.bottom;
+  const mn=Math.min(...vals)-2, mx=Math.max(...vals)+2;
+  const toY=v=>PAD.top+cH-((v-mn)/(mx-mn))*cH;
+  const toX=i=>PAD.left+i*(cW/Math.max(vals.length-1,1));
+  const pts=vals.map((v,i)=>`${toX(i).toFixed(1)},${toY(v).toFixed(1)}`).join(' ');
+  const dotColor='#ec4899';
+  let yLabels='';
+  for(let t=0;t<=3;t++){const v=(mn+(mx-mn)*t/3).toFixed(0);const y=toY(parseFloat(v)).toFixed(1);yLabels+=`<text x="${PAD.left-4}" y="${parseFloat(y)+3}" text-anchor="end" fill="#64748b" font-size="9">${v}</text>`;}
+  const dots=vals.map((v,i)=>`<circle cx="${toX(i).toFixed(1)}" cy="${toY(v).toFixed(1)}" r="3" fill="${dotColor}" stroke="#0f172a" stroke-width="1"/>`).join('');
+  const firstLbl=`<text x="${toX(0).toFixed(1)}" y="${H-4}" text-anchor="middle" fill="#64748b" font-size="8">${lbls[0]}</text>`;
+  const lastLbl=`<text x="${toX(vals.length-1).toFixed(1)}" y="${H-4}" text-anchor="middle" fill="#64748b" font-size="8">${lbls[lbls.length-1]}</text>`;
+  el.innerHTML=`<div class="bm-chart-section"><div class="bm-chart-label"><span>Weight Trend — ${win.label}</span><span style="color:#ec4899">${vals[vals.length-1]} lbs</span></div><svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:${H}px">${yLabels}<polyline points="${pts}" fill="none" stroke="#ec4899" stroke-width="2" stroke-linejoin="round" opacity=".8"/>${dots}${firstLbl}${lastLbl}</svg></div>`;
+}
+function renderMeasureCharts() {
+  const el = document.getElementById('bmMeasureCharts');
+  if (!el || metricsLog.length < 2) { if(el) el.innerHTML=''; return; }
+  const uniqueDays = [...new Set(metricsLog.map(m=>m.date))];
+  const win = getProgressiveWindow(uniqueDays);
+  const cutoff = new Date(); cutoff.setDate(cutoff.getDate()-win.days);
+  const filtered = metricsLog.filter(m=>new Date(m.date)>=cutoff).slice().reverse();
+  let html = `<div class="bm-section-title">Measurement Trends — ${win.label}</div>`;
+  BM_FIELDS.forEach(f => {
+    const vals = filtered.map(m=>m[f]).filter(v=>v!=null);
+    if (vals.length < 2) return;
+    const reduce = BM_REDUCE.includes(f);
+    const color = reduce ? '#f59e0b' : '#3b82f6';
+    const mn=Math.min(...vals)-0.5, mx=Math.max(...vals)+0.5;
+    const W=320,H=60,PAD={top:10,right:8,bottom:14,left:28};
+    const cW=W-PAD.left-PAD.right, cH=H-PAD.top-PAD.bottom;
+    const toY=v=>PAD.top+cH-((v-mn)/(mx-mn))*cH;
+    const toX=i=>PAD.left+i*(cW/Math.max(vals.length-1,1));
+    const pts=vals.map((v,i)=>`${toX(i).toFixed(1)},${toY(v).toFixed(1)}`).join(' ');
+    const dots=vals.map((v,i)=>`<circle cx="${toX(i).toFixed(1)}" cy="${toY(v).toFixed(1)}" r="2.5" fill="${color}" stroke="#0f172a" stroke-width="1"/>`).join('');
+    const trend = vals[vals.length-1]-vals[0];
+    const trendGood = reduce ? trend<0 : trend>0;
+    const trendStr = (trend>0?'+':'')+trend.toFixed(2)+'"';
+    const trendColor = trendGood?'var(--green)':trend===0?'var(--dim)':'var(--red)';
+    html+=`<div class="bm-chart-section" style="margin-bottom:8px"><div class="bm-chart-label"><span>${BM_LABELS[f]} (${reduce?'↓ reduce':'↑ build'})</span><span style="color:${trendColor}">${trendStr}</span></div><svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:${H}px"><polyline points="${pts}" fill="none" stroke="${color}" stroke-width="1.5" opacity=".8"/>${dots}</svg></div>`;
+  });
+  el.innerHTML = html;
+}
+
 // Init
 loadWeather();
 loadMeetings();
@@ -2219,7 +2529,8 @@ loadTodos();
 loadReminders();
 loadWorkout();
 loadBP();
-loadIntake();
+loadIntake().then(() => injectHistoricalData());
+loadBodyMetrics();
 setInterval(renderFasting, 60000);
 
 // Chat
