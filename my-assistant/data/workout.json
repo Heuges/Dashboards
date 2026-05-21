@@ -1,5 +1,19 @@
 [
   {
+    "date": "2026-05-21",
+    "water": 32,
+    "pushups": 10,
+    "situps": 0,
+    "coffee": 36
+  },
+  {
+    "date": "2026-05-20",
+    "water": 8,
+    "pushups": 10,
+    "situps": 0,
+    "coffee": 0
+  },
+  {
     "date": "2026-05-19",
     "water": 25,
     "pushups": 20,
