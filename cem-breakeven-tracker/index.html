@@ -815,12 +815,13 @@ function renderCFAll() {
 // ─────────────────────────────────────────────────────────────────────────────
 let cfInitialized = false;
 function switchView(view) {
-    document.getElementById('beView').style.display = view==='breakeven' ? '' : 'none';
-    document.getElementById('cfView').style.display = view==='cashflow'  ? '' : 'none';
+    document.getElementById('beView').style.display = view==='breakeven' ? 'block' : 'none';
+    document.getElementById('cfView').style.display = view==='cashflow'  ? 'block' : 'none';
     document.getElementById('btnBreakeven').classList.toggle('active', view==='breakeven');
     document.getElementById('btnCashflow').classList.toggle('active',  view==='cashflow');
     if(view==='cashflow' && !cfInitialized) { cfInitialized=true; renderCFAll(); }
 }
+
 
 // ─────────────────────────────────────────────────────────────────────────────
 //  SCENARIO & HORIZON SELECTORS
