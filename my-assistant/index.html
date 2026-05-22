@@ -1,9 +1,17 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>My Assistant</title>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover">
+<title>Dash — Personal Assistant</title>
+<!-- PWA -->
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#0a0e1a">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Dash">
+<link rel="apple-touch-icon" href="/icon-512.png">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
 <style>
 :root{--bg:#0a0e1a;--card:#1a2236;--border:#1e293b;--green:#10b981;--red:#ef4444;--amber:#f59e0b;--blue:#3b82f6;--purple:#8b5cf6;--cyan:#06b6d4;--text:#f1f5f9;--muted:#94a3b8;--dim:#64748b}
 *{margin:0;padding:0;box-sizing:border-box}
@@ -521,12 +529,221 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
   line-height: 1.45;
   color: var(--text);
 }
+/* ── Mobile PWA styles ─────────────────────────────────────────────── */
+.mobile-only { display: none; }
+.desktop-only { display: block; }
+@media (max-width: 768px) {
+  .mobile-only { display: block; }
+  .desktop-only { display: none; }
+  body { padding-bottom: 80px; }
+  .wrap { padding: 12px 12px 0; }
+  .top h1 { font-size: 1.2rem; }
+  .clock { font-size: 1.8rem; }
+}
+/* Bottom nav */
+#mobileNav {
+  display: none;
+  position: fixed; bottom: 0; left: 0; right: 0; z-index: 9999;
+  background: rgba(15,23,42,0.96);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-top: 1px solid #1e293b;
+  padding: 8px 0 max(8px, env(safe-area-inset-bottom));
+  grid-template-columns: repeat(4,1fr);
+  gap: 0;
+}
+@media (max-width: 768px) { #mobileNav { display: grid; } }
+.nav-btn {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 3px; border: none; background: none; cursor: pointer;
+  color: var(--dim); font-size: .62rem; font-weight: 600;
+  text-transform: uppercase; letter-spacing: .5px; padding: 6px 4px;
+  transition: color .2s;
+}
+.nav-btn.active { color: var(--amber); }
+.nav-btn span:first-child { font-size: 1.4rem; }
+/* Quick Log screen */
+#quickLogScreen {
+  display: none; min-height: 100vh; padding: 16px 16px 100px;
+  background: var(--bg);
+}
+#quickLogScreen.active { display: block; }
+.ql-date {
+  text-align: center; font-size: .75rem; color: var(--dim);
+  font-weight: 600; text-transform: uppercase; letter-spacing: .8px;
+  margin-bottom: 18px; padding-top: 8px;
+}
+.ql-section {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 18px; padding: 18px; margin-bottom: 14px;
+}
+.ql-section-title {
+  font-size: .7rem; font-weight: 700; text-transform: uppercase;
+  letter-spacing: .8px; color: var(--dim); margin-bottom: 14px;
+  display: flex; align-items: center; gap: 8px;
+}
+.ql-count-display {
+  text-align: center; margin-bottom: 14px;
+}
+.ql-big-num { font-size: 3rem; font-weight: 800; line-height: 1; }
+.ql-big-sub { font-size: .72rem; color: var(--dim); margin-top: 4px; }
+.ql-tap-btn {
+  width: 100%; padding: 18px; border-radius: 14px; border: none;
+  font-size: 1rem; font-weight: 700; cursor: pointer;
+  transition: transform .1s, opacity .2s; font-family: 'Inter', sans-serif;
+  display: flex; align-items: center; justify-content: center; gap: 10px;
+  -webkit-tap-highlight-color: transparent;
+}
+.ql-tap-btn:active { transform: scale(0.97); opacity: .85; }
+.ql-presets { display: grid; grid-template-columns: repeat(3,1fr); gap: 8px; margin-bottom: 10px; }
+.ql-preset-btn {
+  padding: 14px 6px; border-radius: 12px; border: 2px solid var(--border);
+  background: rgba(255,255,255,.03); color: var(--text); font-size: .82rem;
+  font-weight: 600; cursor: pointer; text-align: center; transition: border-color .2s, background .2s;
+  font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent;
+}
+.ql-preset-btn.selected { border-color: var(--blue); background: rgba(59,130,246,.12); color: var(--blue); }
+.ql-meal-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px; }
+.ql-meal-btn {
+  padding: 16px 10px; border-radius: 14px; border: 2px solid var(--border);
+  background: rgba(255,255,255,.03); color: var(--text); font-size: .9rem;
+  font-weight: 700; cursor: pointer; text-align: center; transition: all .2s;
+  font-family: 'Inter', sans-serif; display: flex; flex-direction: column;
+  align-items: center; gap: 4px; -webkit-tap-highlight-color: transparent;
+}
+.ql-meal-btn .meal-icon { font-size: 1.6rem; }
+.ql-meal-btn.selected { border-color: var(--purple); background: rgba(139,92,246,.12); color: var(--purple); }
+.ql-input {
+  width: 100%; background: rgba(255,255,255,.05); border: 1px solid var(--border);
+  border-radius: 12px; padding: 12px 14px; color: var(--text); font-size: .9rem;
+  font-family: 'Inter', sans-serif; outline: none; margin-bottom: 10px;
+}
+.ql-input:focus { border-color: var(--blue); }
+.ql-log-list { margin-top: 12px; display: flex; flex-direction: column; gap: 6px; }
+.ql-log-item {
+  display: flex; justify-content: space-between; align-items: center;
+  font-size: .78rem; color: var(--muted); background: rgba(255,255,255,.02);
+  border-radius: 8px; padding: 8px 10px;
+}
+.ql-log-item .ql-log-time { color: var(--dim); font-size: .7rem; }
+/* Weight input on mobile */
+.ql-weight-row {
+  display: flex; gap: 10px; align-items: center;
+}
+.ql-weight-row input {
+  flex: 1; background: rgba(255,255,255,.05); border: 1px solid var(--border);
+  border-radius: 12px; padding: 14px 16px; color: var(--text); font-size: 1.1rem;
+  font-weight: 700; font-family: 'Inter', sans-serif; outline: none; text-align: center;
+}
+.ql-weight-row input:focus { border-color: var(--amber); }
+.ql-toast {
+  position: fixed; bottom: 90px; left: 50%; transform: translateX(-50%) translateY(20px);
+  background: #10b981; color: #fff; padding: 10px 22px; border-radius: 50px;
+  font-size: .82rem; font-weight: 700; opacity: 0; transition: all .3s; z-index: 10000;
+  white-space: nowrap;
+}
+.ql-toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 </style>
 </head>
+
 <body>
+<script>
+// Register service worker
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('/sw.js').then(() => console.log('SW registered'));
+}
+</script>
+
+<!-- ── Quick Log Screen (mobile) ─────────────────────────────────── -->
+<div id="quickLogScreen">
+  <div class="ql-date" id="qlDate"></div>
+
+  <!-- Coffee -->
+  <div class="ql-section">
+    <div class="ql-section-title">☕ Coffee</div>
+    <div class="ql-count-display">
+      <div class="ql-big-num" id="qlCoffeeCount" style="color:#f59e0b">0</div>
+      <div class="ql-big-sub">cups today</div>
+    </div>
+    <button class="ql-tap-btn" style="background:linear-gradient(135deg,#92400e,#f59e0b);color:#fff" onclick="qlAddCoffee()">☕ Add Cup</button>
+    <div class="ql-log-list" id="qlCoffeeLog"></div>
+  </div>
+
+  <!-- Water -->
+  <div class="ql-section">
+    <div class="ql-section-title">💧 Water & Drinks</div>
+    <div class="ql-count-display">
+      <div class="ql-big-num" id="qlWaterTotal" style="color:#06b6d4">0</div>
+      <div class="ql-big-sub">oz today</div>
+    </div>
+    <div class="ql-presets" id="qlWaterPresets">
+      <button class="ql-preset-btn" data-oz="8" onclick="qlSelectWater(this,8)">8 oz<br><span style="font-size:.7rem;color:var(--dim)">glass</span></button>
+      <button class="ql-preset-btn" data-oz="16" onclick="qlSelectWater(this,16)">16 oz<br><span style="font-size:.7rem;color:var(--dim)">bottle</span></button>
+      <button class="ql-preset-btn" data-oz="32" onclick="qlSelectWater(this,32)">32 oz<br><span style="font-size:.7rem;color:var(--dim)">big bottle</span></button>
+    </div>
+    <button class="ql-tap-btn" style="background:linear-gradient(135deg,#0e7490,#06b6d4);color:#fff" onclick="qlAddWater()">💧 Log Drink</button>
+    <div class="ql-log-list" id="qlWaterLog"></div>
+  </div>
+
+  <!-- Food -->
+  <div class="ql-section">
+    <div class="ql-section-title">🍽️ Food Log</div>
+    <div class="ql-meal-grid">
+      <button class="ql-meal-btn" id="meal-breakfast" onclick="qlSelectMeal('breakfast',this)">
+        <span class="meal-icon">🌅</span>Breakfast
+      </button>
+      <button class="ql-meal-btn" id="meal-lunch" onclick="qlSelectMeal('lunch',this)">
+        <span class="meal-icon">☀️</span>Lunch
+      </button>
+      <button class="ql-meal-btn" id="meal-dinner" onclick="qlSelectMeal('dinner',this)">
+        <span class="meal-icon">🌙</span>Dinner
+      </button>
+      <button class="ql-meal-btn" id="meal-snack" onclick="qlSelectMeal('snack',this)">
+        <span class="meal-icon">🍎</span>Snack
+      </button>
+    </div>
+    <input class="ql-input" id="qlFoodNote" placeholder="What did you eat? (optional note)" maxlength="200">
+    <button class="ql-tap-btn" style="background:linear-gradient(135deg,#4c1d95,#8b5cf6);color:#fff" onclick="qlAddFood()">🍽️ Log Meal</button>
+    <div class="ql-log-list" id="qlFoodLog"></div>
+  </div>
+
+  <!-- Weight -->
+  <div class="ql-section">
+    <div class="ql-section-title">⚖️ Weight</div>
+    <div class="ql-count-display">
+      <div class="ql-big-num" id="qlWeightDisplay" style="color:#ec4899">--</div>
+      <div class="ql-big-sub" id="qlWeightSub">lbs today</div>
+    </div>
+    <div class="ql-weight-row">
+      <input type="number" id="qlWeightInput" placeholder="lbs" step="0.1" min="50" max="500">
+      <button class="ql-tap-btn" style="background:linear-gradient(135deg,#831843,#ec4899);color:#fff;width:auto;padding:14px 20px" onclick="qlLogWeight()">Log</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Bottom Nav (mobile only) ──────────────────────────────────── -->
+<nav id="mobileNav">
+  <button class="nav-btn active" id="navDash" onclick="qlShowTab('dash')">
+    <span>🏠</span><span>Dashboard</span>
+  </button>
+  <button class="nav-btn" id="navLog" onclick="qlShowTab('log')">
+    <span>⚡</span><span>Quick Log</span>
+  </button>
+  <button class="nav-btn" id="navWeight" onclick="qlShowTab('weight')">
+    <span>📊</span><span>Charts</span>
+  </button>
+  <button class="nav-btn" id="navFast" onclick="qlShowTab('fast')">
+    <span>⏱️</span><span>Fasting</span>
+  </button>
+</nav>
+
+<!-- Toast -->
+<div class="ql-toast" id="qlToast"></div>
+
 <script src="../admin-nav.js"></script>
 <div class="wrap">
-<a href="../" class="back">← All Dashboards</a>
+<a href="../" class="back desktop-only">← All Dashboards</a>
+
 <div class="top">
 <h1>👋 Good <span id="greeting">Morning</span>, Tommy</h1>
 <div class="clock"><span id="time"></span><div class="date" id="dateStr"></div></div>
@@ -3364,5 +3581,208 @@ function updateHealthAnalysis() {
   container.innerHTML = html;
 }
 </script>
+
+<script>
+// ─── Quick Log ─────────────────────────────────────────────────────────────
+
+const API = 'https://dashboard-assistant.digify.ai';
+const TODAY = new Date().toISOString().slice(0,10);
+
+// State
+let qlCoffeeLog = [];
+let qlWaterLog  = [];
+let qlFoodLog   = [];
+let qlWaterOz   = 16; // default selection
+let qlMeal      = null;
+
+// ── Init ──────────────────────────────────────────────────────────────────
+async function qlInit() {
+  const el = document.getElementById('qlDate');
+  if (el) el.textContent = new Date().toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'});
+
+  try { qlCoffeeLog = (await (await fetch(API+'/data/coffeelog')).json()).filter(e=>e.date===TODAY); } catch(e) { qlCoffeeLog=[]; }
+  try { qlWaterLog  = (await (await fetch(API+'/data/waterlog')).json()).filter(e=>e.date===TODAY);  } catch(e) { qlWaterLog=[];  }
+  try { qlFoodLog   = (await (await fetch(API+'/data/foodlog')).json()).filter(e=>e.date===TODAY);   } catch(e) { qlFoodLog=[];   }
+
+  qlRender();
+
+  // Weight display
+  if (weightLog && weightLog.length > 0) {
+    const todayW = weightLog.find(e=>e.date===TODAY);
+    const el2 = document.getElementById('qlWeightDisplay');
+    const sub  = document.getElementById('qlWeightSub');
+    if (el2) el2.textContent = todayW ? todayW.weight : weightLog[0].weight;
+    if (sub)  sub.textContent = todayW ? 'lbs logged today' : `lbs as of ${weightLog[0].date}`;
+  }
+}
+
+// ── Render today's logs ───────────────────────────────────────────────────
+function qlRender() {
+  // Coffee
+  const cc = document.getElementById('qlCoffeeCount');
+  if (cc) cc.textContent = qlCoffeeLog.length;
+  const cl = document.getElementById('qlCoffeeLog');
+  if (cl) cl.innerHTML = qlCoffeeLog.slice().reverse().slice(0,4).map(e=>
+    `<div class="ql-log-item"><span>☕ ${e.size||'medium'} cup</span><span class="ql-log-time">${e.time}</span></div>`
+  ).join('');
+
+  // Water
+  const total = qlWaterLog.reduce((s,e)=>s+e.oz,0);
+  const wt = document.getElementById('qlWaterTotal');
+  if (wt) wt.textContent = total;
+  const wl = document.getElementById('qlWaterLog');
+  if (wl) wl.innerHTML = qlWaterLog.slice().reverse().slice(0,4).map(e=>
+    `<div class="ql-log-item"><span>💧 ${e.oz} oz</span><span class="ql-log-time">${e.time}</span></div>`
+  ).join('');
+
+  // Food
+  const fl = document.getElementById('qlFoodLog');
+  if (fl) fl.innerHTML = qlFoodLog.slice().reverse().slice(0,5).map(e=>
+    `<div class="ql-log-item"><span>${qlMealIcon(e.meal)} ${e.meal.charAt(0).toUpperCase()+e.meal.slice(1)}${e.note?' — '+e.note:''}</span><span class="ql-log-time">${e.time}</span></div>`
+  ).join('');
+}
+
+function qlMealIcon(m) { return {breakfast:'🌅',lunch:'☀️',dinner:'🌙',snack:'🍎'}[m]||'🍽️'; }
+
+// ── Coffee ────────────────────────────────────────────────────────────────
+async function qlAddCoffee() {
+  const time = new Date().toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});
+  const entry = { id: Date.now(), date: TODAY, time, size: 'medium' };
+  qlCoffeeLog.push(entry);
+  qlRender();
+  qlToast('☕ Cup logged!');
+  await qlSave('coffeelog', qlCoffeeLog);
+}
+
+// ── Water ─────────────────────────────────────────────────────────────────
+function qlSelectWater(btn, oz) {
+  document.querySelectorAll('.ql-preset-btn').forEach(b=>b.classList.remove('selected'));
+  btn.classList.add('selected');
+  qlWaterOz = oz;
+}
+async function qlAddWater() {
+  const time = new Date().toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});
+  const entry = { id: Date.now(), date: TODAY, time, oz: qlWaterOz };
+  qlWaterLog.push(entry);
+  qlRender();
+  qlToast(`💧 ${qlWaterOz} oz logged!`);
+  await qlSave('waterlog', qlWaterLog);
+}
+
+// ── Food ──────────────────────────────────────────────────────────────────
+function qlSelectMeal(meal, btn) {
+  document.querySelectorAll('.ql-meal-btn').forEach(b=>b.classList.remove('selected'));
+  btn.classList.add('selected');
+  qlMeal = meal;
+}
+async function qlAddFood() {
+  if (!qlMeal) { qlToast('Select a meal type first', '#ef4444'); return; }
+  const note = document.getElementById('qlFoodNote')?.value.trim() || '';
+  const time = new Date().toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});
+  const entry = { id: Date.now(), date: TODAY, time, meal: qlMeal, note };
+  qlFoodLog.push(entry);
+  qlRender();
+  qlToast(`${qlMealIcon(qlMeal)} ${qlMeal.charAt(0).toUpperCase()+qlMeal.slice(1)} logged!`);
+  document.getElementById('qlFoodNote').value = '';
+  qlMeal = null;
+  document.querySelectorAll('.ql-meal-btn').forEach(b=>b.classList.remove('selected'));
+  await qlSave('foodlog', qlFoodLog);
+}
+
+// ── Weight ────────────────────────────────────────────────────────────────
+async function qlLogWeight() {
+  const input = document.getElementById('qlWeightInput');
+  const w = parseFloat(input?.value);
+  if (!w || w < 50 || w > 500) { qlToast('Enter a valid weight', '#ef4444'); return; }
+  // Also log to the main weight log
+  if (typeof logWeight === 'function') {
+    // Borrow the main logWeight if available
+    const mainInput = document.getElementById('addWeight');
+    if (mainInput) { mainInput.value = w; logWeight(); }
+  } else {
+    // Direct save
+    const time = new Date().toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});
+    const now = new Date();
+    let wl = [];
+    try { wl = await (await fetch(API+'/data/weightlog')).json(); } catch(e) {}
+    wl = wl.filter(e=>e.date!==TODAY);
+    wl.unshift({id:Date.now(),date:TODAY,time,timestamp:now.toISOString(),weight:w,unit:'lbs',source:'manual'});
+    wl.sort((a,b)=>new Date(b.date)-new Date(a.date));
+    await qlSave('weightlog', wl);
+  }
+  const disp = document.getElementById('qlWeightDisplay');
+  const sub  = document.getElementById('qlWeightSub');
+  if (disp) disp.textContent = w;
+  if (sub)  sub.textContent = 'lbs logged today';
+  input.value = '';
+  qlToast(`⚖️ ${w} lbs logged!`);
+}
+
+// ── Save helper ───────────────────────────────────────────────────────────
+async function qlSave(key, allData) {
+  try {
+    // Merge today's entries with existing (preserve other days)
+    let existing = [];
+    try { existing = await (await fetch(API+'/data/'+key)).json(); } catch(e) {}
+    const other = existing.filter(e=>e.date!==TODAY);
+    const merged = [...other, ...allData].sort((a,b)=>new Date(b.date)-new Date(a.date));
+    await fetch(API+'/data/'+key, {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify(merged)
+    });
+  } catch(e) { console.warn('qlSave error:', e); }
+}
+
+// ── Toast ─────────────────────────────────────────────────────────────────
+function qlToast(msg, color='#10b981') {
+  const t = document.getElementById('qlToast');
+  if (!t) return;
+  t.textContent = msg;
+  t.style.background = color;
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), 2200);
+}
+
+// ── Tab navigation ────────────────────────────────────────────────────────
+const SCROLL_TARGETS = {
+  dash:   null,
+  weight: '.body-metrics',
+  fast:   '.fast-tracker',
+};
+
+function qlShowTab(tab) {
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  const btnMap = {dash:'navDash',log:'navLog',weight:'navWeight',fast:'navFast'};
+  const btn = document.getElementById(btnMap[tab]);
+  if (btn) btn.classList.add('active');
+
+  const ql = document.getElementById('quickLogScreen');
+  const wrap = document.querySelector('.wrap');
+
+  if (tab === 'log') {
+    if (ql) ql.classList.add('active');
+    if (wrap) wrap.style.display = 'none';
+    qlInit();
+  } else {
+    if (ql) ql.classList.remove('active');
+    if (wrap) wrap.style.display = '';
+    if (SCROLL_TARGETS[tab]) {
+      const el = document.querySelector(SCROLL_TARGETS[tab]);
+      if (el) setTimeout(()=>el.scrollIntoView({behavior:'smooth', block:'start'}), 100);
+    } else {
+      window.scrollTo({top:0, behavior:'smooth'});
+    }
+  }
+}
+
+// Auto-init Quick Log data when on mobile and user switches to log tab
+// Pre-select 16oz water
+document.addEventListener('DOMContentLoaded', () => {
+  const def = document.querySelector('.ql-preset-btn[data-oz="16"]');
+  if (def) def.classList.add('selected');
+});
+</script>
 </body>
 </html>
+
