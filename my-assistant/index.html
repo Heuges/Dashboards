@@ -668,8 +668,10 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
 <div id="bmWeightDisplay"><div class="bm-weight-display"><div class="bm-w-num">--</div><div class="bm-w-sub">No weight logged yet</div></div></div>
 <div class="bm-add-row">
   <label>⚖️ Weight</label><input type="number" id="addWeight" placeholder="lbs" step="0.1" min="50" max="500" onkeydown="if(event.key==='Enter')logWeight()">
+  <input type="date" id="addWeightDate" style="background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:8px;padding:7px 8px;color:var(--text);font-size:.78rem;font-family:'Inter',sans-serif;outline:none;color-scheme:dark">
   <button onclick="logWeight()">+ Log</button>
 </div>
+
 <div class="bm-withings-panel" id="bmWithingsPanel">
   <div class="bw-status-row">
     <div class="bw-dot none" id="bwDot"></div>
@@ -2582,14 +2584,24 @@ async function saveMetricsLog() {
 }
 function logWeight() {
   const input = document.getElementById('addWeight');
+  const dateInput = document.getElementById('addWeightDate');
   const w = parseFloat(input.value);
   if (!w || w < 50 || w > 500) return;
   const now = new Date();
-  weightLog.unshift({ id: Date.now(), date: now.toISOString().slice(0,10), time: now.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'}), timestamp: now.toISOString(), weight: w });
+  const entryDate = dateInput.value || now.toISOString().slice(0,10);
+  const entryTime = dateInput.value
+    ? '8:00 AM'
+    : now.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});
+  // Remove existing entry for same date if any
+  weightLog = weightLog.filter(e => e.date !== entryDate);
+  weightLog.push({ id: Date.now(), date: entryDate, time: entryTime, timestamp: new Date(entryDate+'T12:00:00').toISOString(), weight: w });
+  weightLog.sort((a,b) => new Date(b.date) - new Date(a.date));
   input.value = '';
+  dateInput.value = '';
   saveWeightLog();
   renderBodyMetrics();
 }
+
 function saveMeasurements() {
   const entry = { id: Date.now(), date: new Date().toISOString().slice(0,10), timestamp: new Date().toISOString() };
   let hasData = false;
@@ -2762,28 +2774,122 @@ function renderBodyMetrics() {
 }
 function renderWeightChart() {
   const el = document.getElementById('bmWeightChart');
-  if (!el || weightLog.length < 2) { if(el) el.innerHTML=''; return; }
-  const uniqueDays = [...new Set(weightLog.map(w=>w.date))];
-  const win = getProgressiveWindow(uniqueDays);
-  const cutoff = new Date(); cutoff.setDate(cutoff.getDate()-win.days);
-  const filtered = weightLog.filter(w=>new Date(w.date)>=cutoff).slice().reverse();
-  if (filtered.length < 2) { el.innerHTML=''; return; }
-  const vals = filtered.map(w=>w.weight);
-  const lbls = filtered.map(w=>{ const d=new Date(w.date+' 12:00'); return d.toLocaleDateString('en-US',{month:'short',day:'numeric'}); });
-  const W=320,H=100,PAD={top:16,right:10,bottom:24,left:40};
-  const cW=W-PAD.left-PAD.right, cH=H-PAD.top-PAD.bottom;
-  const mn=Math.min(...vals)-2, mx=Math.max(...vals)+2;
-  const toY=v=>PAD.top+cH-((v-mn)/(mx-mn))*cH;
-  const toX=i=>PAD.left+i*(cW/Math.max(vals.length-1,1));
-  const pts=vals.map((v,i)=>`${toX(i).toFixed(1)},${toY(v).toFixed(1)}`).join(' ');
-  const dotColor='#ec4899';
-  let yLabels='';
-  for(let t=0;t<=3;t++){const v=(mn+(mx-mn)*t/3).toFixed(0);const y=toY(parseFloat(v)).toFixed(1);yLabels+=`<text x="${PAD.left-4}" y="${parseFloat(y)+3}" text-anchor="end" fill="#64748b" font-size="9">${v}</text>`;}
-  const dots=vals.map((v,i)=>`<circle cx="${toX(i).toFixed(1)}" cy="${toY(v).toFixed(1)}" r="3" fill="${dotColor}" stroke="#0f172a" stroke-width="1"/>`).join('');
-  const firstLbl=`<text x="${toX(0).toFixed(1)}" y="${H-4}" text-anchor="middle" fill="#64748b" font-size="8">${lbls[0]}</text>`;
-  const lastLbl=`<text x="${toX(vals.length-1).toFixed(1)}" y="${H-4}" text-anchor="middle" fill="#64748b" font-size="8">${lbls[lbls.length-1]}</text>`;
-  el.innerHTML=`<div class="bm-chart-section"><div class="bm-chart-label"><span>Weight Trend — ${win.label}</span><span style="color:#ec4899">${vals[vals.length-1]} lbs</span></div><svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:${H}px">${yLabels}<polyline points="${pts}" fill="none" stroke="#ec4899" stroke-width="2" stroke-linejoin="round" opacity=".8"/>${dots}${firstLbl}${lastLbl}</svg></div>`;
+  if (!el) return;
+  if (weightLog.length < 1) { el.innerHTML = ''; return; }
+
+  // Build a 6-month window
+  const now = new Date();
+  const sixMonthsAgo = new Date(now);
+  sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
+
+  // Get all entries sorted oldest→newest within window
+  let entries = weightLog
+    .filter(w => new Date(w.date) >= sixMonthsAgo)
+    .slice()
+    .sort((a,b) => new Date(a.date) - new Date(b.date));
+
+  // Always include the single entry if we only have one
+  if (entries.length === 0 && weightLog.length > 0) entries = [weightLog[weightLog.length-1]];
+
+  const vals = entries.map(w => w.weight);
+  const dates = entries.map(w => new Date(w.date + 'T12:00:00'));
+
+  const W = 340, H = 140;
+  const PAD = { top: 20, right: 14, bottom: 36, left: 42 };
+  const cW = W - PAD.left - PAD.right;
+  const cH = H - PAD.top - PAD.bottom;
+
+  // Y range — pad a bit for breathing room
+  const mn = Math.min(...vals) - 4;
+  const mx = Math.max(...vals) + 4;
+  const goalWeight = 220; // goal line
+
+  const timeRange = (sixMonthsAgo - now) * -1; // total ms in window
+  const toX = d => PAD.left + ((d - sixMonthsAgo) / timeRange) * cW;
+  const toY = v => PAD.top + cH - ((v - mn) / (mx - mn)) * cH;
+
+  // ── Grid: one vertical line per month ──
+  let grid = '';
+  for (let m = 0; m <= 6; m++) {
+    const d = new Date(sixMonthsAgo);
+    d.setMonth(d.getMonth() + m);
+    d.setDate(1);
+    const x = toX(d).toFixed(1);
+    const label = d.toLocaleDateString('en-US', { month: 'short' });
+    grid += `<line x1="${x}" y1="${PAD.top}" x2="${x}" y2="${PAD.top + cH}" stroke="rgba(255,255,255,0.04)" stroke-width="1"/>`;
+    grid += `<text x="${x}" y="${H - 4}" text-anchor="middle" fill="#475569" font-size="9" font-family="Inter,sans-serif">${label}</text>`;
+  }
+
+  // ── Y-axis labels ──
+  let yLabels = '';
+  const yTicks = 4;
+  for (let t = 0; t <= yTicks; t++) {
+    const v = mn + (mx - mn) * t / yTicks;
+    const y = toY(v).toFixed(1);
+    yLabels += `<text x="${PAD.left - 6}" y="${parseFloat(y) + 3}" text-anchor="end" fill="#475569" font-size="9" font-family="Inter,sans-serif">${Math.round(v)}</text>`;
+    yLabels += `<line x1="${PAD.left}" y1="${y}" x2="${PAD.left + cW}" y2="${y}" stroke="rgba(255,255,255,0.03)" stroke-width="1"/>`;
+  }
+
+  // ── Goal line (if in range) ──
+  let goalLine = '';
+  if (goalWeight >= mn && goalWeight <= mx) {
+    const gy = toY(goalWeight).toFixed(1);
+    goalLine = `<line x1="${PAD.left}" y1="${gy}" x2="${PAD.left + cW}" y2="${gy}" stroke="#10b981" stroke-width="1" stroke-dasharray="4,3" opacity="0.6"/>`;
+    goalLine += `<text x="${PAD.left + cW - 2}" y="${parseFloat(gy) - 3}" text-anchor="end" fill="#10b981" font-size="8" font-family="Inter,sans-serif">Goal: ${goalWeight}</text>`;
+  }
+
+  let areaPts = '', linePts = '', dots = '';
+  if (entries.length === 1) {
+    // Single point — just draw a dot and label
+    const x = toX(dates[0]).toFixed(1);
+    const y = toY(vals[0]).toFixed(1);
+    dots = `<circle cx="${x}" cy="${y}" r="4" fill="#ec4899" stroke="#0f172a" stroke-width="2"/>`;
+    dots += `<text x="${x}" y="${parseFloat(y) - 8}" text-anchor="middle" fill="#ec4899" font-size="10" font-weight="bold" font-family="Inter,sans-serif">${vals[0]} lbs</text>`;
+  } else {
+    // Area fill path
+    const firstX = toX(dates[0]).toFixed(1);
+    const lastX  = toX(dates[dates.length-1]).toFixed(1);
+    const baseY  = (PAD.top + cH).toFixed(1);
+    areaPts = `M ${firstX} ${baseY} `
+      + entries.map((e,i) => `L ${toX(dates[i]).toFixed(1)} ${toY(vals[i]).toFixed(1)}`).join(' ')
+      + ` L ${lastX} ${baseY} Z`;
+    linePts = entries.map((e,i) => `${toX(dates[i]).toFixed(1)},${toY(vals[i]).toFixed(1)}`).join(' ');
+    dots = entries.map((e,i) => {
+      const x = toX(dates[i]).toFixed(1);
+      const y = toY(vals[i]).toFixed(1);
+      const lbl = (i === 0 || i === entries.length - 1)
+        ? `<text x="${x}" y="${parseFloat(y) - 7}" text-anchor="middle" fill="#ec4899" font-size="9" font-family="Inter,sans-serif">${vals[i]}</text>`
+        : '';
+      return `<circle cx="${x}" cy="${y}" r="3" fill="#ec4899" stroke="#0f172a" stroke-width="1.5"/>${lbl}`;
+    }).join('');
+  }
+
+  const totalChange = vals.length > 1 ? (vals[vals.length-1] - vals[0]).toFixed(1) : 0;
+  const changeColor = totalChange < 0 ? '#10b981' : totalChange > 0 ? '#ef4444' : '#64748b';
+  const changeLabel = totalChange < 0 ? `↓ ${Math.abs(totalChange)} lbs in 6mo` : totalChange > 0 ? `↑ ${totalChange} lbs in 6mo` : 'No change';
+
+  el.innerHTML = `
+  <div class="bm-chart-section">
+    <div class="bm-chart-label">
+      <span>Weight — Last 6 Months</span>
+      <span style="color:${changeColor};font-weight:700">${vals.length > 1 ? changeLabel : vals[0]+' lbs'}</span>
+    </div>
+    <div style="font-size:.65rem;color:var(--dim);margin-bottom:6px">Enter past readings using the date picker above to fill in your history</div>
+    <svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:${H}px;overflow:visible">
+      <defs>
+        <linearGradient id="weightGrad" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#ec4899" stop-opacity="0.25"/>
+          <stop offset="100%" stop-color="#ec4899" stop-opacity="0"/>
+        </linearGradient>
+      </defs>
+      ${grid}${yLabels}${goalLine}
+      ${entries.length > 1 ? `<path d="${areaPts}" fill="url(#weightGrad)"/>` : ''}
+      ${entries.length > 1 ? `<polyline points="${linePts}" fill="none" stroke="#ec4899" stroke-width="2" stroke-linejoin="round"/>` : ''}
+      ${dots}
+    </svg>
+  </div>`;
 }
+
 function renderMeasureCharts() {
   const el = document.getElementById('bmMeasureCharts');
   if (!el || metricsLog.length < 2) { if(el) el.innerHTML=''; return; }
