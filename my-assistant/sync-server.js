@@ -8,11 +8,47 @@ const querystring = require('querystring');
 const PORT     = 8888;
 const STATIC_PORT = 8080;
 const DATA_DIR = path.join(__dirname, 'data');
+const DASHBOARDS_DIR = path.join(__dirname, '..');
 const WITHINGS_CONFIG_FILE = path.join(DATA_DIR, 'withings-config.json');
 const WITHINGS_API_FILE    = path.join(DATA_DIR, 'withings-api.json');
+const SHARE_TOKENS_FILE    = path.join(DATA_DIR, 'share-tokens.json');
 const REDIRECT_URI = 'https://dashboard-assistant.digify.ai/withings/callback';
 
 if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
+
+// Board definitions
+const BOARDS = {
+    cem:      { dir: 'cem-breakeven-tracker',      name: 'CEM Breakeven Tracker' },
+    digify:   { dir: 'digify-breakeven-tracker',   name: 'Digify Breakeven Tracker' },
+    networks: { dir: 'networks-breakeven-tracker', name: 'Networks Breakeven Tracker' },
+    remix:    { dir: 'remix-breakeven-tracker',    name: 'Remix Dynamix Breakeven Tracker' },
+};
+
+// ─── Share Token Helpers ───────────────────────────────────────────────────
+
+function generateToken() {
+    return require('crypto').randomBytes(24).toString('hex');
+}
+function readShareTokens() {
+    try { return JSON.parse(fs.readFileSync(SHARE_TOKENS_FILE, 'utf8')); } catch(e) { return {}; }
+}
+function writeShareTokens(tokens) {
+    fs.writeFileSync(SHARE_TOKENS_FILE, JSON.stringify(tokens, null, 2), 'utf8');
+}
+function ensureShareTokens() {
+    const tokens = readShareTokens();
+    let changed = false;
+    for (const key of Object.keys(BOARDS)) {
+        if (!tokens[key]) { tokens[key] = generateToken(); changed = true; }
+    }
+    if (changed) writeShareTokens(tokens);
+    return tokens;
+}
+
+// Auto-generate missing tokens on startup
+const _initTokens = ensureShareTokens();
+console.log('[Share] 🔗 Share tokens ready for:', Object.keys(BOARDS).join(', '));
+
 
 
 // ─── Helpers ───────────────────────────────────────────────────────────────
@@ -715,7 +751,68 @@ const server = http.createServer(async (req, res) => {
         return;
     }
 
+    // ── GET /share/:board/:token ───────────────────────────────────────────
+    if (req.method === 'GET' && req.url.startsWith('/share/')) {
+        const parts = req.url.split('/').filter(Boolean); // ['share','cem','TOKEN']
+        const boardKey = parts[1];
+        const token    = parts[2];
+        const tokens   = readShareTokens();
+        const board    = BOARDS[boardKey];
+
+        if (!board || !token || tokens[boardKey] !== token) {
+            res.writeHead(403, { 'Content-Type': 'text/html' });
+            res.end(`<!DOCTYPE html><html><head><meta charset="UTF-8"><style>body{font-family:sans-serif;background:#0a0e1a;color:#f1f5f9;display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0}.box{background:#1a2236;border:1px solid #1e293b;border-radius:16px;padding:40px;text-align:center}h2{color:#ef4444}</style></head><body><div class="box"><h2>🔒 Access Denied</h2><p style="color:#94a3b8">This link is invalid or has expired.</p></div></body></html>`);
+            return;
+        }
+
+        // Serve the board's HTML with a view-only header injected
+        const boardPath = path.join(DASHBOARDS_DIR, board.dir, 'index.html');
+        try {
+            let html = fs.readFileSync(boardPath, 'utf8');
+            // Inject a small "shared view" banner and disable any edit controls
+            const banner = `<div style="background:linear-gradient(135deg,#1e3a5f,#1a2236);border-bottom:1px solid #1e293b;padding:10px 20px;display:flex;align-items:center;justify-content:between;font-family:'Inter',sans-serif;font-size:.8rem;color:#94a3b8"><span style="flex:1">📊 <strong style="color:#f1f5f9">${board.name}</strong> &nbsp;·&nbsp; View Only</span><span style="color:#64748b">Shared by Loyal Companies</span></div>`;
+            html = html.replace('<body>', '<body>' + banner);
+            res.writeHead(200, { 'Content-Type': 'text/html' });
+            res.end(html);
+        } catch(e) {
+            res.writeHead(404); res.end('Board not found');
+        }
+        return;
+    }
+
+    // ── GET /admin/share-tokens ────────────────────────────────────────────
+    if (req.method === 'GET' && req.url === '/admin/share-tokens') {
+        const tokens = readShareTokens();
+        const BASE = 'https://dashboard-assistant.digify.ai';
+        const result = {};
+        for (const [key, board] of Object.entries(BOARDS)) {
+            result[key] = {
+                name: board.name,
+                token: tokens[key],
+                shareUrl: `${BASE}/share/${key}/${tokens[key]}`
+            };
+        }
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify(result, null, 2));
+        return;
+    }
+
+    // ── POST /admin/share-tokens/regenerate ───────────────────────────────
+    if (req.method === 'POST' && req.url.startsWith('/admin/share-tokens/regenerate')) {
+        const boardKey = req.url.split('/').pop();
+        if (!BOARDS[boardKey]) { res.writeHead(400); res.end(JSON.stringify({ error: 'Unknown board' })); return; }
+        const tokens = readShareTokens();
+        tokens[boardKey] = generateToken();
+        writeShareTokens(tokens);
+        const newUrl = `https://dashboard-assistant.digify.ai/share/${boardKey}/${tokens[boardKey]}`;
+        console.log(`[Share] 🔄 Token regenerated for ${boardKey}: ${newUrl}`);
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ board: boardKey, shareUrl: newUrl }));
+        return;
+    }
+
     res.writeHead(404); res.end();
+
 });
 
 server.listen(PORT, '0.0.0.0', () => {

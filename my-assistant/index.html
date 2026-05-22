@@ -925,7 +925,16 @@ if ('serviceWorker' in navigator) {
 <div id="bmMeasureCharts"></div>
 </div>
 
+<!-- Dashboards Hub Card -->
+<div class="card" style="grid-column:1/-1">
+  <h2><span class="icon">📊</span> Dashboards Hub</h2>
+  <div id="dashHubContent">
+    <div class="loading">Loading dashboards...</div>
+  </div>
+</div>
+
 <!-- Health Analysis Card -->
+
 <div class="card health-analysis">
   <h2><span class="icon">🩺</span> AI Health Insights & Analysis</h2>
   <div id="healthAnalysisContent">
@@ -3321,6 +3330,8 @@ loadWorkout();
 loadBP();
 loadIntake().then(() => injectHistoricalData());
 loadBodyMetrics();
+loadDashHub();
+
 loadWithingsConfig();
 try { updateHealthAnalysis(); } catch(e) {}
 setInterval(renderFasting, 60000);
@@ -3583,7 +3594,65 @@ function updateHealthAnalysis() {
 </script>
 
 <script>
+// ─── Dashboards Hub ───────────────────────────────────────────────────────────
+
+async function loadDashHub() {
+  const el = document.getElementById('dashHubContent');
+  if (!el) return;
+  try {
+    const tokens = await (await fetch('/admin/share-tokens')).json();
+    const icons  = { cem:'🏢', digify:'✨', networks:'🌐', remix:'🎵' };
+    const clrs   = { cem:'#3b82f6', digify:'#8b5cf6', networks:'#06b6d4', remix:'#f59e0b' };
+    el.innerHTML = `
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px;margin-bottom:6px">
+      ${Object.entries(tokens).map(([key, board]) => `
+      <div style="background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:14px;padding:16px">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
+          <span style="font-size:1.4rem">${icons[key]||'📊'}</span>
+          <div>
+            <div style="font-weight:700;font-size:.88rem">${board.name}</div>
+            <div style="font-size:.68rem;color:var(--dim);text-transform:uppercase;letter-spacing:.5px">Breakeven Tracker</div>
+          </div>
+        </div>
+        <div style="display:flex;gap:8px;margin-bottom:10px">
+          <a href="${board.shareUrl}" target="_blank" style="flex:1;text-align:center;padding:9px;background:${clrs[key]||'var(--blue)'};color:#fff;border-radius:10px;text-decoration:none;font-weight:700;font-size:.8rem">Open Board ↗</a>
+        </div>
+        <div style="background:rgba(0,0,0,.2);border-radius:8px;padding:8px 10px;display:flex;align-items:center;gap:6px;margin-bottom:6px">
+          <span style="font-size:.65rem;color:var(--dim);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" id="shareUrl-${key}">${board.shareUrl}</span>
+          <button onclick="copyShareLink('${key}')" id="copyBtn-${key}" style="background:var(--blue);color:#fff;border:none;border-radius:6px;padding:4px 10px;font-size:.68rem;font-weight:700;cursor:pointer;white-space:nowrap;font-family:'Inter',sans-serif">Copy</button>
+        </div>
+        <button onclick="regenerateToken('${key}')" style="width:100%;background:none;border:1px solid var(--border);color:var(--dim);border-radius:8px;padding:6px;font-size:.68rem;cursor:pointer;font-family:'Inter',sans-serif">🔄 Regenerate Link (revokes old link)</button>
+      </div>`).join('')}
+    </div>
+    <div style="font-size:.7rem;color:var(--dim);text-align:center;margin-top:4px">💡 Share links open without a password — recipients can only view that one board</div>`;
+  } catch(e) {
+    el.innerHTML = '<div style="color:var(--dim);font-size:.85rem">Could not load dashboard links.</div>';
+  }
+}
+
+async function copyShareLink(key) {
+  const urlEl = document.getElementById('shareUrl-' + key);
+  const btn   = document.getElementById('copyBtn-' + key);
+  if (!urlEl) return;
+  try {
+    await navigator.clipboard.writeText(urlEl.textContent.trim());
+    btn.textContent = '✅ Copied!'; btn.style.background = '#10b981';
+    setTimeout(() => { btn.textContent = 'Copy'; btn.style.background = 'var(--blue)'; }, 2000);
+  } catch(e) {}
+}
+
+async function regenerateToken(key) {
+  if (!confirm('Regenerate the share link for ' + key.toUpperCase() + '?\n\nThe old link will stop working immediately.')) return;
+  try {
+    const r = await (await fetch('/admin/share-tokens/regenerate/' + key, { method:'POST' })).json();
+    const urlEl = document.getElementById('shareUrl-' + key);
+    if (urlEl) urlEl.textContent = r.shareUrl;
+    if (typeof qlToast === 'function') qlToast('🔄 New link generated!');
+  } catch(e) { alert('Error regenerating token'); }
+}
+
 // ─── Quick Log ─────────────────────────────────────────────────────────────
+
 
 const API = 'https://dashboard-assistant.digify.ai';
 const TODAY = new Date().toISOString().slice(0,10);
