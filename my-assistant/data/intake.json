@@ -1,5 +1,14 @@
 [
   {
+    "id": 1779464149149,
+    "date": "2026-05-22",
+    "time": "8:35 AM",
+    "timestamp": "2026-05-22T15:35:49.149Z",
+    "type": "food",
+    "oz": null,
+    "note": "Eat a Large Alvacado with a little salt"
+  },
+  {
     "id": 20260520183000000,
     "date": "2026-05-20",
     "time": "6:30 PM",

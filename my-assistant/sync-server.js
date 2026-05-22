@@ -1,13 +1,19 @@
-const http = require('http');
+const http  = require('http');
+const https = require('https');
 const { exec } = require('child_process');
 const fs   = require('fs');
 const path = require('path');
+const querystring = require('querystring');
 
 const PORT     = 8888;
+const STATIC_PORT = 8080;
 const DATA_DIR = path.join(__dirname, 'data');
 const WITHINGS_CONFIG_FILE = path.join(DATA_DIR, 'withings-config.json');
+const WITHINGS_API_FILE    = path.join(DATA_DIR, 'withings-api.json');
+const REDIRECT_URI = 'https://dashboard-assistant.digify.ai/withings/callback';
 
 if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
+
 
 // ─── Helpers ───────────────────────────────────────────────────────────────
 
@@ -36,14 +42,26 @@ function writeWithingsConfig(cfg) {
 
 async function scrapeWithings(url) {
     let puppeteer;
-    try { puppeteer = require('puppeteer'); } catch(e) {
-        return { success: false, error: 'Puppeteer not installed', rawText: '' };
+    try { puppeteer = require('puppeteer-core'); } catch(e) {
+        return { success: false, error: 'puppeteer-core not installed', rawText: '' };
     }
+
+    // Find system Chromium
+    const CHROMIUM_PATHS = [
+        '/usr/bin/chromium-browser',
+        '/usr/bin/chromium',
+        '/snap/bin/chromium',
+        '/usr/bin/google-chrome',
+    ];
+    const fs2 = require('fs');
+    const executablePath = CHROMIUM_PATHS.find(p => fs2.existsSync(p));
+    if (!executablePath) return { success: false, error: 'No system Chromium found', rawText: '' };
 
     console.log(`[Withings] Launching headless browser for ${url.slice(0,60)}...`);
     const browser = await puppeteer.launch({
         headless: true,
-        args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage']
+        executablePath,
+        args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage', '--disable-gpu', '--single-process']
     });
 
     try {
@@ -157,9 +175,30 @@ async function scrapeWithings(url) {
                 }
             }
 
+            // ── Try to extract historical readings from chart tooltips / data tables ──
+            // Withings live page sometimes renders a data table or aria labels with readings
+            const historicalReadings = [];
+            try {
+                // Look for elements with weight + date pairs in aria/title/tooltip attrs
+                const dataEls = document.querySelectorAll('[aria-label],[title],[data-value]');
+                dataEls.forEach(el => {
+                    const txt = (el.getAttribute('aria-label') || el.getAttribute('title') || el.getAttribute('data-value') || '').trim();
+                    // Pattern: "264.2 lbs - May 10, 2026" or similar
+                    const m = txt.match(/(\d{2,3}(?:\.\d{1,2})?)\s*(?:lbs?|kg)[\s\-–,]*(\w+ \d{1,2},?\s*\d{4}|\d{4}-\d{2}-\d{2}|\d{1,2}\/\d{1,2}\/\d{2,4})/i);
+                    if (m) historicalReadings.push({ raw: m[0], weight: parseFloat(m[1]), date: m[2] });
+                });
+                // Also try table rows
+                document.querySelectorAll('tr,li').forEach(row => {
+                    const txt = row.innerText || '';
+                    const m = txt.match(/(\d{2,3}(?:\.\d{1,2})?)\s*(?:lbs?|kg)[^\n]*(\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4}|\w+ \d{1,2},?\s*\d{4})/i);
+                    if (m) historicalReadings.push({ raw: m[0], weight: parseFloat(m[1]), date: m[2] });
+                });
+            } catch(e) {}
+
             return {
                 pageText: pageText.slice(0, 8000),
                 weightMatches,
+                historicalReadings,
                 dates: dates.slice(0, 10),
                 selectorData,
                 title: document.title,
@@ -178,20 +217,30 @@ async function scrapeWithings(url) {
         for (const wm of result.weightMatches) {
             const val = wm.value;
             if (val > 80 && val < 400) {
-                // Likely lbs
                 weights.push({ value: val, unit: 'lbs', raw: wm.raw });
             } else if (val > 35 && val < 180) {
-                // Likely kg — convert to lbs
                 weights.push({ value: Math.round(val * 2.20462 * 10) / 10, unit: 'lbs', convertedFrom: 'kg', raw: wm.raw });
             }
         }
 
-        console.log(`[Withings] Scraped — found ${weights.length} weight readings. Title: "${result.title}"`);
-        console.log(`[Withings] Page text preview: ${result.pageText.slice(0, 300)}`);
+        // Process historical readings (with dates)
+        const historical = [];
+        for (const hr of (result.historicalReadings || [])) {
+            const val = hr.weight;
+            if (val > 80 && val < 400) {
+                historical.push({ value: val, unit: 'lbs', dateRaw: hr.date, raw: hr.raw });
+            } else if (val > 35 && val < 180) {
+                historical.push({ value: Math.round(val * 2.20462 * 10) / 10, unit: 'lbs', convertedFrom: 'kg', dateRaw: hr.date, raw: hr.raw });
+            }
+        }
+
+        console.log(`[Withings] Scraped — ${weights.length} latest + ${historical.length} historical readings. Title: "${result.title}"`);
+        if (historical.length > 0) console.log('[Withings] Historical sample:', JSON.stringify(historical.slice(0,3)));
 
         return {
             success: true,
             weights,
+            historical,
             dates: result.dates,
             title: result.title,
             pageTextPreview: result.pageText.slice(0, 2000),
@@ -224,17 +273,15 @@ async function runWithingsSync() {
     writeDataFile('withings-last-sync', syncResult);
 
     // If we found weight data, merge into the weight log
-    if (result.success && result.weights.length > 0) {
+    if (result.success && (result.weights.length > 0 || result.historical.length > 0)) {
         const today = new Date().toISOString().slice(0, 10);
         let weightLog = readDataFile('weightlog');
+        let added = [];
 
-        // Add or update today's weight entry
-        const added = [];
+        // ── Merge latest reading (today) ──
         if (result.weights.length > 0) {
-            // The first weight in result.weights is the most recent (e.g. 264.2)
             const newestWeight = result.weights[0];
             const existingIndex = weightLog.findIndex(e => e.date === today && e.source === 'withings');
-            
             const entry = {
                 id: existingIndex >= 0 ? weightLog[existingIndex].id : Date.now() + Math.random(),
                 date: today,
@@ -248,19 +295,44 @@ async function runWithingsSync() {
                 bone: result.bone,
                 water: result.water
             };
-            
-            if (existingIndex >= 0) {
-                // Update today's entry (overwriting any previous incorrect sync)
-                weightLog[existingIndex] = entry;
-                console.log(`[Withings] ✅ Updated today's weight reading to ${newestWeight.value} lbs.`);
-            } else {
-                // Insert new entry
-                weightLog.unshift(entry);
-                console.log(`[Withings] ✅ Saved new weight reading of ${newestWeight.value} lbs to weightlog.`);
-            }
+            if (existingIndex >= 0) { weightLog[existingIndex] = entry; }
+            else { weightLog.unshift(entry); }
             added.push(entry);
-            writeDataFile('weightlog', weightLog);
+            console.log(`[Withings] ✅ Saved latest weight: ${newestWeight.value} lbs`);
         }
+
+        // ── Merge historical readings (with dates) ──
+        for (const hr of result.historical) {
+            // Parse the date string
+            let parsedDate = null;
+            try {
+                const d = new Date(hr.dateRaw);
+                if (!isNaN(d.getTime())) parsedDate = d.toISOString().slice(0, 10);
+            } catch(e) {}
+            if (!parsedDate) continue;
+
+            // Skip if already have an entry for this date from withings
+            const exists = weightLog.find(e => e.date === parsedDate && e.source === 'withings');
+            if (exists) continue;
+
+            const entry = {
+                id: Date.now() + Math.random(),
+                date: parsedDate,
+                time: '8:00 AM',
+                timestamp: new Date(parsedDate + 'T08:00:00').toISOString(),
+                weight: hr.value,
+                unit: 'lbs',
+                source: 'withings-historical'
+            };
+            weightLog.push(entry);
+            added.push(entry);
+            console.log(`[Withings] ✅ Added historical: ${hr.value} lbs on ${parsedDate}`);
+        }
+
+        // Sort newest first
+        weightLog.sort((a, b) => new Date(b.date) - new Date(a.date));
+        writeDataFile('weightlog', weightLog);
+        console.log(`[Withings] Total weight log entries: ${weightLog.length}`);
     }
 
     // Update config with last sync time
@@ -271,7 +343,149 @@ async function runWithingsSync() {
     return syncResult;
 }
 
-// ─── 10pm Daily Scheduler ─────────────────────────────────────────────────
+// ─── Withings Official API ─────────────────────────────────────────────────
+
+function readWithingsApi() {
+    try { return JSON.parse(fs.readFileSync(WITHINGS_API_FILE, 'utf8')); } catch(e) { return null; }
+}
+function writeWithingsApi(data) {
+    fs.writeFileSync(WITHINGS_API_FILE, JSON.stringify(data, null, 2), 'utf8');
+}
+
+// Make an HTTPS POST to the Withings API
+function withingsPost(path, params) {
+    return new Promise((resolve, reject) => {
+        const body = querystring.stringify(params);
+        const options = {
+            hostname: 'wbsapi.withings.net',
+            path,
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'Content-Length': Buffer.byteLength(body)
+            }
+        };
+        const req = https.request(options, res => {
+            let data = '';
+            res.on('data', c => data += c);
+            res.on('end', () => { try { resolve(JSON.parse(data)); } catch(e) { reject(e); } });
+        });
+        req.on('error', reject);
+        req.write(body);
+        req.end();
+    });
+}
+
+// Refresh the access token using the stored refresh token
+async function refreshWithingsToken() {
+    const api = readWithingsApi();
+    if (!api || !api.refresh_token || !api.client_id || !api.client_secret) {
+        throw new Error('No Withings API credentials stored');
+    }
+    console.log('[Withings API] 🔄 Refreshing access token...');
+    const result = await withingsPost('/v2/oauth2', {
+        action: 'requesttoken',
+        grant_type: 'refresh_token',
+        client_id: api.client_id,
+        client_secret: api.client_secret,
+        refresh_token: api.refresh_token
+    });
+    if (result.status !== 0) throw new Error(`Token refresh failed: ${JSON.stringify(result)}`);
+    const tokens = result.body;
+    const updated = {
+        ...api,
+        access_token: tokens.access_token,
+        refresh_token: tokens.refresh_token,
+        expires_at: Date.now() + (tokens.expires_in * 1000),
+        userid: tokens.userid
+    };
+    writeWithingsApi(updated);
+    console.log('[Withings API] ✅ Token refreshed. Expires:', new Date(updated.expires_at).toLocaleString());
+    return updated;
+}
+
+// Get a valid access token (refresh if needed)
+async function getValidToken() {
+    let api = readWithingsApi();
+    if (!api || !api.access_token) throw new Error('Not authenticated with Withings API');
+    // Refresh if within 5 minutes of expiry
+    if (!api.expires_at || Date.now() > api.expires_at - 300000) {
+        api = await refreshWithingsToken();
+    }
+    return api.access_token;
+}
+
+async function pullWithingsHistory(monthsBack = 6) {
+    const token = await getValidToken();
+    const startdate = Math.floor((Date.now() - monthsBack * 30 * 24 * 3600 * 1000) / 1000);
+    const enddate   = Math.floor(Date.now() / 1000);
+
+    console.log(`[Withings API] 📥 Pulling all body metrics from ${new Date(startdate*1000).toLocaleDateString()}...`);
+
+    // Pull ALL meastype at once (no meastype filter = all types)
+    const result = await withingsPost('/measure', {
+        action: 'getmeas',
+        category: 1,
+        startdate,
+        enddate,
+        access_token: token
+    });
+
+    if (result.status !== 0) throw new Error(`Measurements API error: ${JSON.stringify(result)}`);
+
+    const measuregroups = result.body?.measuregrps || [];
+    const readings = [];
+
+    // Withings meastype: 1=Weight(kg), 5=FatFree(kg), 6=FatRatio(%),
+    // 8=FatMass(kg), 76=Muscle(kg), 77=Water(kg), 88=Bone(kg)
+    const KG_LBS = 2.20462;
+    const r1 = v => Math.round(v * 10) / 10;
+
+    for (const grp of measuregroups) {
+        const date = new Date(grp.date * 1000);
+        const dateStr = date.toISOString().slice(0, 10);
+        const m = {};
+        for (const measure of grp.measures) m[measure.type] = measure.value * Math.pow(10, measure.unit);
+        if (!m[1]) continue;
+        readings.push({
+            date: dateStr,
+            timestamp: date.toISOString(),
+            source: 'withings-api',
+            weight:      r1(m[1] * KG_LBS),
+            weight_kg:   r1(m[1]),
+            fat_pct:     m[6]  != null ? r1(m[6])           : null,
+            fat_kg:      m[8]  != null ? r1(m[8])           : null,
+            fat_lbs:     m[8]  != null ? r1(m[8]  * KG_LBS) : null,
+            fat_free_kg: m[5]  != null ? r1(m[5])           : null,
+            muscle_kg:   m[76] != null ? r1(m[76])          : null,
+            muscle_lbs:  m[76] != null ? r1(m[76] * KG_LBS) : null,
+            water_kg:    m[77] != null ? r1(m[77])          : null,
+            water_lbs:   m[77] != null ? r1(m[77] * KG_LBS) : null,
+            bone_kg:     m[88] != null ? r1(m[88])          : null,
+            bone_lbs:    m[88] != null ? r1(m[88] * KG_LBS) : null,
+        });
+    }
+
+    console.log(`[Withings API] ✅ Got ${readings.length} sessions with body metrics`);
+
+    let weightLog = readDataFile('weightlog');
+    let added = 0, updated = 0;
+    for (const r of readings) {
+        const exists = weightLog.find(e => e.date === r.date && e.source === 'withings-api');
+        if (exists) { Object.assign(exists, r); updated++; continue; }
+        weightLog.push({ id: Date.now() + Math.random(), time: new Date(r.timestamp).toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'}), unit:'lbs', ...r });
+        added++;
+    }
+    weightLog.sort((a, b) => new Date(b.date) - new Date(a.date));
+    writeDataFile('weightlog', weightLog);
+    console.log(`[Withings API] Merged: ${added} new, ${updated} updated. Total: ${weightLog.length}`);
+
+    const api = readWithingsApi();
+    writeWithingsApi({ ...api, lastHistorySync: new Date().toISOString(), totalEntries: weightLog.length });
+    return { added, updated, total: weightLog.length, readings: readings.length };
+}
+
+
 
 let lastScheduledSync = null;
 setInterval(() => {
@@ -300,6 +514,116 @@ const server = http.createServer(async (req, res) => {
         res.end(JSON.stringify(cfg || {}));
         return;
     }
+
+    // ── POST /withings/api-config (save client_id + client_secret) ─────────
+    if (req.method === 'POST' && req.url === '/withings/api-config') {
+        const body = await readBody(req);
+        const { client_id, client_secret } = JSON.parse(body);
+        if (!client_id || !client_secret) {
+            res.writeHead(400); res.end(JSON.stringify({ error: 'client_id and client_secret required' })); return;
+        }
+        const existing = readWithingsApi() || {};
+        writeWithingsApi({ ...existing, client_id, client_secret });
+        console.log('[Withings API] ✅ Client credentials saved.');
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ status: 'saved' }));
+        return;
+    }
+
+    // ── GET /withings/api-config ───────────────────────────────────────────
+    if (req.method === 'GET' && req.url === '/withings/api-config') {
+        const api = readWithingsApi();
+        if (!api) { res.writeHead(200); res.end(JSON.stringify({ connected: false })); return; }
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({
+            connected: !!(api.access_token),
+            has_credentials: !!(api.client_id && api.client_secret),
+            lastHistorySync: api.lastHistorySync || null,
+            totalEntries: api.totalEntries || 0,
+            expires_at: api.expires_at || null
+        }));
+        return;
+    }
+
+    // ── GET /withings/auth (start OAuth2 flow) ─────────────────────────────
+    if (req.method === 'GET' && req.url === '/withings/auth') {
+        const api = readWithingsApi();
+        if (!api || !api.client_id) {
+            res.writeHead(400); res.end(JSON.stringify({ error: 'Save client_id first via /withings/api-config' })); return;
+        }
+        const params = new URLSearchParams({
+            response_type: 'code',
+            client_id: api.client_id,
+            state: 'dash-assistant',
+            scope: 'user.metrics',
+            redirect_uri: REDIRECT_URI,
+        });
+        const authUrl = `https://account.withings.com/oauth2_user/authorize2?${params.toString()}`;
+        console.log('[Withings API] 🔗 Redirecting to Withings OAuth...');
+        res.writeHead(302, { 'Location': authUrl });
+        res.end();
+        return;
+    }
+
+    // ── GET /withings/callback (OAuth2 code exchange) ──────────────────────
+    if (req.method === 'GET' && req.url.startsWith('/withings/callback')) {
+        const urlParams = new URL(req.url, 'https://dashboard-assistant.digify.ai').searchParams;
+        const code  = urlParams.get('code');
+        const error = urlParams.get('error');
+        if (error || !code) {
+            res.writeHead(400, { 'Content-Type': 'text/html' });
+            res.end(`<h2>Withings Auth Error: ${error || 'no code'}</h2>`);
+            return;
+        }
+        try {
+            const api = readWithingsApi();
+            const result = await withingsPost('/v2/oauth2', {
+                action: 'requesttoken',
+                grant_type: 'authorization_code',
+                client_id: api.client_id,
+                client_secret: api.client_secret,
+                code,
+                redirect_uri: REDIRECT_URI
+            });
+            if (result.status !== 0) throw new Error(JSON.stringify(result));
+            const tokens = result.body;
+            writeWithingsApi({
+                ...api,
+                access_token:  tokens.access_token,
+                refresh_token: tokens.refresh_token,
+                expires_at:    Date.now() + (tokens.expires_in * 1000),
+                userid:        tokens.userid,
+                connectedAt:   new Date().toISOString()
+            });
+            console.log('[Withings API] ✅ OAuth complete! Pulling 6-month history...');
+            // Pull history in background
+            pullWithingsHistory(6).then(r => {
+                console.log(`[Withings API] 🎉 History sync complete: ${r.added} new, ${r.total} total entries`);
+            }).catch(e => console.error('[Withings API] History pull error:', e.message));
+            res.writeHead(200, { 'Content-Type': 'text/html' });
+            res.end(`<!DOCTYPE html><html><head><meta charset="UTF-8"><style>body{font-family:sans-serif;background:#0a0e1a;color:#f1f5f9;display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0}.box{background:#1a2236;border:1px solid #1e293b;border-radius:16px;padding:40px;text-align:center;max-width:400px}h2{color:#10b981;margin-bottom:12px}p{color:#94a3b8;margin-bottom:24px}a{display:inline-block;background:#3b82f6;color:#fff;padding:10px 24px;border-radius:10px;text-decoration:none;font-weight:600}</style></head><body><div class="box"><h2>✅ Withings Connected!</h2><p>Pulling your last 6 months of weight data now. The chart will populate within a minute.</p><a href="https://dashboard-assistant.digify.ai">← Back to Dashboard</a></div></body></html>`);
+        } catch(e) {
+            console.error('[Withings API] Callback error:', e.message);
+            res.writeHead(500, { 'Content-Type': 'text/html' });
+            res.end(`<h2>Error: ${e.message}</h2>`);
+        }
+        return;
+    }
+
+    // ── GET /withings/api-sync (trigger manual history pull) ──────────────
+    if (req.method === 'GET' && req.url === '/withings/api-sync') {
+        const api = readWithingsApi();
+        if (!api || !api.access_token) {
+            res.writeHead(400); res.end(JSON.stringify({ error: 'Not connected to Withings API. Visit /withings/auth first.' })); return;
+        }
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ status: 'syncing', message: 'Pulling 6-month history...' }));
+        pullWithingsHistory(6).then(r => {
+            console.log(`[Withings API] Manual sync: ${r.added} new entries, ${r.total} total`);
+        }).catch(e => console.error('[Withings API] Manual sync error:', e.message));
+        return;
+    }
+
 
     // ── POST /withings/link ────────────────────────────────────────────────
     if (req.method === 'POST' && req.url === '/withings/link') {
@@ -365,8 +689,8 @@ const server = http.createServer(async (req, res) => {
         const startTime = new Date();
         console.log(`[${startTime.toLocaleTimeString()}] Sync triggered by dashboard.`);
         const directoriesToSync = [
-            '/Users/thomasheuges/.gemini/antigravity-ide/scratch/antigravity-sync',
-            '/Users/thomasheuges/.gemini/antigravity-ide/scratch/Dashboards'
+            '/home/tommy/work/antigravity-sync',
+            '/home/tommy/work/Dashboards'
         ];
         const results = [];
         let processed = 0;
@@ -394,7 +718,7 @@ const server = http.createServer(async (req, res) => {
     res.writeHead(404); res.end();
 });
 
-server.listen(PORT, () => {
+server.listen(PORT, '0.0.0.0', () => {
     console.log(`🧠 Brain Server running on http://localhost:${PORT}`);
     console.log(`📡 Withings endpoints: /withings/link (POST), /withings/sync (GET), /withings/config (GET)`);
     console.log(`⏰ Withings auto-sync scheduled at 10:00 PM daily`);

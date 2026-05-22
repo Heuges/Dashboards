@@ -685,7 +685,9 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
   </div>
 </div>
 <div id="bmWeightChart"></div>
-<div class="bm-section-title">Measurements (inches)</div>
+<div id="bmCompositionCharts"></div>
+<div class="bm-section-title" style="margin-top:14px">Measurements (inches)</div>
+
 <div class="bm-measures-grid" id="bmMeasuresGrid"><div style="grid-column:1/-1;text-align:center;padding:10px;color:var(--dim);font-size:.82rem">No measurements yet</div></div>
 <details style="margin-top:10px">
   <summary style="cursor:pointer;font-size:.78rem;color:var(--blue);font-weight:600;padding:6px 0;list-style:none">▸ Add / Update Measurements</summary>
@@ -2737,6 +2739,8 @@ function renderBodyMetrics() {
   }
   // Weight chart
   renderWeightChart();
+  renderWithingsCompositionCharts();
+
   // Measurements grid
   const mgEl = document.getElementById('bmMeasuresGrid');
   if (mgEl) {
@@ -2888,6 +2892,69 @@ function renderWeightChart() {
       ${dots}
     </svg>
   </div>`;
+}
+
+function renderWithingsCompositionCharts() {
+  const el = document.getElementById('bmCompositionCharts');
+  if (!el) return;
+  const now = new Date();
+  const sixAgo = new Date(now); sixAgo.setMonth(sixAgo.getMonth() - 6);
+  const timeRange = now - sixAgo;
+  const entries = weightLog
+    .filter(w => w.source === 'withings-api' && new Date(w.date) >= sixAgo && w.fat_pct != null)
+    .slice().sort((a,b) => new Date(a.date) - new Date(b.date));
+  if (entries.length < 1) { el.innerHTML = ''; return; }
+  const latest = entries[entries.length - 1];
+
+  const statBar = `<div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px;margin-bottom:14px">
+    ${[
+      {label:'Fat %',  val:latest.fat_pct   !=null?latest.fat_pct+'%':'—',    color:'#ef4444', sub:latest.fat_lbs   !=null?latest.fat_lbs+' lbs fat':''},
+      {label:'Muscle', val:latest.muscle_lbs!=null?latest.muscle_lbs+' lbs':'—', color:'#3b82f6', sub:latest.muscle_kg!=null?latest.muscle_kg+' kg':''},
+      {label:'Water',  val:latest.water_lbs !=null?latest.water_lbs+' lbs':'—',  color:'#06b6d4', sub:latest.water_kg !=null?latest.water_kg+' kg':''},
+      {label:'Bone',   val:latest.bone_lbs  !=null?latest.bone_lbs+' lbs':'—',   color:'#94a3b8', sub:latest.bone_kg  !=null?latest.bone_kg+' kg':''},
+    ].map(s=>`<div style="text-align:center;background:rgba(255,255,255,.03);border-radius:12px;padding:10px 6px">
+      <div style="font-size:.6rem;text-transform:uppercase;letter-spacing:.8px;color:var(--dim);font-weight:600;margin-bottom:4px">${s.label}</div>
+      <div style="font-size:1.05rem;font-weight:800;color:${s.color}">${s.val}</div>
+      <div style="font-size:.6rem;color:var(--dim);margin-top:2px">${s.sub}</div>
+    </div>`).join('')}
+  </div>`;
+
+  function buildChart(label, field, color, unit, gid) {
+    const pts_data = entries.filter(e=>e[field]!=null);
+    const vals = pts_data.map(e=>e[field]);
+    const dates = pts_data.map(e=>new Date(e.date+'T12:00:00'));
+    if (vals.length < 2) return '';
+    const W=340,H=100,PAD={top:16,right:14,bottom:28,left:40};
+    const cW=W-PAD.left-PAD.right,cH=H-PAD.top-PAD.bottom;
+    const mn=Math.min(...vals)-(Math.max(...vals)-Math.min(...vals))*0.08;
+    const mx=Math.max(...vals)+(Math.max(...vals)-Math.min(...vals))*0.08||mn+1;
+    const toX=d=>PAD.left+((d-sixAgo)/timeRange)*cW;
+    const toY=v=>PAD.top+cH-((v-mn)/(mx-mn))*cH;
+    let grid='';
+    for(let m=0;m<=6;m++){const d=new Date(sixAgo);d.setMonth(d.getMonth()+m);d.setDate(1);const x=toX(d).toFixed(1);grid+=`<line x1="${x}" y1="${PAD.top}" x2="${x}" y2="${PAD.top+cH}" stroke="rgba(255,255,255,0.04)" stroke-width="1"/><text x="${x}" y="${H-2}" text-anchor="middle" fill="#475569" font-size="8" font-family="Inter,sans-serif">${d.toLocaleDateString('en-US',{month:'short'})}</text>`;}
+    let yL='';
+    for(let t=0;t<=3;t++){const v=mn+(mx-mn)*t/3;const y=toY(v).toFixed(1);yL+=`<text x="${PAD.left-5}" y="${parseFloat(y)+3}" text-anchor="end" fill="#475569" font-size="8" font-family="Inter,sans-serif">${Math.round(v*10)/10}</text><line x1="${PAD.left}" y1="${y}" x2="${PAD.left+cW}" y2="${y}" stroke="rgba(255,255,255,0.03)" stroke-width="1"/>`;}
+    const fX=toX(dates[0]).toFixed(1),lX=toX(dates[dates.length-1]).toFixed(1),bY=(PAD.top+cH).toFixed(1);
+    const linePts=vals.map((v,i)=>`${toX(dates[i]).toFixed(1)},${toY(v).toFixed(1)}`).join(' ');
+    const areaPts=`M ${fX} ${bY} `+vals.map((v,i)=>`L ${toX(dates[i]).toFixed(1)} ${toY(v).toFixed(1)}`).join(' ')+` L ${lX} ${bY} Z`;
+    const dots=vals.map((v,i)=>`<circle cx="${toX(dates[i]).toFixed(1)}" cy="${toY(v).toFixed(1)}" r="2.5" fill="${color}" stroke="#0f172a" stroke-width="1.5"/>`).join('');
+    const change=vals[vals.length-1]-vals[0];
+    const goodDown=['fat_pct','fat_lbs'].includes(field);
+    const cc=goodDown?(change<0?'#10b981':change>0?'#ef4444':'#64748b'):(change>0?'#10b981':change<0?'#ef4444':'#64748b');
+    const cs=(change>0?'+':'')+(Math.round(change*10)/10)+unit;
+    return `<div class="bm-chart-section" style="margin-bottom:10px">
+      <div class="bm-chart-label"><span style="color:${color};font-weight:700">${label}</span><span style="color:${cc};font-weight:700">${cs} &nbsp;<span style="color:${color}">${vals[vals.length-1]}${unit} now</span></span></div>
+      <svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:${H}px;overflow:visible">
+        <defs><linearGradient id="${gid}" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="${color}" stop-opacity="0.18"/><stop offset="100%" stop-color="${color}" stop-opacity="0"/></linearGradient></defs>
+        ${grid}${yL}<path d="${areaPts}" fill="url(#${gid})"/><polyline points="${linePts}" fill="none" stroke="${color}" stroke-width="2" stroke-linejoin="round"/>${dots}
+      </svg></div>`;
+  }
+
+  el.innerHTML = `<div class="bm-section-title" style="margin-top:4px">📊 Body Composition — Last 6 Months</div>${statBar}
+    ${buildChart('Fat %','fat_pct','#ef4444','%','fatG')}
+    ${buildChart('Muscle Mass','muscle_lbs','#3b82f6',' lbs','muscleG')}
+    ${buildChart('Water Mass','water_lbs','#06b6d4',' lbs','waterG')}
+    ${buildChart('Bone Mass','bone_lbs','#94a3b8',' lbs','boneG')}`;
 }
 
 function renderMeasureCharts() {
