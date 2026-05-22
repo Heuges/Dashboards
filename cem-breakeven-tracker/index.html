@@ -715,7 +715,8 @@ function renderCFTable() {
     revDefs.forEach(rd => {
         const actual = CF_ACTUALS.rev[rd.key].total.reduce((a,b)=>a+b,0);
         totalRevActual += actual;
-        const forecastShare = forecastRev.map(fr => Math.round(fr * (actual / (CF_ACTUALS.rev.homeServices.total.reduce((a,b)=>a+b,0)+CF_ACTUALS.rev.insurance.total.reduce((a,b)=>a+b,0)+CF_ACTUALS.rev.internalMedia.total.reduce((a,b)=>a+b,0)+CF_ACTUALS.rev.other.total.reduce((a,b)=>a+b,0))));
+        const forecastShare = forecastRev.map(fr => Math.round(fr * (actual / (CF_ACTUALS.rev.homeServices.total.reduce((a,b)=>a+b,0)+CF_ACTUALS.rev.insurance.total.reduce((a,b)=>a+b,0)+CF_ACTUALS.rev.internalMedia.total.reduce((a,b)=>a+b,0)+CF_ACTUALS.rev.other.total.reduce((a,b)=>a+b,0)))));
+
         body += `<tr class="cf-vertical" onclick="toggleClients(this)"><td>${rd.label}</td><td class="pos">$${actual.toLocaleString()}</td>`;
         forecastShare.forEach(f => body += `<td class="cf-forecast pos">$${f.toLocaleString()}</td>`);
         body += `</tr>`;
