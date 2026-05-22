@@ -332,9 +332,8 @@ function formatDate(isoDate) {
 
 function staleness(isoDate) {
     if (!isoDate) return 'never';
-    const days = daysSince(isoDate);
-    if (days <= 3)  return 'fresh';
-    if (days <= 7)  return 'stale';
+    const hours = (Date.now() - new Date(isoDate)) / 3600000;
+    if (hours <= 24) return 'fresh';
     return 'old';
 }
 
@@ -368,8 +367,10 @@ function renderSources() {
 
     // Summary note
     const overdue = SOURCES.filter(s => {
-        const d = daysSince(reviewDates[s.id]);
-        return s.badge !== 'pending' && (d === null || d > 7);
+        if (s.badge === 'pending') return false;
+        const last = reviewDates[s.id];
+        if (!last) return true;
+        return (Date.now() - new Date(last)) > 24 * 3600000;
     });
     note.innerHTML = overdue.length > 0
         ? `⚠️ <strong style="color:#f59e0b">${overdue.length} source${overdue.length>1?'s':''} need review:</strong> ${overdue.map(s=>s.name).join(', ')}`
