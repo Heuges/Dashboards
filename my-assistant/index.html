@@ -749,6 +749,15 @@ if ('serviceWorker' in navigator) {
 <div class="clock"><span id="time"></span><div class="date" id="dateStr"></div></div>
 </div>
 <div class="grid">
+
+<!-- Dashboards Hub Card -->
+<div class="card" style="grid-column:1/-1;background:linear-gradient(135deg,#0f172a,#1a2236);border-color:#334155">
+  <h2><span class="icon">📊</span> Business Dashboards</h2>
+  <p style="color:var(--dim);font-size:.8rem;margin-bottom:16px">Click <strong style="color:var(--text)">Open</strong> to view a board &nbsp;·&nbsp; Click <strong style="color:var(--text)">Copy Link</strong> to get a shareable URL you can text or email to someone — they see only that board, no password needed.</p>
+  <div id="dashHubContent"><div class="loading">Loading dashboards...</div></div>
+</div>
+
+
 <!-- Weather -->
 <div class="card weather">
 <h2><span class="icon">🌤️</span> Weather</h2>
@@ -925,13 +934,7 @@ if ('serviceWorker' in navigator) {
 <div id="bmMeasureCharts"></div>
 </div>
 
-<!-- Dashboards Hub Card -->
-<div class="card" style="grid-column:1/-1">
-  <h2><span class="icon">📊</span> Dashboards Hub</h2>
-  <div id="dashHubContent">
-    <div class="loading">Loading dashboards...</div>
-  </div>
-</div>
+
 
 <!-- Health Analysis Card -->
 
