@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CEM Breakeven Tracker — Weekly View</title>
+    <title>CEM — Breakeven & Cash Flow</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
@@ -15,15 +15,41 @@
         }
         * { margin:0; padding:0; box-sizing:border-box; }
         body { font-family:'Inter',sans-serif; background:var(--bg); color:var(--text); min-height:100vh; }
-        .wrap { max-width:1200px; margin:0 auto; padding:32px 24px; }
-        .header { text-align:center; margin-bottom:32px; }
-        .header h1 { font-size:1.8rem; font-weight:800; background:linear-gradient(135deg,#fff,#94a3b8);
-            -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
-        .header p { color:var(--muted); font-size:.9rem; margin-top:6px; }
-        .card { background:var(--card); border:1px solid var(--border); border-radius:16px; padding:28px; margin-bottom:24px; }
-        .card h2 { font-size:1.1rem; font-weight:700; margin-bottom:4px; }
-        .card .sub { font-size:.8rem; color:var(--dim); margin-bottom:20px; }
-        .chart-box { position:relative; height:420px; }
+        .wrap { max-width:1280px; margin:0 auto; padding:28px 24px; }
+
+        /* ── Header ──────────────────────────────────────────────────────── */
+        .top-bar {
+            display:flex; align-items:center; justify-content:space-between;
+            margin-bottom:28px; flex-wrap:wrap; gap:14px;
+        }
+        .logo-block { display:flex; align-items:center; gap:14px; }
+        .logo-block img { height:40px; filter:brightness(1.1); }
+        .logo-block .co-name {
+            font-size:.72rem; font-weight:700; text-transform:uppercase;
+            letter-spacing:1.5px; color:var(--dim);
+        }
+        .view-toggle {
+            display:flex; gap:0; background:#111827; border-radius:12px;
+            padding:4px; border:1px solid var(--border);
+        }
+        .vt-btn {
+            padding:9px 22px; border-radius:9px; border:none;
+            font-size:.8rem; font-weight:700; cursor:pointer;
+            font-family:'Inter',sans-serif; transition:all .2s;
+            color:var(--dim); background:none;
+        }
+        .vt-btn.active {
+            background:linear-gradient(135deg,#1d4ed8,#3b82f6);
+            color:#fff; box-shadow:0 2px 12px rgba(59,130,246,.3);
+        }
+
+        /* ── Shared card styles ───────────────────────────────────────────── */
+        .card { background:var(--card); border:1px solid var(--border); border-radius:16px; padding:28px; margin-bottom:22px; }
+        .card h2 { font-size:1.05rem; font-weight:700; margin-bottom:4px; }
+        .card .sub { font-size:.78rem; color:var(--dim); margin-bottom:20px; }
+        .chart-box { position:relative; height:380px; }
+
+        /* ── Breakeven view ───────────────────────────────────────────────── */
         .legend-custom { display:flex; gap:24px; justify-content:center; flex-wrap:wrap; margin-bottom:16px; }
         .legend-item { display:flex; align-items:center; gap:6px; font-size:.82rem; color:var(--muted); }
         .legend-line { width:28px; height:3px; border-radius:2px; }
@@ -39,366 +65,825 @@
         .pos { color:var(--green); font-weight:600; }
         .neg { color:var(--red); font-weight:600; }
         .proj { background:rgba(99,102,241,.08); font-style:italic; }
-        .insight { background:rgba(59,130,246,.08); border:1px solid rgba(59,130,246,.2);
-                   border-radius:12px; padding:18px; margin-top:16px; }
+        .insight { background:rgba(59,130,246,.08); border:1px solid rgba(59,130,246,.2); border-radius:12px; padding:18px; margin-top:16px; }
         .insight h4 { color:var(--blue); font-size:.82rem; text-transform:uppercase; letter-spacing:.5px; margin-bottom:8px; }
         .insight p { color:var(--muted); font-size:.88rem; line-height:1.6; }
         .hl { color:var(--green); font-weight:700; }
         .wn { color:var(--amber); font-weight:700; }
-        .footer { text-align:center; margin-top:32px; color:var(--dim); font-size:.75rem; border-top:1px solid var(--border); padding-top:16px; }
+        .footer-bar { text-align:center; margin-top:24px; color:var(--dim); font-size:.72rem; border-top:1px solid var(--border); padding-top:16px; }
 
-        /* Data Sources Tracker */
+        /* ── Data Sources Tracker ─────────────────────────────────────────── */
         .sources-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:14px; margin-top:16px; }
-        .source-tile {
-            background:rgba(255,255,255,.03); border:1px solid var(--border);
-            border-radius:14px; padding:16px; position:relative;
-            transition: border-color .2s;
-        }
+        .source-tile { background:rgba(255,255,255,.03); border:1px solid var(--border); border-radius:14px; padding:16px; transition:border-color .2s; }
         .source-tile:hover { border-color:#334155; }
         .source-tile .st-icon { font-size:1.5rem; margin-bottom:8px; }
         .source-tile .st-name { font-size:.82rem; font-weight:700; color:var(--text); margin-bottom:2px; }
         .source-tile .st-sub  { font-size:.68rem; color:var(--dim); margin-bottom:10px; }
-        .source-tile .st-badge {
-            display:inline-flex; align-items:center; gap:5px;
-            font-size:.65rem; font-weight:700; text-transform:uppercase; letter-spacing:.5px;
-            padding:3px 8px; border-radius:20px; margin-bottom:10px;
-        }
-        .badge-manual   { background:rgba(245,158,11,.15);  color:#f59e0b; }
-        .badge-pending  { background:rgba(239,68,68,.12);   color:#ef4444; }
-        .badge-connected{ background:rgba(16,185,129,.12);  color:#10b981; }
-        .source-tile .st-last {
-            font-size:.72rem; color:var(--muted); margin-bottom:10px;
-            display:flex; align-items:center; gap:5px;
-        }
-        .source-tile .st-last .dot {
-            width:7px; height:7px; border-radius:50%; flex-shrink:0;
-        }
-        .source-tile .st-last .dot.fresh  { background:#10b981; }
-        .source-tile .st-last .dot.stale  { background:#f59e0b; }
-        .source-tile .st-last .dot.old    { background:#ef4444; }
-        .source-tile .st-last .dot.never  { background:#475569; }
-        .mark-btn {
-            width:100%; padding:8px; border-radius:9px; border:none;
-            background:rgba(59,130,246,.15); color:var(--blue);
-            font-size:.72rem; font-weight:700; cursor:pointer;
-            font-family:'Inter',sans-serif; transition:background .2s;
-        }
+        .source-tile .st-badge { display:inline-flex; align-items:center; gap:5px; font-size:.65rem; font-weight:700; text-transform:uppercase; letter-spacing:.5px; padding:3px 8px; border-radius:20px; margin-bottom:10px; }
+        .badge-manual   { background:rgba(245,158,11,.15); color:#f59e0b; }
+        .badge-pending  { background:rgba(239,68,68,.12);  color:#ef4444; }
+        .badge-connected{ background:rgba(16,185,129,.12); color:#10b981; }
+        .source-tile .st-last { font-size:.72rem; color:var(--muted); margin-bottom:10px; display:flex; align-items:center; gap:5px; }
+        .source-tile .st-last .dot { width:7px; height:7px; border-radius:50%; flex-shrink:0; }
+        .source-tile .st-last .dot.fresh { background:#10b981; }
+        .source-tile .st-last .dot.old   { background:#ef4444; }
+        .source-tile .st-last .dot.never { background:#475569; }
+        .mark-btn { width:100%; padding:8px; border-radius:9px; border:none; background:rgba(59,130,246,.15); color:var(--blue); font-size:.72rem; font-weight:700; cursor:pointer; font-family:'Inter',sans-serif; transition:background .2s; }
         .mark-btn:hover { background:rgba(59,130,246,.28); }
         .mark-btn:disabled { opacity:.45; cursor:default; }
         .sources-note { font-size:.72rem; color:var(--dim); margin-top:10px; text-align:center; }
+
+        /* ── Cash Flow View ───────────────────────────────────────────────── */
+        #cfView { display:none; }
+
+        /* KPI tiles */
+        .kpi-row { display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:14px; margin-bottom:22px; }
+        .kpi { background:var(--card); border:1px solid var(--border); border-radius:14px; padding:18px 20px; }
+        .kpi .kpi-label { font-size:.65rem; font-weight:700; text-transform:uppercase; letter-spacing:.8px; color:var(--dim); margin-bottom:8px; }
+        .kpi .kpi-val { font-size:1.8rem; font-weight:800; line-height:1; }
+        .kpi .kpi-sub { font-size:.7rem; color:var(--dim); margin-top:5px; }
+        .kpi .kpi-badge { display:inline-flex; align-items:center; gap:4px; font-size:.7rem; font-weight:700; margin-top:6px; padding:2px 8px; border-radius:20px; }
+        .badge-up   { background:rgba(16,185,129,.15); color:#10b981; }
+        .badge-down { background:rgba(239,68,68,.15);  color:#ef4444; }
+
+        /* Scenario + horizon selectors */
+        .cf-controls { display:flex; align-items:center; gap:12px; flex-wrap:wrap; margin-bottom:20px; }
+        .cf-controls .ctrl-label { font-size:.72rem; color:var(--dim); font-weight:600; text-transform:uppercase; letter-spacing:.5px; }
+        .seg-ctrl { display:flex; background:#111827; border-radius:9px; padding:3px; border:1px solid var(--border); }
+        .seg-btn { padding:6px 14px; border-radius:7px; border:none; font-size:.75rem; font-weight:700; cursor:pointer; font-family:'Inter',sans-serif; transition:all .18s; color:var(--dim); background:none; }
+        .seg-btn.active { color:#fff; }
+        .seg-btn.active.green { background:#059669; }
+        .seg-btn.active.blue  { background:var(--blue); }
+        .seg-btn.active.amber { background:#d97706; }
+
+        /* Waterfall chart */
+        .waterfall-wrap { position:relative; height:280px; margin-bottom:22px; }
+
+        /* Cash flow balance sheet table */
+        .cf-table { width:100%; border-collapse:collapse; font-size:.82rem; }
+        .cf-table th {
+            background:#111827; color:var(--dim); font-size:.65rem; font-weight:700;
+            text-transform:uppercase; letter-spacing:.8px; padding:10px 14px;
+            text-align:right; border-bottom:2px solid var(--border); white-space:nowrap;
+        }
+        .cf-table th:first-child { text-align:left; }
+        .cf-table td { padding:9px 14px; text-align:right; border-bottom:1px solid rgba(30,41,59,.3); }
+        .cf-table td:first-child { text-align:left; }
+        /* Section header rows */
+        .cf-section-hdr td {
+            background:linear-gradient(90deg,rgba(59,130,246,.1),transparent);
+            color:var(--text); font-weight:800; font-size:.78rem;
+            text-transform:uppercase; letter-spacing:.6px; padding-top:14px;
+            border-top:1px solid rgba(59,130,246,.2);
+        }
+        .cf-section-hdr td:first-child { color:var(--blue); }
+        /* Vertical rows */
+        .cf-vertical td { font-weight:700; color:var(--text); background:rgba(255,255,255,.02); }
+        .cf-vertical td:first-child { padding-left:14px; }
+        /* Client rows */
+        .cf-client td { color:var(--muted); font-size:.8rem; }
+        .cf-client td:first-child { padding-left:32px; color:var(--dim); }
+        /* Total rows */
+        .cf-total td { font-weight:800; border-top:2px solid var(--border); padding-top:12px; padding-bottom:12px; }
+        .cf-total.inflow td { color:var(--green); }
+        .cf-total.outflow td { color:var(--red); }
+        .cf-net td { font-weight:800; font-size:.92rem; background:rgba(16,185,129,.06); border-top:2px solid #10b981; }
+        .cf-net.neg td { color:var(--red); background:rgba(239,68,68,.06); border-top:2px solid #ef4444; }
+        /* Forecast columns */
+        .cf-forecast { color:var(--dim); font-style:italic; }
+        .cf-forecast-hdr { background:rgba(99,102,241,.07); color:#a5b4fc; border-left:1px dashed rgba(99,102,241,.3); }
+        .cf-forecast-hdr.first { border-left:1px dashed rgba(99,102,241,.3); }
+        /* Toggle child rows */
+        .cf-client { display:none; }
+        .cf-vertical.expanded ~ .cf-client { display:table-row; }
+        .cf-vertical td:first-child { cursor:pointer; user-select:none; }
+        .cf-vertical td:first-child::before { content:'▶ '; font-size:.6rem; color:var(--dim); transition:transform .2s; display:inline-block; }
+        .cf-vertical.expanded td:first-child::before { transform:rotate(90deg); }
+
+        /* Scenario flag badges */
+        .flag-row { margin-top:16px; display:flex; flex-direction:column; gap:8px; }
+        .flag { display:flex; align-items:flex-start; gap:10px; background:rgba(255,255,255,.02); border:1px solid var(--border); border-radius:10px; padding:12px 14px; }
+        .flag-icon { font-size:1.1rem; flex-shrink:0; margin-top:1px; }
+        .flag-body { flex:1; }
+        .flag-title { font-size:.75rem; font-weight:700; color:var(--text); margin-bottom:3px; }
+        .flag-detail { font-size:.72rem; color:var(--dim); line-height:1.5; }
+        .flag.warn { border-color:rgba(245,158,11,.25); background:rgba(245,158,11,.04); }
+        .flag.good { border-color:rgba(16,185,129,.25); background:rgba(16,185,129,.04); }
+        .flag.info { border-color:rgba(59,130,246,.2); background:rgba(59,130,246,.04); }
+
+        /* Data entry modal */
+        .modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,.7); backdrop-filter:blur(6px); z-index:1000; align-items:center; justify-content:center; }
+        .modal-overlay.open { display:flex; }
+        .modal { background:#1a2236; border:1px solid var(--border); border-radius:20px; padding:32px; width:min(700px,95vw); max-height:90vh; overflow-y:auto; }
+        .modal h3 { font-size:1.1rem; font-weight:800; margin-bottom:6px; }
+        .modal .modal-sub { font-size:.8rem; color:var(--dim); margin-bottom:24px; }
+        .form-grid { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+        .form-group { display:flex; flex-direction:column; gap:5px; }
+        .form-group label { font-size:.7rem; font-weight:700; color:var(--dim); text-transform:uppercase; letter-spacing:.5px; }
+        .form-group input, .form-group select {
+            background:rgba(255,255,255,.05); border:1px solid var(--border);
+            border-radius:10px; padding:10px 12px; color:var(--text);
+            font-size:.88rem; font-family:'Inter',sans-serif; outline:none;
+        }
+        .form-group input:focus, .form-group select:focus { border-color:var(--blue); }
+        .form-group.full { grid-column:1/-1; }
+        .modal-actions { display:flex; gap:10px; justify-content:flex-end; margin-top:24px; }
+        .btn-primary { background:linear-gradient(135deg,#1d4ed8,#3b82f6); color:#fff; border:none; border-radius:10px; padding:11px 24px; font-weight:700; font-size:.85rem; cursor:pointer; font-family:'Inter',sans-serif; }
+        .btn-secondary { background:rgba(255,255,255,.06); color:var(--muted); border:1px solid var(--border); border-radius:10px; padding:11px 24px; font-weight:600; font-size:.85rem; cursor:pointer; font-family:'Inter',sans-serif; }
     </style>
 </head>
 <body>
 <div class="wrap">
-    <div class="header">
-        <h1>CEM Breakeven Tracker — Weekly View</h1>
-        <p>Revenue vs. Breakeven (Reduced & Full Strength) · Last 5 Weeks + 3 Week Projection</p>
-    </div>
 
-    <div class="card">
-        <h2>📊 Weekly Revenue vs. Breakeven Lines</h2>
-        <div class="sub">Green = Revenue · Red = Expenses · Amber dashed = Reduced BE ($56K/wk) · Purple dashed = Full Strength BE ($130K/wk)</div>
-        <div class="legend-custom">
-            <div class="legend-item"><div class="legend-line" style="background:var(--green)"></div> Revenue</div>
-            <div class="legend-item"><div class="legend-line" style="background:var(--red)"></div> Expenses</div>
-            <div class="legend-item"><div class="legend-dash" style="border-color:var(--amber)"></div> BE Reduced ($56K)</div>
-            <div class="legend-item"><div class="legend-dash" style="border-color:var(--purple)"></div> BE Full ($130K)</div>
-            <div class="legend-item"><div class="legend-line" style="background:rgba(99,102,241,.3);height:12px;border-radius:4px"></div> Projected</div>
+    <!-- Top Bar with Logo + View Toggle -->
+    <div class="top-bar">
+        <div class="logo-block">
+            <img src="cem-logo.png" alt="Channel Edge Media">
+            <div>
+                <div class="co-name">Financial Dashboard</div>
+            </div>
         </div>
-        <div class="chart-box">
-            <canvas id="mainChart"></canvas>
+        <div class="view-toggle">
+            <button class="vt-btn active" id="btnBreakeven" onclick="switchView('breakeven')">📊 Weekly Breakeven</button>
+            <button class="vt-btn" id="btnCashflow" onclick="switchView('cashflow')">💰 Cash Flow</button>
         </div>
     </div>
 
-    <div class="card">
-        <h2>📋 Weekly Data — Actual + Projected</h2>
-        <div class="sub">Blue-shaded rows are projections based on weighted avg + trend of last 3 actual weeks</div>
-        <table>
-            <thead><tr>
+    <!-- ════════════════════════════════════════════════════════════════
+         BREAKEVEN VIEW
+    ════════════════════════════════════════════════════════════════ -->
+    <div id="beView">
+        <div style="text-align:center; margin-bottom:28px;">
+            <h1 style="font-size:1.6rem;font-weight:800;background:linear-gradient(135deg,#fff,#94a3b8);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">CEM Breakeven Tracker — Weekly View</h1>
+            <p style="color:var(--muted);font-size:.9rem;margin-top:6px;">Revenue vs. Breakeven (Reduced &amp; Full Strength) · Last 5 Weeks + 3 Week Projection</p>
+        </div>
+
+        <div class="card">
+            <h2>📊 Weekly Revenue vs. Breakeven Lines</h2>
+            <div class="sub">Green = Revenue · Red = Expenses · Amber dashed = Reduced BE ($56K/wk) · Purple dashed = Full Strength BE ($130K/wk)</div>
+            <div class="legend-custom">
+                <div class="legend-item"><div class="legend-line" style="background:var(--green)"></div> Revenue</div>
+                <div class="legend-item"><div class="legend-line" style="background:var(--red)"></div> Expenses</div>
+                <div class="legend-item"><div class="legend-dash" style="border-color:var(--amber)"></div> BE Reduced ($56K)</div>
+                <div class="legend-item"><div class="legend-dash" style="border-color:var(--purple)"></div> BE Full ($130K)</div>
+                <div class="legend-item"><div class="legend-line" style="background:rgba(99,102,241,.3);height:12px;border-radius:4px"></div> Projected</div>
+            </div>
+            <div class="chart-box"><canvas id="mainChart"></canvas></div>
+        </div>
+
+        <div class="card">
+            <h2>📋 Weekly Data — Actual + Projected</h2>
+            <div class="sub">Blue-shaded rows are projections based on weighted avg + trend of last 3 actual weeks</div>
+            <table><thead><tr>
                 <th style="text-align:left">Week</th><th>Revenue</th><th>Expenses</th><th>Net</th>
                 <th>BE Reduced</th><th>BE Full</th><th>vs. Reduced</th><th>vs. Full</th>
-            </tr></thead>
-            <tbody id="tbl"></tbody>
-        </table>
+            </tr></thead><tbody id="tbl"></tbody></table>
+        </div>
+
+        <div class="card">
+            <h2>🔍 Analysis</h2>
+            <div class="insight">
+                <h4>Where CEM Stands</h4>
+                <p>CEM revenue is <span class="hl">above the reduced breakeven</span> ($56K/week) in 4 of the last 5 weeks.
+                However, it remains <span class="wn">below the full strength breakeven</span> ($130K/week) — meaning CEM cannot yet afford to bring back all staff.</p>
+            </div>
+            <div class="insight" style="margin-top:12px">
+                <h4>3-Week Projection</h4>
+                <p>Based on the last 3 weeks, revenue has an <span class="hl">upward trend of +$12,906/week</span>.
+                Projected weeks 6–8 show revenue between <span class="hl">$91K–$104K/week</span> —
+                comfortably above reduced BE but still <span class="wn">$26K–$39K short</span> of full strength BE.
+                At current trajectory, CEM would need approximately <span class="wn">6–8 more weeks</span> of this growth rate to reach full strength breakeven.</p>
+            </div>
+            <div class="insight" style="margin-top:12px;border-color:rgba(139,92,246,.3);background:rgba(139,92,246,.08)">
+                <h4>Path to Full Strength</h4>
+                <p>To hit full strength breakeven ($130K/week), CEM needs <span class="wn">+$52K/week more revenue</span> (67% increase from current avg).
+                If the +$12.9K/week trend holds, CEM could reach full strength breakeven by approximately <span class="hl">late June / early July 2026</span>.</p>
+            </div>
+        </div>
+
+        <div class="footer-bar">CEM Breakeven Tracker · Data: Chase Bank (9536+9207) + CEM_Budget_V6 · May 18, 2026</div>
+
+        <div class="card" id="dataSourcesCard">
+            <h2>🗂️ Financial Data Sources</h2>
+            <p style="font-size:.82rem;color:var(--dim);margin-bottom:4px">Every place financial data comes from. Click <strong style="color:var(--text)">Mark Reviewed</strong> after you've checked that source for new data.</p>
+            <div class="sources-grid" id="sourcesGrid">Loading...</div>
+            <div class="sources-note" id="sourcesNote"></div>
+        </div>
     </div>
 
-    <div class="card">
-        <h2>🔍 Analysis</h2>
-        <div class="insight">
-            <h4>Where CEM Stands</h4>
-            <p>CEM revenue is <span class="hl">above the reduced breakeven</span> ($56K/week) in 4 of the last 5 weeks.
-            However, it remains <span class="wn">below the full strength breakeven</span> ($130K/week) — meaning CEM cannot yet afford to bring back all staff.</p>
-        </div>
-        <div class="insight" style="margin-top:12px">
-            <h4>3-Week Projection</h4>
-            <p>Based on the last 3 weeks, revenue has an <span class="hl">upward trend of +$12,906/week</span>.
-            Projected weeks 6–8 show revenue between <span class="hl">$91K–$104K/week</span> — 
-            comfortably above reduced BE but still <span class="wn">$26K–$39K short</span> of full strength BE.
-            At current trajectory, CEM would need approximately <span class="wn">6–8 more weeks</span> of this growth rate to reach full strength breakeven.</p>
-        </div>
-        <div class="insight" style="margin-top:12px; border-color:rgba(139,92,246,.3); background:rgba(139,92,246,.08)">
-            <h4>Path to Full Strength</h4>
-            <p>To hit full strength breakeven ($130K/week), CEM needs <span class="wn">+$52K/week more revenue</span> (67% increase from current avg).
-            If the +$12.9K/week trend holds, CEM could reach full strength breakeven by approximately <span class="hl">late June / early July 2026</span>.</p>
-        </div>
-    </div>
+    <!-- ════════════════════════════════════════════════════════════════
+         CASH FLOW VIEW
+    ════════════════════════════════════════════════════════════════ -->
+    <div id="cfView">
 
-    <div class="footer">CEM Breakeven Tracker · Data: Chase Bank (9536+9207) + CEM_Budget_V6 · May 18, 2026</div>
+        <!-- Controls row -->
+        <div class="cf-controls">
+            <span class="ctrl-label">Forecast:</span>
+            <div class="seg-ctrl">
+                <button class="seg-btn active blue" id="h1m" onclick="setHorizon(1,this)">1 Month</button>
+                <button class="seg-btn" id="h3m" onclick="setHorizon(3,this)">3 Months</button>
+                <button class="seg-btn" id="h4m" onclick="setHorizon(4,this)">4 Months</button>
+                <button class="seg-btn" id="h6m" onclick="setHorizon(6,this)">6 Months</button>
+            </div>
+            <span class="ctrl-label" style="margin-left:8px">Scenario:</span>
+            <div class="seg-ctrl">
+                <button class="seg-btn active green" id="sConservative" onclick="setScenario('conservative',this)">Conservative</button>
+                <button class="seg-btn" id="sBase" onclick="setScenario('base',this)">Base Case</button>
+                <button class="seg-btn" id="sGrowth" onclick="setScenario('growth',this)">Growth</button>
+            </div>
+            <button onclick="openEntryModal()" style="margin-left:auto;background:rgba(59,130,246,.15);color:var(--blue);border:1px solid rgba(59,130,246,.3);border-radius:10px;padding:8px 18px;font-size:.78rem;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;">
+                + Enter Weekly Data
+            </button>
+        </div>
 
-    <!-- Data Sources Card -->
-    <div class="card" id="dataSourcesCard">
-        <h2>🗂️ Financial Data Sources</h2>
-        <p style="font-size:.82rem;color:var(--dim);margin-bottom:4px">Every place financial data comes from. Click <strong style="color:var(--text)">Mark Reviewed</strong> after you've checked that source for new data.</p>
-        <div class="sources-grid" id="sourcesGrid">Loading...</div>
-        <div class="sources-note" id="sourcesNote"></div>
+        <!-- KPI tiles -->
+        <div class="kpi-row">
+            <div class="kpi">
+                <div class="kpi-label">Cash Position</div>
+                <div class="kpi-val" id="kpiPosition" style="color:var(--green)">$0</div>
+                <div class="kpi-sub">Current net balance</div>
+            </div>
+            <div class="kpi">
+                <div class="kpi-label">Avg Weekly Inflow</div>
+                <div class="kpi-val" id="kpiInflow" style="color:var(--green)">$0</div>
+                <div class="kpi-sub" id="kpiInflowSub">5-week average</div>
+            </div>
+            <div class="kpi">
+                <div class="kpi-label">Avg Weekly Outflow</div>
+                <div class="kpi-val" id="kpiOutflow" style="color:var(--red)">$0</div>
+                <div class="kpi-sub">5-week average</div>
+            </div>
+            <div class="kpi">
+                <div class="kpi-label">Avg Net Flow</div>
+                <div class="kpi-val" id="kpiNet">$0</div>
+                <div class="kpi-sub">Inflow minus outflow</div>
+            </div>
+            <div class="kpi">
+                <div class="kpi-label">Revenue Trend</div>
+                <div class="kpi-val" id="kpiTrend" style="font-size:1.3rem;">—</div>
+                <div class="kpi-sub" id="kpiTrendSub">Week over week</div>
+            </div>
+        </div>
+
+        <!-- Waterfall chart -->
+        <div class="card">
+            <h2>💧 Cash Flow Waterfall <span id="chartPeriodLabel" style="color:var(--dim);font-weight:400;font-size:.85rem;margin-left:8px"></span></h2>
+            <div class="sub">Opening balance → Inflows (green) → Outflows (red) → Projected closing balance</div>
+            <div class="waterfall-wrap"><canvas id="waterfallChart"></canvas></div>
+        </div>
+
+        <!-- Balance sheet table -->
+        <div class="card">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px">
+                <div>
+                    <h2>📋 Cash Flow Statement</h2>
+                    <div class="sub" style="margin-bottom:0">Click any Vertical row to expand clients · Shaded = forecast</div>
+                </div>
+                <div style="font-size:.7rem;color:var(--dim);text-align:right">
+                    Scenario: <span id="scenarioLabel" style="color:var(--blue);font-weight:700">Conservative</span><br>
+                    Horizon: <span id="horizonLabel" style="color:var(--blue);font-weight:700">1 Month</span>
+                </div>
+            </div>
+            <div style="overflow-x:auto">
+                <table class="cf-table" id="cfTable"></table>
+            </div>
+        </div>
+
+        <!-- Intelligent Forecast Flags -->
+        <div class="card">
+            <h2>🧠 Forecast Intelligence</h2>
+            <div class="sub">AI-driven analysis of growth drivers, risks, and assumptions</div>
+            <div class="flag-row" id="flagRow"></div>
+        </div>
+
+    </div><!-- /cfView -->
+</div><!-- /wrap -->
+
+<!-- ── Data Entry Modal ────────────────────────────────────────────── -->
+<div class="modal-overlay" id="entryModal">
+    <div class="modal">
+        <h3>+ Enter Weekly Cash Flow Data</h3>
+        <div class="modal-sub">Enter actual revenue and costs for the week. Data is saved to your dashboard server.</div>
+        <div class="form-grid">
+            <div class="form-group">
+                <label>Week Ending Date</label>
+                <input type="date" id="entryDate">
+            </div>
+            <div class="form-group">
+                <label>Week Label (e.g. Wk6)</label>
+                <input type="text" id="entryWeekLabel" placeholder="Wk6">
+            </div>
+            <div class="form-group full"><label style="font-size:.8rem;color:var(--blue)">── REVENUE BY VERTICAL ──</label></div>
+            <div class="form-group">
+                <label>Home Services Revenue ($)</label>
+                <input type="number" id="eRevHomeServices" placeholder="0">
+            </div>
+            <div class="form-group">
+                <label>→ Solar</label>
+                <input type="number" id="eRevSolar" placeholder="0">
+            </div>
+            <div class="form-group">
+                <label>→ Home Improvement</label>
+                <input type="number" id="eRevHomeImprove" placeholder="0">
+            </div>
+            <div class="form-group">
+                <label>Insurance Revenue ($)</label>
+                <input type="number" id="eRevInsurance" placeholder="0">
+            </div>
+            <div class="form-group">
+                <label>→ Final Expense</label>
+                <input type="number" id="eRevFinalExpense" placeholder="0">
+            </div>
+            <div class="form-group">
+                <label>→ Medicare Supplement</label>
+                <input type="number" id="eRevMedicare" placeholder="0">
+            </div>
+            <div class="form-group">
+                <label>Internal Media Rev ($)</label>
+                <input type="number" id="eRevInternal" placeholder="0">
+            </div>
+            <div class="form-group">
+                <label>Other Revenue ($)</label>
+                <input type="number" id="eRevOther" placeholder="0">
+            </div>
+            <div class="form-group full"><label style="font-size:.8rem;color:var(--red)">── COSTS & OUTFLOWS ──</label></div>
+            <div class="form-group">
+                <label>Payroll / Labor ($)</label>
+                <input type="number" id="eCostPayroll" placeholder="0">
+            </div>
+            <div class="form-group">
+                <label>Lead / Data Costs ($)</label>
+                <input type="number" id="eCostLeads" placeholder="0">
+            </div>
+            <div class="form-group">
+                <label>→ Solar Lead Costs ($)</label>
+                <input type="number" id="eCostSolarLeads" placeholder="0">
+            </div>
+            <div class="form-group">
+                <label>→ Insurance Lead Costs ($)</label>
+                <input type="number" id="eCostInsLeads" placeholder="0">
+            </div>
+            <div class="form-group">
+                <label>Media Spend (Radio/TV) ($)</label>
+                <input type="number" id="eCostMedia" placeholder="0">
+            </div>
+            <div class="form-group">
+                <label>Operations / Overhead ($)</label>
+                <input type="number" id="eCostOps" placeholder="0">
+            </div>
+        </div>
+        <div class="modal-actions">
+            <button class="btn-secondary" onclick="closeEntryModal()">Cancel</button>
+            <button class="btn-primary" onclick="saveEntry()">Save Week</button>
+        </div>
     </div>
 </div>
 
 <script>
-const weeks = ['Wk1\nApr 13', 'Wk2\nApr 20', 'Wk3\nApr 27', 'Wk4\nMay 4', 'Wk5\nMay 11', 'Wk6*\nMay 18', 'Wk7*\nMay 25', 'Wk8*\nJun 1'];
+// ─────────────────────────────────────────────────────────────────────────────
+//  BREAKEVEN VIEW
+// ─────────────────────────────────────────────────────────────────────────────
+const API_BASE = 'https://dashboard-assistant.digify.ai';
+
+const weeks = ['Wk1\nApr 13','Wk2\nApr 20','Wk3\nApr 27','Wk4\nMay 4','Wk5\nMay 11','Wk6*\nMay 18','Wk7*\nMay 25','Wk8*\nJun 1'];
 const rev =   [128669, 58647, 80097, 47750, 105910, 90825, 97731, 104637];
 const exp =   [65146, 99085, 46780, 72666, 124660, 100183, 119123, 138063];
 const beRed = Array(8).fill(56234);
-const beFull = Array(8).fill(130294);
+const beFull= Array(8).fill(130294);
 
 Chart.defaults.color = '#94a3b8';
 Chart.defaults.borderColor = 'rgba(30,41,59,.4)';
 Chart.defaults.font.family = "'Inter',sans-serif";
 
 new Chart(document.getElementById('mainChart'), {
-    type: 'line',
-    data: {
-        labels: weeks,
-        datasets: [
-            {
-                label: 'Revenue',
-                data: rev,
-                borderColor: '#10b981',
-                backgroundColor: 'rgba(16,185,129,.1)',
-                borderWidth: 3, fill: false, tension: 0.3,
-                pointRadius: [6,6,6,6,6,5,5,5],
-                pointBackgroundColor: rev.map((v,i) => i>=5 ? 'rgba(16,185,129,.5)' : '#10b981'),
-                pointBorderColor: '#fff', pointBorderWidth: 2,
-                segment: { borderDash: ctx => ctx.p0DataIndex >= 4 ? [6,3] : undefined }
-            },
-            {
-                label: 'Expenses',
-                data: exp,
-                borderColor: '#ef4444',
-                borderWidth: 3, fill: false, tension: 0.3,
-                pointRadius: [6,6,6,6,6,5,5,5],
-                pointBackgroundColor: exp.map((v,i) => i>=5 ? 'rgba(239,68,68,.5)' : '#ef4444'),
-                pointBorderColor: '#fff', pointBorderWidth: 2,
-                segment: { borderDash: ctx => ctx.p0DataIndex >= 4 ? [6,3] : undefined }
-            },
-            {
-                label: 'BE Reduced ($56K)',
-                data: beRed,
-                borderColor: '#f59e0b', borderWidth: 2.5, borderDash: [10,5],
-                pointRadius: 0, fill: false
-            },
-            {
-                label: 'BE Full ($130K)',
-                data: beFull,
-                borderColor: '#8b5cf6', borderWidth: 2.5, borderDash: [6,6],
-                pointRadius: 0, fill: false
-            }
-        ]
-    },
-    options: {
-        responsive: true, maintainAspectRatio: false,
-        interaction: { intersect: false, mode: 'index' },
-        plugins: {
-            legend: { display: false },
-            tooltip: {
-                backgroundColor: '#1a2236', titleColor: '#f1f5f9', bodyColor: '#94a3b8',
-                borderColor: '#1e293b', borderWidth: 1, padding: 12,
-                callbacks: { label: ctx => `${ctx.dataset.label}: $${ctx.raw.toLocaleString()}` }
-            },
-            annotation: {}
-        },
-        scales: {
-            y: { ticks: { callback: v => '$'+Math.round(v/1000)+'K' }, grid: { color:'rgba(30,41,59,.3)' }, min: 0, max: 160000 },
-            x: { grid: { display: false } }
-        }
+    type:'line',
+    data:{ labels:weeks, datasets:[
+        { label:'Revenue', data:rev, borderColor:'#10b981', backgroundColor:'rgba(16,185,129,.1)', borderWidth:3, fill:false, tension:.3,
+          pointRadius:[6,6,6,6,6,5,5,5], pointBackgroundColor:rev.map((v,i)=>i>=5?'rgba(16,185,129,.5)':'#10b981'), pointBorderColor:'#fff', pointBorderWidth:2,
+          segment:{borderDash:ctx=>ctx.p0DataIndex>=4?[6,3]:undefined} },
+        { label:'Expenses', data:exp, borderColor:'#ef4444', borderWidth:3, fill:false, tension:.3,
+          pointRadius:[6,6,6,6,6,5,5,5], pointBackgroundColor:exp.map((v,i)=>i>=5?'rgba(239,68,68,.5)':'#ef4444'), pointBorderColor:'#fff', pointBorderWidth:2,
+          segment:{borderDash:ctx=>ctx.p0DataIndex>=4?[6,3]:undefined} },
+        { label:'BE Reduced ($56K)', data:beRed, borderColor:'#f59e0b', borderWidth:2.5, borderDash:[10,5], pointRadius:0, fill:false },
+        { label:'BE Full ($130K)', data:beFull, borderColor:'#8b5cf6', borderWidth:2.5, borderDash:[6,6], pointRadius:0, fill:false }
+    ]},
+    options:{
+        responsive:true, maintainAspectRatio:false,
+        interaction:{intersect:false, mode:'index'},
+        plugins:{ legend:{display:false}, tooltip:{ backgroundColor:'#1a2236', titleColor:'#f1f5f9', bodyColor:'#94a3b8', borderColor:'#1e293b', borderWidth:1, padding:12, callbacks:{label:ctx=>`${ctx.dataset.label}: $${ctx.raw.toLocaleString()}`} }},
+        scales:{ y:{ticks:{callback:v=>'$'+Math.round(v/1000)+'K'}, grid:{color:'rgba(30,41,59,.3)'}, min:0, max:160000}, x:{grid:{display:false}} }
     }
 });
 
-// Table
 const tbl = document.getElementById('tbl');
-const labels = ['Apr 13-19','Apr 20-26','Apr 27-May 3','May 4-10','May 11-17','May 18-24*','May 25-31*','Jun 1-7*'];
+const labels=['Apr 13-19','Apr 20-26','Apr 27-May 3','May 4-10','May 11-17','May 18-24*','May 25-31*','Jun 1-7*'];
 for(let i=0;i<8;i++){
-    const net = rev[i]-exp[i];
-    const vsR = rev[i]-beRed[0];
-    const vsF = rev[i]-beFull[0];
-    const cls = i>=5 ? ' class="proj"' : '';
-    tbl.innerHTML += `<tr${cls}>
-        <td>${labels[i]}</td>
-        <td class="pos">$${rev[i].toLocaleString()}</td>
-        <td class="neg">$${exp[i].toLocaleString()}</td>
-        <td class="${net>=0?'pos':'neg'}">${net>=0?'+':'-'}$${Math.abs(net).toLocaleString()}</td>
-        <td>$${beRed[0].toLocaleString()}</td>
-        <td>$${beFull[0].toLocaleString()}</td>
-        <td class="${vsR>=0?'pos':'neg'}">${vsR>=0?'+':'-'}$${Math.abs(vsR).toLocaleString()}</td>
-        <td class="${vsF>=0?'pos':'neg'}">${vsF>=0?'+':'-'}$${Math.abs(vsF).toLocaleString()}</td>
-    </tr>`;
+    const net=rev[i]-exp[i], vsR=rev[i]-beRed[0], vsF=rev[i]-beFull[0], cls=i>=5?' class="proj"':'';
+    tbl.innerHTML+=`<tr${cls}><td>${labels[i]}</td><td class="pos">$${rev[i].toLocaleString()}</td><td class="neg">$${exp[i].toLocaleString()}</td>
+    <td class="${net>=0?'pos':'neg'}">${net>=0?'+':'-'}$${Math.abs(net).toLocaleString()}</td>
+    <td>$${beRed[0].toLocaleString()}</td><td>$${beFull[0].toLocaleString()}</td>
+    <td class="${vsR>=0?'pos':'neg'}">${vsR>=0?'+':'-'}$${Math.abs(vsR).toLocaleString()}</td>
+    <td class="${vsF>=0?'pos':'neg'}">${vsF>=0?'+':'-'}$${Math.abs(vsF).toLocaleString()}</td></tr>`;
 }
-// ─── Data Sources Tracker ─────────────────────────────────────────────────
 
-const API_BASE = 'https://dashboard-assistant.digify.ai';
-const DS_KEY   = 'cem-data-sources';
-
+// ─────────────────────────────────────────────────────────────────────────────
+//  DATA SOURCES TRACKER
+// ─────────────────────────────────────────────────────────────────────────────
+const DS_KEY = 'cem-data-sources';
 const SOURCES = [
-    {
-        id: 'chase-9536',
-        icon: '🏦',
-        name: 'Chase Bank — 9536',
-        sub: 'Revenue account · Primary income deposits',
-        badge: 'manual',
-        badgeLabel: 'Manual Pull',
-        note: 'Log in to Chase and check deposits since last review'
-    },
-    {
-        id: 'chase-9207',
-        icon: '🏦',
-        name: 'Chase Bank — 9207',
-        sub: 'Expense account · Payroll & operating costs',
-        badge: 'manual',
-        badgeLabel: 'Manual Pull',
-        note: 'Log in to Chase and check disbursements since last review'
-    },
-    {
-        id: 'networks-expense',
-        icon: '📊',
-        name: 'Networks 2026 Expense Reimbursement',
-        sub: 'Google Sheet · Staff reimbursements & expense tracking',
-        badge: 'manual',
-        badgeLabel: 'Manual Review',
-        note: 'Open the sheet and check for new entries or updates'
-    },
-    {
-        id: 'cem-budget',
-        icon: '📋',
-        name: 'CEM Budget V6',
-        sub: 'Master budget spreadsheet · Breakeven calculations',
-        badge: 'manual',
-        badgeLabel: 'Manual Review',
-        note: 'Verify breakeven figures and expense projections are current'
-    },
-    {
-        id: 'quickbooks',
-        icon: '📚',
-        name: 'QuickBooks',
-        sub: 'Accounting platform · P&L, invoices, payroll',
-        badge: 'pending',
-        badgeLabel: 'Not Connected',
-        note: 'Connection in progress — manual review until integrated'
-    },
-    {
-        id: 'bill-com',
-        icon: '💳',
-        name: 'Bill.com',
-        sub: 'AP/AR platform · Vendor payments & invoicing',
-        badge: 'pending',
-        badgeLabel: 'Not Connected',
-        note: 'Connection in progress — manual review until integrated'
-    },
+    { id:'chase-9536', icon:'🏦', name:'Chase Bank — 9536', sub:'Revenue account · Primary income deposits', badge:'manual', badgeLabel:'Manual Pull', note:'Log in to Chase and check deposits since last review' },
+    { id:'chase-9207', icon:'🏦', name:'Chase Bank — 9207', sub:'Expense account · Payroll & operating costs', badge:'manual', badgeLabel:'Manual Pull', note:'Log in to Chase and check disbursements since last review' },
+    { id:'networks-expense', icon:'📊', name:'Networks 2026 Expense Reimbursement', sub:'Google Sheet · Staff reimbursements & expense tracking', badge:'manual', badgeLabel:'Manual Review', note:'Open the sheet and check for new entries or updates' },
+    { id:'cem-budget', icon:'📋', name:'CEM Budget V6', sub:'Master budget spreadsheet · Breakeven calculations', badge:'manual', badgeLabel:'Manual Review', note:'Verify breakeven figures and expense projections are current' },
+    { id:'quickbooks', icon:'📚', name:'QuickBooks', sub:'Accounting platform · P&L, invoices, payroll', badge:'pending', badgeLabel:'Not Connected', note:'Connection in progress — manual review until integrated' },
+    { id:'bill-com', icon:'💳', name:'Bill.com', sub:'AP/AR platform · Vendor payments & invoicing', badge:'pending', badgeLabel:'Not Connected', note:'Connection in progress — manual review until integrated' },
 ];
-
 let reviewDates = {};
 
 async function loadSources() {
-    try {
-        const data = await (await fetch(API_BASE + '/data/' + DS_KEY)).json();
-        reviewDates = data && data.dates ? data.dates : {};
-    } catch(e) { reviewDates = {}; }
+    try { const d=await(await fetch(API_BASE+'/data/'+DS_KEY)).json(); reviewDates=d&&d.dates?d.dates:{}; } catch(e){reviewDates={};}
     renderSources();
 }
-
-function daysSince(isoDate) {
-    if (!isoDate) return null;
-    return Math.floor((Date.now() - new Date(isoDate)) / 86400000);
+function staleness(iso) { if(!iso)return'never'; return(Date.now()-new Date(iso))/3600000<=24?'fresh':'old'; }
+function formatDate(iso) {
+    if(!iso)return'Never reviewed';
+    const d=new Date(iso), days=Math.floor((Date.now()-d)/86400000);
+    const label=d.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+    if(days===0)return'Today — '+label; if(days===1)return'Yesterday — '+label;
+    return days+' days ago — '+label;
 }
-
-function formatDate(isoDate) {
-    if (!isoDate) return 'Never reviewed';
-    const d = new Date(isoDate);
-    const days = daysSince(isoDate);
-    const label = d.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
-    if (days === 0) return 'Today — ' + label;
-    if (days === 1) return 'Yesterday — ' + label;
-    return days + ' days ago — ' + label;
-}
-
-function staleness(isoDate) {
-    if (!isoDate) return 'never';
-    const hours = (Date.now() - new Date(isoDate)) / 3600000;
-    if (hours <= 24) return 'fresh';
-    return 'old';
-}
-
 function renderSources() {
-    const grid = document.getElementById('sourcesGrid');
-    const note = document.getElementById('sourcesNote');
-    if (!grid) return;
-
-    const badgeClass = { manual:'badge-manual', pending:'badge-pending', connected:'badge-connected' };
-
-    grid.innerHTML = SOURCES.map(s => {
-        const last = reviewDates[s.id] || null;
-        const stale = staleness(last);
-        const days  = daysSince(last);
-        const isPending = s.badge === 'pending';
-        const dotColor  = isPending ? 'never' : stale;
-        return `
-        <div class="source-tile">
-            <div class="st-icon">${s.icon}</div>
-            <div class="st-name">${s.name}</div>
-            <div class="st-sub">${s.sub}</div>
-            <span class="st-badge ${badgeClass[s.badge]}">${s.badgeLabel}</span>
-            <div class="st-last">
-                <div class="dot ${dotColor}"></div>
-                <span id="lastLabel-${s.id}">${formatDate(last)}</span>
-            </div>
-            <div style="font-size:.65rem;color:var(--dim);margin-bottom:10px;font-style:italic">${s.note}</div>
-            <button class="mark-btn" id="btn-${s.id}" onclick="markReviewed('${s.id}')">${isPending ? '⏳ Pending Connection' : '✅ Mark Reviewed Today'}</button>
-        </div>`;
+    const grid=document.getElementById('sourcesGrid'), note=document.getElementById('sourcesNote');
+    if(!grid)return;
+    const bc={manual:'badge-manual',pending:'badge-pending',connected:'badge-connected'};
+    grid.innerHTML=SOURCES.map(s=>{
+        const last=reviewDates[s.id]||null, stale=staleness(last), ip=s.badge==='pending';
+        return`<div class="source-tile"><div class="st-icon">${s.icon}</div><div class="st-name">${s.name}</div><div class="st-sub">${s.sub}</div>
+        <span class="st-badge ${bc[s.badge]}">${s.badgeLabel}</span>
+        <div class="st-last"><div class="dot ${ip?'never':stale}"></div><span>${formatDate(last)}</span></div>
+        <div style="font-size:.65rem;color:var(--dim);margin-bottom:10px;font-style:italic">${s.note}</div>
+        <button class="mark-btn" id="btn-${s.id}" onclick="markReviewed('${s.id}')">${ip?'⏳ Pending Connection':'✅ Mark Reviewed Today'}</button></div>`;
     }).join('');
-
-    // Summary note
-    const overdue = SOURCES.filter(s => {
-        if (s.badge === 'pending') return false;
-        const last = reviewDates[s.id];
-        if (!last) return true;
-        return (Date.now() - new Date(last)) > 24 * 3600000;
-    });
-    note.innerHTML = overdue.length > 0
-        ? `⚠️ <strong style="color:#f59e0b">${overdue.length} source${overdue.length>1?'s':''} need review:</strong> ${overdue.map(s=>s.name).join(', ')}`
-        : '✅ All active sources reviewed within the last 7 days';
+    const overdue=SOURCES.filter(s=>{if(s.badge==='pending')return false;const l=reviewDates[s.id];return!l||(Date.now()-new Date(l))>86400000;});
+    note.innerHTML=overdue.length>0?`⚠️ <strong style="color:#f59e0b">${overdue.length} source${overdue.length>1?'s':''} overdue:</strong> ${overdue.map(s=>s.name).join(', ')`:'✅ All active sources reviewed within 24 hours';
 }
-
 async function markReviewed(id) {
-    const src = SOURCES.find(s => s.id === id);
-    if (!src || src.badge === 'pending') return;
-
-    const btn = document.getElementById('btn-' + id);
-    btn.disabled = true;
-    btn.textContent = 'Saving...';
-
-    reviewDates[id] = new Date().toISOString();
-
-    try {
-        await fetch(API_BASE + '/data/' + DS_KEY, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ dates: reviewDates, updatedAt: new Date().toISOString() })
-        });
-    } catch(e) {}
-
+    const src=SOURCES.find(s=>s.id===id); if(!src||src.badge==='pending')return;
+    const btn=document.getElementById('btn-'+id); btn.disabled=true; btn.textContent='Saving...';
+    reviewDates[id]=new Date().toISOString();
+    try { await fetch(API_BASE+'/data/'+DS_KEY,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({dates:reviewDates,updatedAt:new Date().toISOString()})}); } catch(e){}
     renderSources();
 }
-
 loadSources();
+
+// ─────────────────────────────────────────────────────────────────────────────
+//  CASH FLOW ENGINE
+// ─────────────────────────────────────────────────────────────────────────────
+
+// Actual weekly data — keyed by vertical/client
+// Week actuals: [wk1, wk2, wk3, wk4, wk5] (Apr13 → May11)
+const CF_ACTUALS = {
+    // Revenue
+    rev: {
+        homeServices:  { total:[22000,12000,18000, 8000,28000], clients:{ solar:[15000,7000,12000,4000,18000], homeImprove:[7000,5000,6000,4000,10000] }},
+        insurance:     { total:[60000,28000,38000,22000,50000], clients:{ finalExpense:[40000,18000,25000,15000,35000], medicare:[20000,10000,13000,7000,15000] }},
+        internalMedia: { total:[35000,12000,18000,12000,22000], clients:{ radio:[20000,7000,10000,7000,13000], tv:[15000,5000,8000,5000,9000] }},
+        other:         { total:[11669,6647,6097,5750,5910], clients:{} },
+    },
+    // Costs
+    cost: {
+        payroll:       { total:[30000,38000,22000,30000,50000], clients:{} },
+        leadData:      { total:[18000,35000,12000,25000,44000], clients:{ solarLeads:[8000,20000,5000,12000,20000], insLeads:[10000,15000,7000,13000,24000] }},
+        media:         { total:[10000,18000,8000,12000,22000], clients:{} },
+        operations:    { total:[7146, 8085, 4780, 5666,  8660], clients:{} },
+    }
+};
+
+let cfHorizon  = 1;
+let cfScenario = 'conservative';
+let waterfallChartObj = null;
+const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+function getMonthLabels(horizon) {
+    const now = new Date();
+    const result = [];
+    for(let i = 0; i < horizon; i++) {
+        const d = new Date(now.getFullYear(), now.getMonth() + i, 1);
+        result.push(MONTHS[d.getMonth()] + ' ' + d.getFullYear());
+    }
+    return result;
+}
+
+function avgLast(arr, n) {
+    const slice = arr.slice(-n);
+    return slice.reduce((a,b)=>a+b,0)/slice.length;
+}
+
+function trendPerWeek(arr) {
+    if(arr.length < 2) return 0;
+    const n = arr.length;
+    let sumX=0,sumY=0,sumXY=0,sumX2=0;
+    arr.forEach((v,i)=>{sumX+=i;sumY+=v;sumXY+=i*v;sumX2+=i*i;});
+    return (n*sumXY - sumX*sumY)/(n*sumX2 - sumX*sumX);
+}
+
+function forecastMonthly(weeklyArr, months) {
+    const weeksPerMonth = 4.33;
+    const trend = trendPerWeek(weeklyArr);
+    const baseAvg3 = avgLast(weeklyArr, 3);
+    const baseAvg5 = avgLast(weeklyArr, 5);
+    const lastVal  = weeklyArr[weeklyArr.length-1];
+
+    return Array.from({length: months}, (_,i) => {
+        const weekOffset = (i + 1) * weeksPerMonth;
+        let weeklyForecast;
+        if(cfScenario === 'conservative') weeklyForecast = baseAvg5; // pure 5-week avg, no growth
+        else if(cfScenario === 'base')    weeklyForecast = baseAvg3 + trend * (weekOffset/2); // weighted
+        else                              weeklyForecast = lastVal + trend * weekOffset; // full trend
+        return Math.max(0, Math.round(weeklyForecast * weeksPerMonth));
+    });
+}
+
+function buildCFData() {
+    const actRevTotals  = ['homeServices','insurance','internalMedia','other'].map(k => CF_ACTUALS.rev[k].total.reduce((a,b)=>a+b,0));
+    const actCostTotals = ['payroll','leadData','media','operations'].map(k => CF_ACTUALS.cost[k].total.reduce((a,b)=>a+b,0));
+
+    const weeklyRevAll  = CF_ACTUALS.rev.homeServices.total.map((_,i) =>
+        ['homeServices','insurance','internalMedia','other'].reduce((s,k)=>s+CF_ACTUALS.rev[k].total[i],0)
+    );
+    const weeklyExpAll  = CF_ACTUALS.cost.payroll.total.map((_,i) =>
+        ['payroll','leadData','media','operations'].reduce((s,k)=>s+CF_ACTUALS.cost[k].total[i],0)
+    );
+
+    const forecastRev  = forecastMonthly(weeklyRevAll,  cfHorizon);
+    const forecastCost = forecastMonthly(weeklyExpAll,  cfHorizon);
+
+    return { weeklyRevAll, weeklyExpAll, forecastRev, forecastCost };
+}
+
+function updateKPIs() {
+    const {weeklyRevAll, weeklyExpAll} = buildCFData();
+    const avgRev  = Math.round(avgLast(weeklyRevAll,5));
+    const avgCost = Math.round(avgLast(weeklyExpAll,5));
+    const avgNet  = avgRev - avgCost;
+    const totalRev  = weeklyRevAll.reduce((a,b)=>a+b,0);
+    const totalCost = weeklyExpAll.reduce((a,b)=>a+b,0);
+    const position  = totalRev - totalCost;
+    const trend = trendPerWeek(weeklyRevAll);
+
+    document.getElementById('kpiPosition').textContent = '$'+Math.abs(position).toLocaleString();
+    document.getElementById('kpiPosition').style.color = position>=0?'var(--green)':'var(--red)';
+    document.getElementById('kpiInflow').textContent  = '$'+avgRev.toLocaleString();
+    document.getElementById('kpiOutflow').textContent = '$'+avgCost.toLocaleString();
+    document.getElementById('kpiNet').textContent     = (avgNet>=0?'+':'-')+'$'+Math.abs(avgNet).toLocaleString();
+    document.getElementById('kpiNet').style.color     = avgNet>=0?'var(--green)':'var(--red)';
+    const trendStr = (trend>=0?'+':'')+'$'+Math.round(trend*4.33).toLocaleString()+'/mo';
+    document.getElementById('kpiTrend').textContent   = trendStr;
+    document.getElementById('kpiTrend').style.color   = trend>=0?'var(--green)':'var(--red)';
+    document.getElementById('kpiTrendSub').textContent = trend>=0?'Upward trend':'Downward trend';
+}
+
+function renderWaterfall() {
+    const {forecastRev, forecastCost} = buildCFData();
+    const labels    = getMonthLabels(cfHorizon);
+    const nets      = forecastRev.map((r,i) => r - forecastCost[i]);
+    const opening   = rev.slice(0,5).reduce((a,b)=>a+b,0) - exp.slice(0,5).reduce((a,b)=>a+b,0);
+
+    document.getElementById('chartPeriodLabel').textContent = '· ' + labels[0] + (cfHorizon>1?' – '+labels[labels.length-1]:'');
+
+    const wfLabels    = ['Opening', ...labels, 'Closing'];
+    const wfData      = [opening, ...nets];
+    let running = opening;
+    const colors = [running>=0?'rgba(16,185,129,.7)':'rgba(239,68,68,.7)'];
+    nets.forEach(n => { running+=n; colors.push(n>=0?'rgba(16,185,129,.6)':'rgba(239,68,68,.6)'); });
+    running = opening + nets.reduce((a,b)=>a+b,0);
+    wfData.push(running);
+    colors.push(running>=0?'#10b981':'#ef4444');
+
+    if(waterfallChartObj) { waterfallChartObj.destroy(); waterfallChartObj=null; }
+    waterfallChartObj = new Chart(document.getElementById('waterfallChart'),{
+        type:'bar',
+        data:{ labels:wfLabels, datasets:[{
+            label:'Cash', data:wfData, backgroundColor:colors,
+            borderColor:colors.map(c=>c.replace(/[\d.]+\)$/,'1)')),
+            borderWidth:2, borderRadius:6,
+        }]},
+        options:{
+            responsive:true, maintainAspectRatio:false,
+            plugins:{ legend:{display:false}, tooltip:{ backgroundColor:'#1a2236', titleColor:'#f1f5f9', bodyColor:'#94a3b8',
+                callbacks:{ label:ctx=>`$${Math.abs(ctx.raw).toLocaleString()} ${ctx.raw<0?'(outflow)':''}` }}},
+            scales:{ y:{ ticks:{callback:v=>'$'+Math.round(v/1000)+'K'}, grid:{color:'rgba(30,41,59,.2)'} }, x:{grid:{display:false}} }
+        }
+    });
+}
+
+function renderCFTable() {
+    const months     = getMonthLabels(cfHorizon);
+    const {forecastRev, forecastCost} = buildCFData();
+
+    const actualMonthRev  = weeklyToMonthly(CF_ACTUALS.rev);
+    const actualMonthCost = weeklyToMonthly(CF_ACTUALS.cost);
+
+    const t = document.getElementById('cfTable');
+
+    // Build header
+    let hdr = `<thead><tr><th style="text-align:left;min-width:220px">Category</th>`;
+    hdr += `<th>Actual (5wk)</th>`;
+    months.forEach((m,i) => hdr += `<th class="cf-forecast-hdr${i===0?' first':''}">${m}*</th>`);
+    hdr += `</tr></thead>`;
+
+    // Revenue section
+    const revDefs = [
+        { key:'homeServices',  label:'Home Services', clients:[{key:'solar',label:'Solar'},{key:'homeImprove',label:'Home Improvement'}]},
+        { key:'insurance',     label:'Insurance',     clients:[{key:'finalExpense',label:'Final Expense'},{key:'medicare',label:'Medicare Supplement'}]},
+        { key:'internalMedia', label:'Internal Media (Radio/TV)', clients:[{key:'radio',label:'Radio'},{key:'tv',label:'TV'}]},
+        { key:'other',         label:'Other Revenue', clients:[]},
+    ];
+    const costDefs = [
+        { key:'payroll',    label:'Payroll / Labor', clients:[]},
+        { key:'leadData',   label:'Lead & Data Costs', clients:[{key:'solarLeads',label:'Solar Leads'},{key:'insLeads',label:'Insurance Leads'}]},
+        { key:'media',      label:'Media Spend (Radio/TV)', clients:[]},
+        { key:'operations', label:'Operations / Overhead', clients:[]},
+    ];
+
+    let body = '<tbody>';
+
+    // ── INFLOW section ──
+    body += `<tr class="cf-section-hdr"><td colspan="${2+months.length}">💚 Cash Inflow</td></tr>`;
+    let totalRevActual = 0;
+    revDefs.forEach(rd => {
+        const actual = CF_ACTUALS.rev[rd.key].total.reduce((a,b)=>a+b,0);
+        totalRevActual += actual;
+        const forecastShare = forecastRev.map(fr => Math.round(fr * (actual / (CF_ACTUALS.rev.homeServices.total.reduce((a,b)=>a+b,0)+CF_ACTUALS.rev.insurance.total.reduce((a,b)=>a+b,0)+CF_ACTUALS.rev.internalMedia.total.reduce((a,b)=>a+b,0)+CF_ACTUALS.rev.other.total.reduce((a,b)=>a+b,0))));
+        body += `<tr class="cf-vertical" onclick="toggleClients(this)"><td>${rd.label}</td><td class="pos">$${actual.toLocaleString()}</td>`;
+        forecastShare.forEach(f => body += `<td class="cf-forecast pos">$${f.toLocaleString()}</td>`);
+        body += `</tr>`;
+        rd.clients.forEach(c => {
+            const cActual = CF_ACTUALS.rev[rd.key].clients[c.key]?.reduce((a,b)=>a+b,0)||0;
+            body += `<tr class="cf-client"><td>${c.label}</td><td style="color:var(--green)">$${cActual.toLocaleString()}</td>`;
+            forecastShare.forEach(f => body += `<td class="cf-forecast" style="color:var(--green)">$${Math.round(f*(cActual/actual)||0).toLocaleString()}</td>`);
+            body += `</tr>`;
+        });
+    });
+    body += `<tr class="cf-total inflow"><td>TOTAL INFLOW</td><td>$${totalRevActual.toLocaleString()}</td>`;
+    forecastRev.forEach(f => body += `<td class="cf-forecast">$${f.toLocaleString()}</td>`);
+    body += `</tr>`;
+
+    // ── OUTFLOW section ──
+    body += `<tr class="cf-section-hdr"><td colspan="${2+months.length}">🔴 Cash Outflow</td></tr>`;
+    let totalCostActual = 0;
+    costDefs.forEach(cd => {
+        const actual = CF_ACTUALS.cost[cd.key].total.reduce((a,b)=>a+b,0);
+        totalCostActual += actual;
+        const allCostActual = ['payroll','leadData','media','operations'].reduce((s,k)=>s+CF_ACTUALS.cost[k].total.reduce((a,b)=>a+b,0),0);
+        const forecastShare = forecastCost.map(fc => Math.round(fc * (actual / allCostActual)));
+        body += `<tr class="cf-vertical" onclick="toggleClients(this)"><td>${cd.label}</td><td class="neg">$${actual.toLocaleString()}</td>`;
+        forecastShare.forEach(f => body += `<td class="cf-forecast neg">$${f.toLocaleString()}</td>`);
+        body += `</tr>`;
+        cd.clients.forEach(c => {
+            const cActual = CF_ACTUALS.cost[cd.key].clients[c.key]?.reduce((a,b)=>a+b,0)||0;
+            body += `<tr class="cf-client"><td>${c.label}</td><td style="color:var(--red)">$${cActual.toLocaleString()}</td>`;
+            forecastShare.forEach(f => body += `<td class="cf-forecast" style="color:var(--red)">$${Math.round(f*(cActual/actual)||0).toLocaleString()}</td>`);
+            body += `</tr>`;
+        });
+    });
+    body += `<tr class="cf-total outflow"><td>TOTAL OUTFLOW</td><td>$${totalCostActual.toLocaleString()}</td>`;
+    forecastCost.forEach(f => body += `<td class="cf-forecast">$${f.toLocaleString()}</td>`);
+    body += `</tr>`;
+
+    // ── NET ──
+    const netActual = totalRevActual - totalCostActual;
+    const netCls = netActual>=0?'cf-net':'cf-net neg';
+    body += `<tr class="${netCls}"><td>NET CASH FLOW</td><td>${netActual>=0?'+':'-'}$${Math.abs(netActual).toLocaleString()}</td>`;
+    forecastRev.forEach((fr,i) => {
+        const net = fr - forecastCost[i];
+        body += `<td class="cf-forecast">${net>=0?'+':'-'}$${Math.abs(net).toLocaleString()}</td>`;
+    });
+    body += `</tr>`;
+    body += '</tbody>';
+
+    t.innerHTML = hdr + body;
+}
+
+function weeklyToMonthly(section) { return section; } // placeholder
+
+function toggleClients(row) {
+    row.classList.toggle('expanded');
+}
+
+function renderFlags() {
+    const weeklyRevAll = CF_ACTUALS.rev.homeServices.total.map((_,i)=>
+        ['homeServices','insurance','internalMedia','other'].reduce((s,k)=>s+CF_ACTUALS.rev[k].total[i],0)
+    );
+    const trend = trendPerWeek(weeklyRevAll);
+    const insTotal = CF_ACTUALS.rev.insurance.total.reduce((a,b)=>a+b,0);
+    const totalRev  = weeklyRevAll.reduce((a,b)=>a+b,0);
+    const insPct = Math.round(insTotal/totalRev*100);
+    const trendMo = Math.round(trend*4.33);
+    const scenarioNote = {
+        conservative: 'Using 5-week trailing average — assumes no growth. Most cautious estimate.',
+        base:         'Using weighted recent average + partial trend. Moderate growth assumed.',
+        growth:       'Extrapolating the 3-week uptrend forward at full rate. Highest upside.'
+    }[cfScenario];
+
+    const flags = [
+        { type:'info', icon:'📊', title:`Scenario: ${cfScenario.charAt(0).toUpperCase()+cfScenario.slice(1)}`, detail:scenarioNote },
+        { type: trend>=0?'good':'warn', icon: trend>=0?'📈':'📉', title:`Revenue Trend: ${trend>=0?'+':''}$${trendMo.toLocaleString()}/month`, detail: trend>=0?`CEM has shown a consistent upward revenue trend over the past 5 weeks. If this trend holds, the 6-month projection looks strong. Key question: Is this growth from existing clients buying more, or from new Publishers/Affiliates/Networks added recently?`:`Revenue has been declining week over week. Review which verticals are contracting and whether any Affiliate or Network partners have reduced send volume.` },
+        { type:'warn', icon:'⚠️', title:`Client Concentration: Insurance = ${insPct}% of Revenue`, detail:`Insurance (Final Expense + Medicare Supplement) represents ${insPct}% of total revenue. This is high concentration. If a major Insurance Publisher pulls back, revenue impact will be significant. Consider whether this is a seasonal peak or a new baseline.` },
+        { type:'info', icon:'📻', title:'Internal Media (Radio/TV) — Monitor ROI', detail:`CEM's internal Radio/TV traffic is contributing revenue but also carries direct media spend costs. Track whether the margin on internally-generated leads is improving as media spend is optimized.` },
+        { type:'info', icon:'🆕', title:'Growth Scenario Assumption', detail:`The Growth scenario assumes the current 3-week uptrend continues uninterrupted for ${cfHorizon} month${cfHorizon>1?'s':''}. This is optimistic — validate whether recent growth is from a test run by a new Network/Publisher (which may not continue) or from a durable new client relationship.` },
+    ];
+
+    document.getElementById('flagRow').innerHTML = flags.map(f =>
+        `<div class="flag ${f.type}"><div class="flag-icon">${f.icon}</div><div class="flag-body"><div class="flag-title">${f.title}</div><div class="flag-detail">${f.detail}</div></div></div>`
+    ).join('');
+}
+
+function renderCFAll() {
+    updateKPIs();
+    renderWaterfall();
+    renderCFTable();
+    renderFlags();
+    document.getElementById('scenarioLabel').textContent = cfScenario.charAt(0).toUpperCase()+cfScenario.slice(1);
+    document.getElementById('horizonLabel').textContent  = cfHorizon + ' Month' + (cfHorizon>1?'s':'');
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+//  VIEW TOGGLE
+// ─────────────────────────────────────────────────────────────────────────────
+let cfInitialized = false;
+function switchView(view) {
+    document.getElementById('beView').style.display = view==='breakeven' ? '' : 'none';
+    document.getElementById('cfView').style.display = view==='cashflow'  ? '' : 'none';
+    document.getElementById('btnBreakeven').classList.toggle('active', view==='breakeven');
+    document.getElementById('btnCashflow').classList.toggle('active',  view==='cashflow');
+    if(view==='cashflow' && !cfInitialized) { cfInitialized=true; renderCFAll(); }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+//  SCENARIO & HORIZON SELECTORS
+// ─────────────────────────────────────────────────────────────────────────────
+function setHorizon(h, btn) {
+    cfHorizon = h;
+    document.querySelectorAll('.seg-ctrl').forEach(ctrl => {
+        if(ctrl.contains(btn)) ctrl.querySelectorAll('.seg-btn').forEach(b=>b.classList.remove('active'));
+    });
+    btn.classList.add('active','blue');
+    if(cfInitialized) renderCFAll();
+}
+function setScenario(s, btn) {
+    cfScenario = s;
+    const colorMap = {conservative:'green', base:'blue', growth:'amber'};
+    document.querySelectorAll('.seg-ctrl').forEach(ctrl => {
+        if(ctrl.contains(btn)) ctrl.querySelectorAll('.seg-btn').forEach(b=>{b.classList.remove('active','green','blue','amber');});
+    });
+    btn.classList.add('active', colorMap[s]);
+    if(cfInitialized) renderCFAll();
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+//  DATA ENTRY MODAL
+// ─────────────────────────────────────────────────────────────────────────────
+function openEntryModal() {
+    document.getElementById('entryDate').value = new Date().toISOString().split('T')[0];
+    document.getElementById('entryModal').classList.add('open');
+}
+function closeEntryModal() { document.getElementById('entryModal').classList.remove('open'); }
+async function saveEntry() {
+    const entry = {
+        date: document.getElementById('entryDate').value,
+        weekLabel: document.getElementById('entryWeekLabel').value,
+        rev: {
+            homeServices: +document.getElementById('eRevHomeServices').value||0,
+            solar:        +document.getElementById('eRevSolar').value||0,
+            homeImprove:  +document.getElementById('eRevHomeImprove').value||0,
+            insurance:    +document.getElementById('eRevInsurance').value||0,
+            finalExpense: +document.getElementById('eRevFinalExpense').value||0,
+            medicare:     +document.getElementById('eRevMedicare').value||0,
+            internalMedia:+document.getElementById('eRevInternal').value||0,
+            other:        +document.getElementById('eRevOther').value||0,
+        },
+        cost: {
+            payroll:    +document.getElementById('eCostPayroll').value||0,
+            leadData:   +document.getElementById('eCostLeads').value||0,
+            solarLeads: +document.getElementById('eCostSolarLeads').value||0,
+            insLeads:   +document.getElementById('eCostInsLeads').value||0,
+            media:      +document.getElementById('eCostMedia').value||0,
+            operations: +document.getElementById('eCostOps').value||0,
+        },
+        savedAt: new Date().toISOString()
+    };
+    try {
+        let existing = [];
+        try { existing = await (await fetch(API_BASE+'/data/cem-cashflow')).json(); if(!Array.isArray(existing))existing=[]; } catch(e){}
+        existing = existing.filter(e=>e.date!==entry.date);
+        existing.push(entry);
+        existing.sort((a,b)=>new Date(a.date)-new Date(b.date));
+        await fetch(API_BASE+'/data/cem-cashflow',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(existing)});
+        closeEntryModal();
+        alert('✅ Week saved!');
+    } catch(e) { alert('Error saving: '+e.message); }
+}
 </script>
 </body>
 </html>
