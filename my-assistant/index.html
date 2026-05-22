@@ -817,14 +817,14 @@ let walkLog = [];
 
 async function loadWalkLog() {
   try {
-    const r = await fetch('http://localhost:8888/data/walklog');
+    const r = await fetch('https://dashboard-assistant.digify.com/data/walklog');
     walkLog = await r.json();
   } catch(e) { walkLog = JSON.parse(localStorage.getItem('walkLog') || '[]'); }
 }
 
 async function saveWalkLog() {
   localStorage.setItem('walkLog', JSON.stringify(walkLog));
-  try { await fetch('http://localhost:8888/data/walklog', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(walkLog) }); } catch(e) {}
+  try { await fetch('https://dashboard-assistant.digify.com/data/walklog', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(walkLog) }); } catch(e) {}
 }
 
 function logWalk() {
@@ -1898,7 +1898,7 @@ let todoFilter = 'all';
 
 async function loadTodos() {
   try {
-    const r = await fetch('http://localhost:8888/data/todos');
+    const r = await fetch('https://dashboard-assistant.digify.com/data/todos');
     todos = await r.json();
   } catch(e) { todos = JSON.parse(localStorage.getItem('todos') || '[]'); }
   renderTodos();
@@ -1906,7 +1906,7 @@ async function loadTodos() {
 
 async function saveTodos() {
   localStorage.setItem('todos', JSON.stringify(todos));
-  try { await fetch('http://localhost:8888/data/todos', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(todos) }); } catch(e) {}
+  try { await fetch('https://dashboard-assistant.digify.com/data/todos', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(todos) }); } catch(e) {}
 }
 
 function addTodo() {
@@ -1979,7 +1979,7 @@ let reminders = [];
 
 async function loadReminders() {
   try {
-    const r = await fetch('http://localhost:8888/data/reminders');
+    const r = await fetch('https://dashboard-assistant.digify.com/data/reminders');
     reminders = await r.json();
   } catch(e) { reminders = JSON.parse(localStorage.getItem('reminders') || '[]'); }
   renderReminders();
@@ -1987,7 +1987,7 @@ async function loadReminders() {
 
 async function saveReminders() {
   localStorage.setItem('reminders', JSON.stringify(reminders));
-  try { await fetch('http://localhost:8888/data/reminders', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(reminders) }); } catch(e) {}
+  try { await fetch('https://dashboard-assistant.digify.com/data/reminders', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(reminders) }); } catch(e) {}
 }
 
 function addReminder() {
@@ -2082,7 +2082,7 @@ function getTodayStr() { return new Date().toISOString().slice(0,10); }
 
 async function loadWorkout() {
   try {
-    const r = await fetch('http://localhost:8888/data/workout');
+    const r = await fetch('https://dashboard-assistant.digify.com/data/workout');
     workoutLog = await r.json();
   } catch(e) { workoutLog = JSON.parse(localStorage.getItem('workout') || '[]'); }
   renderWorkout();
@@ -2090,7 +2090,7 @@ async function loadWorkout() {
 
 async function saveWorkout() {
   localStorage.setItem('workout', JSON.stringify(workoutLog));
-  try { await fetch('http://localhost:8888/data/workout', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(workoutLog) }); } catch(e) {}
+  try { await fetch('https://dashboard-assistant.digify.com/data/workout', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(workoutLog) }); } catch(e) {}
 }
 
 function logWorkout(type) {
@@ -2161,7 +2161,7 @@ let bpViewDate = getTodayStr();
 
 async function loadBP() {
   try {
-    const r = await fetch('http://localhost:8888/data/bloodpressure');
+    const r = await fetch('https://dashboard-assistant.digify.com/data/bloodpressure');
     bpLog = await r.json();
   } catch(e) { bpLog = JSON.parse(localStorage.getItem('bloodpressure') || '[]'); }
   renderBP();
@@ -2169,7 +2169,7 @@ async function loadBP() {
 
 async function saveBP() {
   localStorage.setItem('bloodpressure', JSON.stringify(bpLog));
-  try { await fetch('http://localhost:8888/data/bloodpressure', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(bpLog) }); } catch(e) {}
+  try { await fetch('https://dashboard-assistant.digify.com/data/bloodpressure', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(bpLog) }); } catch(e) {}
 }
 
 function addBP() {
@@ -2389,7 +2389,7 @@ function formatPaceSecs(t) {
 let intakeLog = [];
 async function loadIntake() {
   try {
-    const r = await fetch('http://localhost:8888/data/intake');
+    const r = await fetch('https://dashboard-assistant.digify.com/data/intake');
     intakeLog = await r.json();
   } catch(e) { intakeLog = JSON.parse(localStorage.getItem('intakeLog') || '[]'); }
   renderFood();
@@ -2397,7 +2397,7 @@ async function loadIntake() {
 }
 async function saveIntake() {
   localStorage.setItem('intakeLog', JSON.stringify(intakeLog));
-  try { await fetch('http://localhost:8888/data/intake', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(intakeLog) }); } catch(e) {}
+  try { await fetch('https://dashboard-assistant.digify.com/data/intake', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(intakeLog) }); } catch(e) {}
 }
 // Food date navigation
 let foodViewDate = getTodayStr();
@@ -2568,17 +2568,17 @@ const BM_LABELS = { neck:'Neck', chest:'Chest', belly:'Belly', hips:'Hips', thig
 let weightLog = [];
 let metricsLog = [];
 async function loadBodyMetrics() {
-  try { const r=await fetch('http://localhost:8888/data/weightlog'); weightLog=await r.json(); } catch(e) { weightLog=JSON.parse(localStorage.getItem('weightLog')||'[]'); }
-  try { const r=await fetch('http://localhost:8888/data/metricslog'); metricsLog=await r.json(); } catch(e) { metricsLog=JSON.parse(localStorage.getItem('metricsLog')||'[]'); }
+  try { const r=await fetch('https://dashboard-assistant.digify.com/data/weightlog'); weightLog=await r.json(); } catch(e) { weightLog=JSON.parse(localStorage.getItem('weightLog')||'[]'); }
+  try { const r=await fetch('https://dashboard-assistant.digify.com/data/metricslog'); metricsLog=await r.json(); } catch(e) { metricsLog=JSON.parse(localStorage.getItem('metricsLog')||'[]'); }
   renderBodyMetrics();
 }
 async function saveWeightLog() {
   localStorage.setItem('weightLog', JSON.stringify(weightLog));
-  try { await fetch('http://localhost:8888/data/weightlog',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(weightLog)}); } catch(e) {}
+  try { await fetch('https://dashboard-assistant.digify.com/data/weightlog',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(weightLog)}); } catch(e) {}
 }
 async function saveMetricsLog() {
   localStorage.setItem('metricsLog', JSON.stringify(metricsLog));
-  try { await fetch('http://localhost:8888/data/metricslog',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(metricsLog)}); } catch(e) {}
+  try { await fetch('https://dashboard-assistant.digify.com/data/metricslog',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(metricsLog)}); } catch(e) {}
 }
 function logWeight() {
   const input = document.getElementById('addWeight');
@@ -2609,7 +2609,7 @@ function connectWithings() {} // replaced by panel
 let withingsConfig = null;
 async function loadWithingsConfig() {
   try {
-    const r = await fetch('http://localhost:8888/withings/config');
+    const r = await fetch('https://dashboard-assistant.digify.com/withings/config');
     withingsConfig = await r.json();
   } catch(e) { withingsConfig = null; }
   renderWithingsPanel();
@@ -2618,7 +2618,7 @@ async function saveWithingsLink() {
   const url = document.getElementById('bwLinkInput').value.trim();
   if (!url || !url.includes('withings')) { alert('Please paste a valid Withings link.'); return; }
   try {
-    const r = await fetch('http://localhost:8888/withings/link', {
+    const r = await fetch('https://dashboard-assistant.digify.com/withings/link', {
       method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ url })
     });
     const data = await r.json();
@@ -2634,7 +2634,7 @@ async function syncWithingsNow() {
   if (btn) { btn.textContent = '... Syncing'; btn.disabled = true; }
   if (statusEl) statusEl.textContent = 'Syncing with Withings (takes ~15 sec)...';
   try {
-    await fetch('http://localhost:8888/withings/sync');
+    await fetch('https://dashboard-assistant.digify.com/withings/sync');
     setTimeout(async () => {
       await loadBodyMetrics();
       await loadWithingsConfig();
@@ -2874,7 +2874,7 @@ async function sendMsg(){
       const timeout = setTimeout(() => controller.abort(), 15000);
       let data;
       try {
-        const resp = await fetch('http://localhost:8888/sync', { method: 'POST', signal: controller.signal });
+        const resp = await fetch('https://dashboard-assistant.digify.com/sync', { method: 'POST', signal: controller.signal });
         clearTimeout(timeout);
         data = await resp.json();
       } catch (fetchErr) {
