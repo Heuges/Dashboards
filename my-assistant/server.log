@@ -21,3 +21,10 @@ Data endpoints: /data/todos, /data/reminders
 Successfully synced /Users/thomasheuges/.gemini/antigravity/scratch/antigravity-sync
 Successfully synced /Users/thomasheuges/.gemini/antigravity/scratch/Dashboards
 [7:42:14 PM] Sync triggered by dashboard.
+🧠 Brain Server running on http://localhost:8888
+📡 Withings endpoints: /withings/link (POST), /withings/sync (GET), /withings/config (GET)
+⏰ Withings auto-sync scheduled at 10:00 PM daily
+💾 Data directory: /Users/thomasheuges/.gemini/antigravity-ide/scratch/Dashboards/my-assistant/data
+[Withings] Manual sync triggered via dashboard.
+[Withings] Launching headless browser for https://live.withings.com/?hash=utIbwZyaqxHiTEYgigU41wTPTNkF...
+[2:56:08 PM] Sync triggered by dashboard.
