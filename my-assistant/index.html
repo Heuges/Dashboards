@@ -3605,7 +3605,7 @@ async function loadDashHub() {
   const el = document.getElementById('dashHubContent');
   if (!el) return;
   try {
-    const tokens = await (await fetch('/admin/share-tokens')).json();
+    const tokens = await (await fetch(API_BASE + '/admin/share-tokens')).json();
     const icons  = { cem:'🏢', digify:'✨', networks:'🌐', remix:'🎵' };
     const clrs   = { cem:'#3b82f6', digify:'#8b5cf6', networks:'#06b6d4', remix:'#f59e0b' };
     el.innerHTML = `
@@ -3649,7 +3649,7 @@ async function copyShareLink(key) {
 async function regenerateToken(key) {
   if (!confirm('Regenerate the share link for ' + key.toUpperCase() + '?\n\nThe old link will stop working immediately.')) return;
   try {
-    const r = await (await fetch('/admin/share-tokens/regenerate/' + key, { method:'POST' })).json();
+    const r = await (await fetch(API_BASE + '/admin/share-tokens/regenerate/' + key, { method:'POST' })).json();
     const urlEl = document.getElementById('shareUrl-' + key);
     if (urlEl) urlEl.textContent = r.shareUrl;
     if (typeof qlToast === 'function') qlToast('🔄 New link generated!');
