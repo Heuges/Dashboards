@@ -6,6 +6,29 @@ const path = require('path');
 const querystring = require('querystring');
 
 const PORT     = 8888;
+
+// ─── Google Sheets — All Company Config ───────────────────────────────────
+const SHEET_ID   = '1zW-orwWjQ4k3MFYduw4_vkpnqgAPmaD8a1UWMIwNkX4';
+const SHEET_TABS = ['January','February','March','April','May'];
+// Tab name = the month of the expense as it appears in Agicap.
+// Exception: "May" tab = April 2026 expenses (per Tommy).
+const TAB_TO_DASH_MONTH = {
+    January:  '2026-01', February: '2026-02',
+    March:    '2026-03', April:    '2026-04',
+    May:      '2026-04',  // May tab = April 2026 expenses per Tommy
+};
+// Dollar-amount columns (0-indexed in CSV) — second set of company columns (rows sum)
+// Col 22=Digify, 24=Remix, 26=CEM, 28=CareOne, 30=SpaceJet, 32=RealInnovations
+const COMPANY_COLS = {
+    digify:   22,
+    remix:    24,
+    cem:      26,
+    careone:  28,
+    spacejet: 30,
+    reali:    32,
+};
+const ACT_COL  = 5;   // Column F = actual cost (shared)
+const MUP_COL  = 7;   // Column H = markup cost (shared)
 const STATIC_PORT = 8080;
 const DATA_DIR = path.join(__dirname, 'data');
 const DASHBOARDS_DIR = path.join(__dirname, '..');
@@ -811,13 +834,227 @@ const server = http.createServer(async (req, res) => {
         return;
     }
 
+    // ── GET /sheets/:company — serve cached expense data ───────────────────
+    // Supports: /sheets/cem, /sheets/digify, /sheets/remix, /sheets/networks
+    const sheetsReadMatch = req.method === 'GET' && req.url.match(/^\/sheets\/(cem|digify|remix|networks)$/);
+    if (sheetsReadMatch) {
+        const co   = sheetsReadMatch[1];
+        const data = readDataFile(`${co}-expenses`);
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify(data || { error: `No data yet — call /sheets/${co}/sync first` }));
+        return;
+    }
+
+    // ── GET /sheets/:company/sync — trigger fresh pull ─────────────────────
+    const sheetsSyncMatch = req.method === 'GET' && req.url.match(/^\/sheets\/(cem|digify|remix|networks)\/sync$/);
+    if (sheetsSyncMatch) {
+        const co = sheetsSyncMatch[1];
+        console.log(`[${co.toUpperCase()} Sheets] Manual sync triggered...`);
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ status: 'syncing', company: co, message: `Pulling ${co} data from Google Sheet...` }));
+        const syncFn = co === 'networks' ? syncAllCompanies : () => syncCompanyExpenses(co);
+        syncFn().then(() => console.log(`[${co.toUpperCase()} Sheets] ✅ Sync complete`))
+                .catch(e => console.error(`[${co.toUpperCase()} Sheets] Sync error:`, e.message));
+        return;
+    }
+
     res.writeHead(404); res.end();
 
 });
 
+
+// ─── Google Sheets Parser ─────────────────────────────────────────────────
+
+function fetchSheetCSV(tab) {
+    return new Promise((resolve, reject) => {
+        const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(tab)}`;
+        const doGet = (targetUrl, redirects) => {
+            if (redirects > 5) { reject(new Error('Too many redirects')); return; }
+            const mod = targetUrl.startsWith('https') ? https : http;
+            mod.get(targetUrl, { headers: { 'User-Agent': 'Mozilla/5.0' } }, res => {
+                if (res.statusCode === 301 || res.statusCode === 302) {
+                    doGet(res.headers.location, redirects + 1); return;
+                }
+                let data = '';
+                res.on('data', c => data += c);
+                res.on('end', () => resolve(data));
+                res.on('error', reject);
+            }).on('error', reject);
+        };
+        doGet(url, 0);
+    });
+}
+
+function parseCEMCurrency(v) {
+    if (!v) return 0;
+    const n = parseFloat(String(v).replace(/[$,\s]/g, ''));
+    return isNaN(n) ? 0 : n;
+}
+
+function parseCSVRow(line) {
+    const cols = []; let field = ''; let inQ = false;
+    for (let i = 0; i < line.length; i++) {
+        if (line[i] === '"') { inQ = !inQ; }
+        else if (line[i] === ',' && !inQ) { cols.push(field.trim()); field = ''; }
+        else { field += line[i]; }
+    }
+    cols.push(field.trim());
+    return cols;
+}
+
+function parseSheetTab(csvText, companyCol) {
+    const rows = csvText.split('\n').map(l => parseCSVRow(l));
+    const employees = [], vendors = [], platforms = [];
+    let grandTotal = 0;
+
+    for (let i = 0; i < rows.length; i++) {
+        const row = rows[i];
+        if (!row || row.length < 3) continue;
+        const nameC  = (row[2] || '').trim();
+        const nameD  = (row[3] || '').trim();
+        const name   = nameC || nameD;
+        const actual = parseCEMCurrency(row[ACT_COL]);
+        const coAmt  = parseCEMCurrency(row.length > companyCol ? row[companyCol] : '');
+
+        if (i === 0) continue; // header row
+
+        // Accounting row (WestLake / Lauren)
+        if (i === 1 && coAmt > 0) {
+            vendors.push({ name: 'WestLake Accounting Services', actual, cemAmt: coAmt, category: 'accounting' });
+            continue;
+        }
+        // Employee rows (i=3 to i=24 = rows 4-25)
+        if (i >= 3 && i <= 24 && coAmt > 0) {
+            const skip = name.includes('Review') || name.includes('Employees') || !name;
+            if (!skip) employees.push({ name, actual, cemAmt: coAmt });
+            continue;
+        }
+        // Platform / vendor rows (i=26 to i=65)
+        if (i >= 26 && i <= 65 && coAmt > 0) {
+            platforms.push({ name: name || `Item-${i+1}`, actual, cemAmt: coAmt });
+            continue;
+        }
+        // Grand total row (row 67 = i=66)
+        if (i === 66 && coAmt > 0) { grandTotal = coAmt; continue; }
+        // Fallback: look for grand total in rows 60-74
+        if (i >= 60 && i < 75 && grandTotal === 0 && coAmt > 30000) { grandTotal = coAmt; }
+    }
+
+    const staffTotal    = employees.reduce((s, e) => s + e.cemAmt, 0);
+    const vendorTotal   = vendors.reduce((s, v) => s + v.cemAmt, 0);
+    const platformTotal = platforms.reduce((s, p) => s + p.cemAmt, 0);
+    const computed      = staffTotal + vendorTotal + platformTotal;
+    const resolvedTotal = (grandTotal && grandTotal >= computed * 0.7) ? grandTotal : computed;
+
+    return { employees, vendors, platforms, staffTotal, vendorTotal, platformTotal,
+             grandTotal: resolvedTotal, computedTotal: computed };
+}
+
+// Sync a single company's expenses across all tabs
+async function syncCompanyExpenses(companyKey) {
+    const col = COMPANY_COLS[companyKey];
+    if (!col && col !== 0) throw new Error(`Unknown company: ${companyKey}`);
+    const label  = companyKey.toUpperCase();
+    const result = { syncedAt: new Date().toISOString(), sheetId: SHEET_ID, company: companyKey, months: {} };
+    for (const tab of SHEET_TABS) {
+        try {
+            console.log(`[${label} Sheets] Fetching "${tab}" tab...`);
+            const csv    = await fetchSheetCSV(tab);
+            const parsed = parseSheetTab(csv, col);
+            result.months[tab] = { tab, dashMonth: TAB_TO_DASH_MONTH[tab], ...parsed };
+            console.log(`[${label} Sheets] ${tab}: Staff=$${parsed.staffTotal.toLocaleString()}, Total=$${parsed.grandTotal.toLocaleString()}`);
+        } catch(e) {
+            console.error(`[${label} Sheets] Error on "${tab}":`, e.message);
+            result.months[tab] = { tab, dashMonth: TAB_TO_DASH_MONTH[tab], error: e.message };
+        }
+    }
+    writeDataFile(`${companyKey}-expenses`, result);
+    return result;
+}
+
+// Sync all companies at once — fetches each tab only once
+async function syncAllCompanies() {
+    const companies = Object.keys(COMPANY_COLS);
+    const results   = {};
+    for (const co of companies) results[co] = { syncedAt: new Date().toISOString(), sheetId: SHEET_ID, company: co, months: {} };
+    // Also build Networks aggregate
+    const netResult = { syncedAt: new Date().toISOString(), sheetId: SHEET_ID, company: 'networks', months: {} };
+
+    for (const tab of SHEET_TABS) {
+        let csv;
+        try {
+            console.log(`[All Sheets] Fetching "${tab}" tab...`);
+            csv = await fetchSheetCSV(tab);
+        } catch(e) {
+            console.error(`[All Sheets] Error fetching "${tab}":`, e.message);
+            for (const co of companies) results[co].months[tab] = { tab, error: e.message };
+            continue;
+        }
+
+        // Parse for each company
+        for (const co of companies) {
+            try {
+                const parsed = parseSheetTab(csv, COMPANY_COLS[co]);
+                results[co].months[tab] = { tab, dashMonth: TAB_TO_DASH_MONTH[tab], ...parsed };
+            } catch(e) {
+                results[co].months[tab] = { tab, dashMonth: TAB_TO_DASH_MONTH[tab], error: e.message };
+            }
+        }
+
+        // Networks aggregate = sum of all companies per row
+        try {
+            const rows = csv.split('\n').map(l => parseCSVRow(l));
+            const netEmployees = [], netPlatforms = [], netVendors = [];
+            for (let i = 1; i < rows.length && i < 67; i++) {
+                const row = rows[i];
+                if (!row || row.length < 3) continue;
+                const name = (row[2] || row[3] || '').trim();
+                const actual = parseCEMCurrency(row[ACT_COL]);
+                const allCoAmt = companies.reduce((s, co) => s + parseCEMCurrency(row[COMPANY_COLS[co]] || ''), 0);
+                if (allCoAmt === 0) continue;
+                if (i === 1) { netVendors.push({ name: 'WestLake Accounting Services', actual, cemAmt: allCoAmt }); continue; }
+                if (i >= 3 && i <= 24) { const skip = !name || name.includes('Review'); if (!skip) netEmployees.push({ name, actual, cemAmt: allCoAmt }); continue; }
+                if (i >= 26 && i <= 65) { netPlatforms.push({ name: name || `Item-${i+1}`, actual, cemAmt: allCoAmt }); }
+            }
+            const staffTotal    = netEmployees.reduce((s, e) => s + e.cemAmt, 0);
+            const vendorTotal   = netVendors.reduce((s, v) => s + v.cemAmt, 0);
+            const platformTotal = netPlatforms.reduce((s, p) => s + p.cemAmt, 0);
+            const computed      = staffTotal + vendorTotal + platformTotal;
+            netResult.months[tab] = { tab, dashMonth: TAB_TO_DASH_MONTH[tab],
+                employees: netEmployees, vendors: netVendors, platforms: netPlatforms,
+                staffTotal, vendorTotal, platformTotal, grandTotal: computed, computedTotal: computed };
+            console.log(`[Networks Agg] ${tab}: Total=$${computed.toLocaleString()}`);
+        } catch(e) {
+            netResult.months[tab] = { tab, error: e.message };
+        }
+    }
+
+    // Save all results
+    for (const co of companies) writeDataFile(`${co}-expenses`, results[co]);
+    writeDataFile('networks-expenses', netResult);
+    console.log('[All Sheets] ✅ Sync complete for all companies');
+    return { companies: results, networks: netResult };
+}
+
+// Auto-sync all companies on startup
+setTimeout(() => {
+    console.log('[All Sheets] ⏰ Running startup sync for all companies...');
+    syncAllCompanies().catch(e => console.error('[All Sheets] Startup sync error:', e.message));
+}, 3000);
+
+// Schedule nightly sync at 7am
+setInterval(() => {
+    const h = new Date().getHours(), m = new Date().getMinutes();
+    if (h === 7 && m === 0) {
+        console.log('[All Sheets] ⏰ 7am nightly sync for all companies...');
+        syncAllCompanies().catch(e => console.error('[All Sheets] Nightly sync error:', e.message));
+    }
+}, 60000);
+
 server.listen(PORT, '0.0.0.0', () => {
     console.log(`🧠 Brain Server running on http://localhost:${PORT}`);
     console.log(`📡 Withings endpoints: /withings/link (POST), /withings/sync (GET), /withings/config (GET)`);
-    console.log(`⏰ Withings auto-sync scheduled at 10:00 PM daily`);
+    console.log(`📊 CEM Sheets endpoints: /sheets/cem (GET), /sheets/cem/sync (GET)`);
+    console.log(`⏰ Withings auto-sync at 10pm | Sheets auto-sync at 7am daily`);
     console.log(`💾 Data directory: ${DATA_DIR}`);
 });

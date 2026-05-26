@@ -1,0 +1,132 @@
+{
+  "syncedAt": "2026-05-26T07:00:01.652Z",
+  "sheetId": "1zW-orwWjQ4k3MFYduw4_vkpnqgAPmaD8a1UWMIwNkX4",
+  "company": "careone",
+  "months": {
+    "January": {
+      "tab": "January",
+      "dashMonth": "2026-01",
+      "employees": [
+        {
+          "name": "William Balderrama",
+          "actual": 1000,
+          "cemAmt": 1000
+        }
+      ],
+      "vendors": [],
+      "platforms": [
+        {
+          "name": "Campaigner",
+          "actual": 250,
+          "cemAmt": 287.5
+        }
+      ],
+      "staffTotal": 1000,
+      "vendorTotal": 0,
+      "platformTotal": 287.5,
+      "grandTotal": 1288,
+      "computedTotal": 1287.5
+    },
+    "February": {
+      "tab": "February",
+      "dashMonth": "2026-02",
+      "employees": [
+        {
+          "name": "William Balderrama",
+          "actual": 1000,
+          "cemAmt": 1000
+        }
+      ],
+      "vendors": [],
+      "platforms": [
+        {
+          "name": "Campaigner",
+          "actual": 250,
+          "cemAmt": 287.5
+        }
+      ],
+      "staffTotal": 1000,
+      "vendorTotal": 0,
+      "platformTotal": 287.5,
+      "grandTotal": 1287.5,
+      "computedTotal": 1287.5
+    },
+    "March": {
+      "tab": "March",
+      "dashMonth": "2026-03",
+      "employees": [
+        {
+          "name": "William Balderrama",
+          "actual": 1000,
+          "cemAmt": 1000
+        }
+      ],
+      "vendors": [],
+      "platforms": [
+        {
+          "name": "Campaigner",
+          "actual": 250,
+          "cemAmt": 287.5
+        }
+      ],
+      "staffTotal": 1000,
+      "vendorTotal": 0,
+      "platformTotal": 287.5,
+      "grandTotal": 1288,
+      "computedTotal": 1287.5
+    },
+    "April": {
+      "tab": "April",
+      "dashMonth": "2026-04",
+      "employees": [
+        {
+          "name": "William Balderrama",
+          "actual": 1000,
+          "cemAmt": 1000
+        }
+      ],
+      "vendors": [],
+      "platforms": [
+        {
+          "name": "Campaigner",
+          "actual": 250,
+          "cemAmt": 287.5
+        },
+        {
+          "name": "Total",
+          "actual": 129345.38,
+          "cemAmt": 1288
+        }
+      ],
+      "staffTotal": 1000,
+      "vendorTotal": 0,
+      "platformTotal": 1575.5,
+      "grandTotal": 2575.5,
+      "computedTotal": 2575.5
+    },
+    "May": {
+      "tab": "May",
+      "dashMonth": "2026-04",
+      "employees": [
+        {
+          "name": "William Balderrama",
+          "actual": 1000,
+          "cemAmt": 1000
+        }
+      ],
+      "vendors": [],
+      "platforms": [
+        {
+          "name": "Campaigner",
+          "actual": 250,
+          "cemAmt": 287.5
+        }
+      ],
+      "staffTotal": 1000,
+      "vendorTotal": 0,
+      "platformTotal": 287.5,
+      "grandTotal": 1287.5,
+      "computedTotal": 1287.5
+    }
+  }
+}

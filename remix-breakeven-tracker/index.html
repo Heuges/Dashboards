@@ -1,80 +1,1280 @@
 <!DOCTYPE html>
-<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>Remix Dynamix Breakeven Tracker</title>
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-<style>
-:root{--bg:#0a0e1a;--card:#1a2236;--border:#1e293b;--green:#10b981;--red:#ef4444;--amber:#f59e0b;--text:#f1f5f9;--muted:#94a3b8;--dim:#64748b;--accent:#06b6d4}
-*{margin:0;padding:0;box-sizing:border-box}body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
-.wrap{max-width:1200px;margin:0 auto;padding:32px 24px}.header{text-align:center;margin-bottom:32px}
-.header h1{font-size:1.8rem;font-weight:800;background:linear-gradient(135deg,#fff,#94a3b8);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
-.header p{color:var(--muted);font-size:.9rem;margin-top:6px}
-.badge{display:inline-block;margin-top:10px;padding:4px 14px;border-radius:20px;font-size:.75rem;font-weight:600;letter-spacing:.5px;text-transform:uppercase}
-.badge-w{background:rgba(245,158,11,.15);color:var(--amber);border:1px solid rgba(245,158,11,.3)}
-.badge-g{background:rgba(16,185,129,.15);color:var(--green);border:1px solid rgba(16,185,129,.3)}
-.kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;margin-bottom:28px}
-.kpi{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:20px;position:relative;overflow:hidden;transition:all .3s}
-.kpi:hover{transform:translateY(-2px)}.kpi::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--accent)}
-.kpi-l{font-size:.7rem;text-transform:uppercase;letter-spacing:1px;color:var(--dim);font-weight:600;margin-bottom:6px}
-.kpi-v{font-size:1.5rem;font-weight:800}.pos{color:var(--green)}.neg{color:var(--red)}.neu{color:var(--text)}
-.kpi-d{font-size:.78rem;color:var(--muted);margin-top:4px}
-.card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:28px;margin-bottom:24px}
-.card h2{font-size:1.1rem;font-weight:700;margin-bottom:4px}.card .sub{font-size:.8rem;color:var(--dim);margin-bottom:18px}
-.chart-box{position:relative;height:380px}
-.two-col{display:grid;grid-template-columns:1fr 1fr;gap:20px}@media(max-width:900px){.two-col{grid-template-columns:1fr}}
-table{width:100%;border-collapse:separate;border-spacing:0;font-size:.83rem}
-th{background:#111827;color:var(--muted);font-weight:600;text-transform:uppercase;font-size:.68rem;letter-spacing:1px;padding:10px 12px;text-align:right;border-bottom:1px solid var(--border)}
-th:first-child{text-align:left}td{padding:10px 12px;text-align:right;border-bottom:1px solid rgba(30,41,59,.4)}
-td:first-child{text-align:left;font-weight:600}tr:hover td{background:rgba(59,130,246,.04)}
-.proj{background:rgba(99,102,241,.08);font-style:italic}
-.insight{background:rgba(59,130,246,.08);border:1px solid rgba(59,130,246,.2);border-radius:12px;padding:18px;margin-top:14px}
-.insight h4{color:var(--accent);font-size:.82rem;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px}
-.insight p{color:var(--muted);font-size:.86rem;line-height:1.6}.hl{color:var(--green);font-weight:700}.wn{color:var(--amber);font-weight:700}
-.footer{text-align:center;margin-top:32px;color:var(--dim);font-size:.75rem;border-top:1px solid var(--border);padding-top:16px}
-.back{display:inline-block;margin-bottom:20px;color:var(--muted);text-decoration:none;font-size:.85rem}.back:hover{color:var(--text)}
-</style></head><body>
-<script src="../admin-nav.js"></script><div class="wrap">
-<a href="../" class="back">← All Dashboards</a>
-<div class="header"><h1>Remix Dynamix — Breakeven Tracker</h1>
-<p>Weekly Revenue vs. Breakeven · Last 5 Weeks + 3 Week Projection</p>
-<span class="badge badge-g">Above Breakeven</span></div>
-<div class="kpi-grid">
-<div class="kpi"><div class="kpi-l">Weekly Breakeven</div><div class="kpi-v neu">$41,570</div><div class="kpi-d">At 25% gross margin</div></div>
-<div class="kpi"><div class="kpi-l">Avg Weekly Revenue</div><div class="kpi-v pos">$178,289</div><div class="kpi-d">Last 5 weeks</div></div>
-<div class="kpi"><div class="kpi-l">Monthly Expenses</div><div class="kpi-v neg">$45,000</div><div class="kpi-d">Operating cost basis</div></div>
-<div class="kpi"><div class="kpi-l">Revenue Trend</div><div class="kpi-v pos">↑ Upward</div><div class="kpi-d">$+152,075/week</div></div>
-<div class="kpi"><div class="kpi-l">YTD Net Cash Flow</div><div class="kpi-v neg">-$53,838</div><div class="kpi-d">Jan-May 2026</div></div>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Remix Dynamix — Breakeven & Cash Flow</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0a0e1a; --card: #1a2236; --border: #1e293b;
+            --green: #10b981; --red: #ef4444; --blue: #00d4ff;
+            --purple: #8b5cf6; --amber: #f59e0b; --cyan: #06b6d4;
+            --text: #f1f5f9; --muted: #94a3b8; --dim: #64748b;
+        }
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body { font-family:'Inter',sans-serif; background:var(--bg); color:var(--text); min-height:100vh; }
+        .wrap { max-width:1400px; margin:0 auto; padding:28px 24px; }
+
+        /* ── Header ── */
+        .top-bar { display:flex; align-items:center; justify-content:space-between; margin-bottom:28px; flex-wrap:wrap; gap:14px; }
+        .logo-block { display:flex; align-items:center; gap:14px; }
+        .logo-block img { height:40px; filter:brightness(1.1); }
+        .logo-block .co-name { font-size:.72rem; font-weight:700; text-transform:uppercase; letter-spacing:1.5px; color:var(--dim); }
+        .view-toggle { display:flex; gap:0; background:#111827; border-radius:12px; padding:4px; border:1px solid var(--border); }
+        .vt-btn { padding:9px 22px; border-radius:9px; border:none; font-size:.8rem; font-weight:700; cursor:pointer; font-family:'Inter',sans-serif; transition:all .2s; color:var(--dim); background:none; }
+        .vt-btn.active { background:linear-gradient(135deg,#0099bb,#00d4ff); color:#fff; box-shadow:0 2px 12px rgba(0,212,255,.3); }
+
+        /* ── Shared card ── */
+        .card { background:var(--card); border:1px solid var(--border); border-radius:16px; padding:28px; margin-bottom:22px; }
+        .card h2 { font-size:1.05rem; font-weight:700; margin-bottom:4px; }
+        .card .sub { font-size:.78rem; color:var(--dim); margin-bottom:20px; }
+        .chart-box { position:relative; height:380px; }
+
+        /* ── Breakeven view ── */
+        .legend-custom { display:flex; gap:24px; justify-content:center; flex-wrap:wrap; margin-bottom:16px; }
+        .legend-item { display:flex; align-items:center; gap:6px; font-size:.82rem; color:var(--muted); }
+        .legend-line { width:28px; height:3px; border-radius:2px; }
+        .legend-dash { width:28px; height:0; border-top:3px dashed; }
+        table { width:100%; border-collapse:separate; border-spacing:0; font-size:.85rem; }
+        th { background:#111827; color:var(--muted); font-weight:600; text-transform:uppercase; font-size:.7rem; letter-spacing:1px; padding:12px 14px; text-align:right; border-bottom:1px solid var(--border); }
+        th:first-child { text-align:left; border-radius:8px 0 0 0; }
+        th:last-child { border-radius:0 8px 0 0; }
+        td { padding:10px 14px; text-align:right; border-bottom:1px solid rgba(30,41,59,.4); }
+        td:first-child { text-align:left; font-weight:600; }
+        tr:hover td { background:rgba(0,212,255,.04); }
+        .pos { color:var(--green); font-weight:600; }
+        .neg { color:var(--red); font-weight:600; }
+        .proj { background:rgba(99,102,241,.08); font-style:italic; }
+        .insight { background:rgba(0,212,255,.08); border:1px solid rgba(0,212,255,.2); border-radius:12px; padding:18px; margin-top:16px; }
+        .insight h4 { color:var(--blue); font-size:.82rem; text-transform:uppercase; letter-spacing:.5px; margin-bottom:8px; }
+        .insight p { color:var(--muted); font-size:.88rem; line-height:1.6; }
+        .hl { color:var(--green); font-weight:700; }
+        .wn { color:var(--amber); font-weight:700; }
+        .footer-bar { text-align:center; margin-top:24px; color:var(--dim); font-size:.72rem; border-top:1px solid var(--border); padding-top:16px; }
+
+        /* ── Data Sources Tracker ── */
+        .sources-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:14px; margin-top:16px; }
+        .source-tile { background:rgba(255,255,255,.03); border:1px solid var(--border); border-radius:14px; padding:16px; transition:border-color .2s; }
+        .source-tile:hover { border-color:#334155; }
+        .source-tile .st-icon { font-size:1.5rem; margin-bottom:8px; }
+        .source-tile .st-name { font-size:.82rem; font-weight:700; color:var(--text); margin-bottom:2px; }
+        .source-tile .st-sub  { font-size:.68rem; color:var(--dim); margin-bottom:10px; }
+        .source-tile .st-badge { display:inline-flex; align-items:center; gap:5px; font-size:.65rem; font-weight:700; text-transform:uppercase; letter-spacing:.5px; padding:3px 8px; border-radius:20px; margin-bottom:10px; }
+        .badge-manual   { background:rgba(245,158,11,.15); color:#f59e0b; }
+        .badge-pending  { background:rgba(239,68,68,.12);  color:#ef4444; }
+        .badge-connected{ background:rgba(16,185,129,.12); color:#10b981; }
+        .source-tile .st-last { font-size:.72rem; color:var(--muted); margin-bottom:10px; display:flex; align-items:center; gap:5px; }
+        .source-tile .st-last .dot { width:7px; height:7px; border-radius:50%; flex-shrink:0; }
+        .source-tile .st-last .dot.fresh { background:#10b981; }
+        .source-tile .st-last .dot.old   { background:#ef4444; }
+        .source-tile .st-last .dot.never { background:#475569; }
+        .mark-btn { width:100%; padding:8px; border-radius:9px; border:none; background:rgba(0,212,255,.15); color:var(--blue); font-size:.72rem; font-weight:700; cursor:pointer; font-family:'Inter',sans-serif; transition:background .2s; }
+        .mark-btn:hover { background:rgba(0,212,255,.28); }
+        .mark-btn:disabled { opacity:.45; cursor:default; }
+        .sources-note { font-size:.72rem; color:var(--dim); margin-top:10px; text-align:center; }
+
+        /* ── Cash Flow View ── */
+        #cfView { display:none; }
+
+        /* CF Header Strip */
+        .cf-header-strip { display:flex; align-items:center; justify-content:space-between; background:var(--card); border:1px solid var(--border); border-radius:16px; padding:18px 26px; margin-bottom:22px; flex-wrap:wrap; gap:16px; }
+        .cf-bal-num { font-size:2.2rem; font-weight:800; }
+        .cf-bal-num.pos { color:var(--green); }
+        .cf-bal-num.neg { color:var(--red); }
+        .cf-bal-lbl { font-size:.72rem; color:var(--dim); font-weight:600; margin-top:2px; display:flex; align-items:center; gap:5px; }
+        .cf-bal-dot { width:8px; height:8px; border-radius:50%; background:var(--green); display:inline-block; }
+        .cf-range-controls { display:flex; align-items:center; gap:12px; flex-wrap:wrap; }
+        .cf-range-controls select { background:#111827; border:1px solid var(--border); border-radius:10px; padding:8px 14px; color:var(--text); font-size:.82rem; font-family:'Inter',sans-serif; cursor:pointer; outline:none; }
+        .cf-range-controls select:focus { border-color:var(--blue); }
+        .cf-range-arrow { color:var(--dim); font-size:.9rem; }
+        .cf-pill { background:rgba(16,185,129,.1); color:var(--green); border:1px solid rgba(16,185,129,.2); border-radius:20px; padding:5px 14px; font-size:.72rem; font-weight:700; }
+
+        /* CF Table */
+        .cf-table { width:100%; border-collapse:collapse; font-size:.82rem; min-width:1000px; }
+        .cf-table th { background:#0f1729; color:var(--muted); font-size:.68rem; font-weight:700; text-transform:uppercase; letter-spacing:.8px; padding:11px 14px; text-align:right; border-bottom:2px solid var(--border); white-space:nowrap; position:sticky; top:0; z-index:5; }
+        .cf-table th:first-child { text-align:left; min-width:230px; z-index:6; }
+        .cf-table th.curr-hdr { background:rgba(0,212,255,.2); color:#93c5fd; }
+        .cf-table td { padding:8px 14px; text-align:right; border-bottom:1px solid rgba(30,41,59,.25); }
+        .cf-table td:first-child { text-align:left; }
+        .cf-table td.curr { background:rgba(0,212,255,.06); }
+        .cf-table th.curr-hdr, .cf-table td.curr { border-left:1px solid rgba(0,212,255,.2); border-right:1px solid rgba(0,212,255,.2); }
+
+        /* Row types */
+        .cf-bal-row td { background:rgba(0,212,255,.12); color:#93c5fd; font-weight:800; font-size:.88rem; padding:12px 14px; border-top:2px solid rgba(0,212,255,.35); border-bottom:2px solid rgba(0,212,255,.35); }
+        .cf-bal-row td:first-child { display:flex; align-items:center; gap:8px; }
+        .cf-bal-row td.curr { background:rgba(0,212,255,.22); }
+        .cf-hdr-row td { background:linear-gradient(90deg,rgba(16,185,129,.07),transparent); color:var(--text); font-weight:800; font-size:.78rem; text-transform:uppercase; letter-spacing:.6px; padding:14px 14px 10px; border-top:1px solid rgba(30,41,59,.6); }
+        .cf-hdr-row.out td { background:linear-gradient(90deg,rgba(239,68,68,.07),transparent); }
+        .cf-hdr-row td.curr { background:rgba(0,212,255,.05); }
+        .cf-group-row td { font-weight:700; color:var(--text); background:rgba(255,255,255,.015); cursor:pointer; transition:background .15s; }
+        .cf-group-row:hover td { background:rgba(0,212,255,.05); }
+        .cf-group-row td:first-child::before { content:'▶ '; font-size:.55rem; color:var(--dim); transition:transform .2s; display:inline-block; margin-right:1px; }
+        .cf-group-row.open td:first-child::before { transform:rotate(90deg); }
+        .cf-sub-row td { color:var(--muted); font-size:.8rem; }
+        .cf-sub-row td:first-child { color:var(--dim); }
+        .cf-total-row td { font-weight:800; font-size:.88rem; border-top:2px solid var(--border); padding:14px; }
+        .cf-total-row.in td { color:var(--green); background:rgba(16,185,129,.05); }
+        .cf-total-row.out td { color:var(--red); background:rgba(239,68,68,.05); }
+        .cf-total-row td.curr.in { background:rgba(16,185,129,.1); }
+        .cf-total-row td.curr.out { background:rgba(239,68,68,.1); }
+        .cf-net-row td { font-weight:800; font-size:.9rem; border-top:2px solid var(--green); background:rgba(16,185,129,.07); color:var(--green); padding:14px; }
+        .cf-net-row.neg td { color:var(--red); background:rgba(239,68,68,.07); border-top:2px solid var(--red); }
+        .cf-net-row td.curr { background:rgba(16,185,129,.14); }
+        .cf-net-row.neg td.curr { background:rgba(239,68,68,.14); }
+        .forecast-val { color:var(--dim) !important; font-style:italic; }
+
+        /* % Badges */
+        .pct { display:inline-block; font-size:.6rem; font-weight:700; padding:1px 5px; border-radius:4px; margin-left:4px; vertical-align:middle; line-height:1.4; }
+        .pct-over  { background:rgba(239,68,68,.2); color:#ef4444; }
+        .pct-under { background:rgba(16,185,129,.2); color:#10b981; }
+        .pct-near  { background:rgba(148,163,184,.1); color:#94a3b8; }
+
+        /* Indent levels */
+        .ind1 td:first-child { padding-left:14px; }
+        .ind2 td:first-child { padding-left:30px; }
+        .ind3 td:first-child { padding-left:48px; }
+
+        /* Scenario flag badges */
+        .flag-row { margin-top:16px; display:flex; flex-direction:column; gap:8px; }
+        .flag { display:flex; align-items:flex-start; gap:10px; background:rgba(255,255,255,.02); border:1px solid var(--border); border-radius:10px; padding:12px 14px; }
+        .flag-icon { font-size:1.1rem; flex-shrink:0; margin-top:1px; }
+        .flag-body { flex:1; }
+        .flag-title { font-size:.75rem; font-weight:700; color:var(--text); margin-bottom:3px; }
+        .flag-detail { font-size:.72rem; color:var(--dim); line-height:1.5; }
+        .flag.warn { border-color:rgba(245,158,11,.25); background:rgba(245,158,11,.04); }
+        .flag.good { border-color:rgba(16,185,129,.25); background:rgba(16,185,129,.04); }
+        .flag.info { border-color:rgba(0,212,255,.2); background:rgba(0,212,255,.04); }
+
+        /* Data entry modal */
+        .modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,.7); backdrop-filter:blur(6px); z-index:1000; align-items:center; justify-content:center; }
+        .modal-overlay.open { display:flex; }
+        .modal { background:#1a2236; border:1px solid var(--border); border-radius:20px; padding:32px; width:min(700px,95vw); max-height:90vh; overflow-y:auto; }
+        .modal h3 { font-size:1.1rem; font-weight:800; margin-bottom:6px; }
+        .modal .modal-sub { font-size:.8rem; color:var(--dim); margin-bottom:24px; }
+        .form-grid { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+        .form-group { display:flex; flex-direction:column; gap:5px; }
+        .form-group label { font-size:.7rem; font-weight:700; color:var(--dim); text-transform:uppercase; letter-spacing:.5px; }
+        .form-group input, .form-group select { background:rgba(255,255,255,.05); border:1px solid var(--border); border-radius:10px; padding:10px 12px; color:var(--text); font-size:.88rem; font-family:'Inter',sans-serif; outline:none; }
+        .form-group input:focus, .form-group select:focus { border-color:var(--blue); }
+        .form-group.full { grid-column:1/-1; }
+        .modal-actions { display:flex; gap:10px; justify-content:flex-end; margin-top:24px; }
+        .btn-primary { background:linear-gradient(135deg,#0099bb,#00d4ff); color:#fff; border:none; border-radius:10px; padding:11px 24px; font-weight:700; font-size:.85rem; cursor:pointer; font-family:'Inter',sans-serif; }
+        .btn-secondary { background:rgba(255,255,255,.06); color:var(--muted); border:1px solid var(--border); border-radius:10px; padding:11px 24px; font-weight:600; font-size:.85rem; cursor:pointer; font-family:'Inter',sans-serif; }
+
+        /* Breakeven scenario/horizon selectors */
+        .cf-controls { display:flex; align-items:center; gap:12px; flex-wrap:wrap; margin-bottom:20px; }
+        .cf-controls .ctrl-label { font-size:.72rem; color:var(--dim); font-weight:600; text-transform:uppercase; letter-spacing:.5px; }
+        .seg-ctrl { display:flex; background:#111827; border-radius:9px; padding:3px; border:1px solid var(--border); }
+        .seg-btn { padding:6px 14px; border-radius:7px; border:none; font-size:.75rem; font-weight:700; cursor:pointer; font-family:'Inter',sans-serif; transition:all .18s; color:var(--dim); background:none; }
+        .seg-btn.active { color:#fff; }
+        .seg-btn.active.green { background:#059669; }
+        .seg-btn.active.blue  { background:var(--blue); }
+        .seg-btn.active.amber { background:#d97706; }
+        .kpi-row { display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:14px; margin-bottom:22px; }
+        .kpi { background:var(--card); border:1px solid var(--border); border-radius:14px; padding:18px 20px; }
+        .kpi .kpi-label { font-size:.65rem; font-weight:700; text-transform:uppercase; letter-spacing:.8px; color:var(--dim); margin-bottom:8px; }
+        .kpi .kpi-val { font-size:1.8rem; font-weight:800; line-height:1; }
+        .kpi .kpi-sub { font-size:.7rem; color:var(--dim); margin-top:5px; }
+        .waterfall-wrap { position:relative; height:280px; margin-bottom:22px; }
+
+        /* ── Live Expenses Panel ── */
+        .live-badge { display:inline-flex; align-items:center; gap:5px; background:rgba(16,185,129,.12); color:#10b981; border:1px solid rgba(16,185,129,.25); border-radius:20px; padding:3px 10px; font-size:.65rem; font-weight:700; text-transform:uppercase; letter-spacing:.5px; }
+        .live-badge .pulse { width:6px; height:6px; border-radius:50%; background:#10b981; animation:pulse 2s infinite; flex-shrink:0; }
+        @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.5;transform:scale(1.3)} }
+        .exp-tab-row { display:flex; gap:6px; flex-wrap:wrap; margin-bottom:16px; }
+        .exp-tab { padding:6px 14px; border-radius:9px; border:1px solid var(--border); font-size:.75rem; font-weight:700; cursor:pointer; font-family:'Inter',sans-serif; color:var(--dim); background:rgba(255,255,255,.03); transition:all .2s; }
+        .exp-tab.active { background:rgba(0,212,255,.15); color:#93c5fd; border-color:rgba(0,212,255,.3); }
+        .exp-tab:hover:not(.active) { background:rgba(255,255,255,.06); color:var(--muted); }
+        .exp-panel { display:none; }
+        .exp-panel.visible { display:block; }
+        .exp-section { margin-bottom:14px; }
+        .exp-section-hdr { font-size:.72rem; font-weight:700; text-transform:uppercase; letter-spacing:.6px; color:var(--dim); padding:8px 0 6px; border-bottom:1px solid var(--border); margin-bottom:8px; display:flex; align-items:center; justify-content:space-between; }
+        .exp-section-hdr .amt { color:var(--text); font-weight:800; font-size:.8rem; }
+        .exp-item { display:flex; align-items:center; justify-content:space-between; padding:7px 10px; border-radius:8px; transition:background .15s; }
+        .exp-item:hover { background:rgba(255,255,255,.03); }
+        .exp-item .ei-name { font-size:.8rem; color:var(--muted); flex:1; }
+        .exp-item .ei-actual { font-size:.72rem; color:var(--dim); margin-right:12px; }
+        .exp-item .ei-cem { font-size:.82rem; font-weight:700; color:var(--text); min-width:90px; text-align:right; }
+        .exp-totals { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-top:14px; padding:14px; background:rgba(255,255,255,.02); border-radius:12px; border:1px solid var(--border); }
+        .exp-tot-item { text-align:center; }
+        .exp-tot-item .etl { font-size:.65rem; font-weight:700; text-transform:uppercase; letter-spacing:.5px; color:var(--dim); margin-bottom:4px; }
+        .exp-tot-item .etv { font-size:1.15rem; font-weight:800; color:var(--text); }
+        .exp-tot-item .etv.red { color:var(--red); }
+        .sync-btn { padding:7px 16px; border-radius:9px; background:rgba(0,212,255,.12); color:var(--blue); border:1px solid rgba(0,212,255,.2); font-size:.72rem; font-weight:700; cursor:pointer; font-family:'Inter',sans-serif; display:inline-flex; align-items:center; gap:6px; transition:background .2s; }
+        .sync-btn:hover { background:rgba(0,212,255,.25); }
+        .exp-placeholder { text-align:center; padding:40px; color:var(--dim); font-size:.88rem; }
+    </style>
+</head>
+<body>
+<div class="wrap">
+
+    <!-- Top Bar -->
+    <div class="top-bar">
+        <div class="logo-block">
+            <img src="remix-logo.png" alt="Remix Dynamix" style="height:40px;width:auto;object-fit:contain;">
+            <div>
+                <div class="co-name">Remix Dynamix — Financial Dashboard</div>
+            </div>
+        </div>
+        <div class="view-toggle">
+            <button class="vt-btn active" id="btnBreakeven" onclick="switchView('breakeven')">📊 Weekly Breakeven</button>
+            <button class="vt-btn" id="btnCashflow" onclick="switchView('cashflow')">💰 Cash Flow</button>
+        </div>
+    </div>
+
+    <!-- ════ BREAKEVEN VIEW ════ -->
+    <div id="beView">
+        <div style="text-align:center;margin-bottom:28px;">
+            <h1 style="font-size:1.6rem;font-weight:800;background:linear-gradient(135deg,#fff,#94a3b8);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">Remix Dynamix Breakeven Tracker — Weekly View</h1>
+            <p style="color:var(--muted);font-size:.9rem;margin-top:6px;">Revenue vs. Breakeven (Reduced &amp; Full Strength) · Last 5 Weeks + 3 Week Projection</p>
+        </div>
+
+        <div class="card">
+            <h2>📊 Weekly Revenue vs. Breakeven Lines</h2>
+            <div class="sub">Green = Revenue · Red = Expenses · Amber dashed = Reduced BE ($56K/wk) · Purple dashed = Full Strength BE ($130K/wk)</div>
+            <div class="legend-custom">
+                <div class="legend-item"><div class="legend-line" style="background:var(--green)"></div> Revenue</div>
+                <div class="legend-item"><div class="legend-line" style="background:var(--red)"></div> Expenses</div>
+                <div class="legend-item"><div class="legend-dash" style="border-color:var(--amber)"></div> BE Reduced ($56K)</div>
+                <div class="legend-item"><div class="legend-dash" style="border-color:var(--purple)"></div> BE Full ($130K)</div>
+                <div class="legend-item"><div class="legend-line" style="background:rgba(99,102,241,.3);height:12px;border-radius:4px"></div> Projected</div>
+            </div>
+            <div class="chart-box"><canvas id="mainChart"></canvas></div>
+        </div>
+
+        <div class="card">
+            <h2>📋 Weekly Data — Actual + Projected</h2>
+            <div class="sub">Blue-shaded rows are projections based on weighted avg + trend of last 3 actual weeks</div>
+            <table><thead><tr>
+                <th style="text-align:left">Week</th><th>Revenue</th><th>Expenses</th><th>Net</th>
+                <th>BE Reduced</th><th>BE Full</th><th>vs. Reduced</th><th>vs. Full</th>
+            </tr></thead><tbody id="tbl"></tbody></table>
+        </div>
+
+        <div class="card">
+            <h2>🔍 Analysis</h2>
+            <div class="insight">
+                <h4>Where Remix Dynamix Stands</h4>
+                <p><em style="color:var(--dim)">Financial data for Remix Dynamix not yet configured. Provide revenue and expense targets to activate breakeven tracking.</em></p></div>
+            <div class="insight" style="margin-top:12px">
+                <h4>3-Week Projection</h4>
+                <p>Based on the last 3 weeks, revenue has an <span class="hl">upward trend of +$12,906/week</span>.
+                Projected weeks 6–8 show revenue between <span class="hl">$91K–$104K/week</span> —
+                comfortably above reduced BE but still <span class="wn">$26K–$39K short</span> of full strength BE.</p>
+            </div>
+            <div class="insight" style="margin-top:12px;border-color:rgba(139,92,246,.3);background:rgba(139,92,246,.08)">
+                <h4>Path to Full Strength</h4>
+                
+            </div>
+        </div>
+
+        <div class="footer-bar">Remix Dynamix Breakeven Tracker · Data pending — provide financial data to enable breakeven tracking · May 2026</div>
+
+        <div class="card" id="dataSourcesCard">
+            <h2>🗂️ Financial Data Sources</h2>
+            <p style="font-size:.82rem;color:var(--dim);margin-bottom:4px">Every place financial data comes from. Click <strong style="color:var(--text)">Mark Reviewed</strong> after you've checked that source for new data.</p>
+            <div class="sources-grid" id="sourcesGrid">Loading...</div>
+            <div class="sources-note" id="sourcesNote"></div>
+        </div>
+    </div>
+
+    <!-- ════ CASH FLOW VIEW ════ -->
+    <div id="cfView">
+
+        <!-- Header Strip: Balance + Date Range Selector -->
+        <div class="cf-header-strip">
+            <div>
+                <div style="display:flex;align-items:baseline;gap:8px">
+                    <span class="cf-bal-num pos" id="cfBalNum">+$25,097</span>
+                    <span style="font-size:.82rem;color:var(--muted)">Opening Balance — May 2026</span>
+                </div>
+                <div class="cf-bal-lbl">
+                    <span class="cf-bal-dot" id="cfBalDot"></span>
+                    <span id="cfBalSub">Cash balance at beginning of current month</span>
+                </div>
+            </div>
+            <div class="cf-range-controls">
+                <span style="font-size:.75rem;color:var(--dim);font-weight:600;">DATE RANGE</span>
+                <select id="cfStart" onchange="renderCFView()">
+                    <option value="0">Feb 2026</option>
+                    <option value="1">Mar 2026</option>
+                    <option value="2">Apr 2026</option>
+                    <option value="3" selected>May 2026</option>
+                </select>
+                <span class="cf-range-arrow">→</span>
+                <select id="cfEnd" onchange="renderCFView()">
+                    <option value="3">May 2026</option>
+                    <option value="4">Jun 2026</option>
+                    <option value="5">Jul 2026</option>
+                    <option value="6">Aug 2026</option>
+                    <option value="7">Sep 2026</option>
+                    <option value="8" selected>Oct 2026</option>
+                </select>
+                <span class="cf-pill">📊 Main Scenario · Consolidated</span>
+            </div>
+        </div>
+
+        <!-- Overview Chart (AGI Cap style: bars + balance line) -->
+        <div class="card">
+            <h2>📊 Monthly Cash Flow Overview
+                <span style="font-size:.78rem;font-weight:400;color:var(--dim);margin-left:8px" id="cfChartLabel">Feb 2026 – Oct 2026</span>
+            </h2>
+            <div class="sub">Green = Inflows · Red = Outflows · Blue dotted line = Closing Cash Balance</div>
+            <div style="position:relative;height:250px">
+                <canvas id="cfOverviewChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Cash Flow Statement Table -->
+        <div class="card" style="padding:0;overflow:hidden">
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:24px 28px 16px;flex-wrap:wrap;gap:10px">
+                <div>
+                    <h2>📋 Cash Flow Statement</h2>
+                    <div class="sub" style="margin-bottom:0">Click <strong>▶</strong> rows to expand · <span style="color:#93c5fd">Blue column</span> = current month · Italic = forecast · <span style="color:#ef4444">Red %</span> = over budget</div>
+                </div>
+                <div style="display:flex;gap:8px">
+                    <button onclick="cfExpandAll()" style="background:rgba(0,212,255,.1);color:var(--blue);border:1px solid rgba(0,212,255,.2);border-radius:8px;padding:6px 14px;font-size:.72rem;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;">Expand All</button>
+                    <button onclick="cfCollapseAll()" style="background:rgba(255,255,255,.05);color:var(--muted);border:1px solid var(--border);border-radius:8px;padding:6px 14px;font-size:.72rem;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;">Collapse All</button>
+                </div>
+            </div>
+            <div style="overflow-x:auto">
+                <table class="cf-table" id="cfTable"></table>
+            </div>
+        </div>
+
+        <!-- Forecast Intelligence -->
+        <div class="card">
+            <h2>🧠 Forecast Intelligence</h2>
+            <div class="sub">Key observations and risks from the cash flow data</div>
+            <div class="flag-row" id="cfFlagRow"></div>
+        </div>
+
+        <!-- Live Expenses from Google Sheet -->
+        <div class="card" id="liveExpCard">
+            <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:16px">
+                <div>
+                    <h2 style="margin-bottom:4px">📋 Live Expense Breakdown — Networks 2026 Sheet
+                        <span class="live-badge" style="margin-left:8px" id="liveBadge"><span class="pulse"></span>LIVE</span>
+                    </h2>
+                    <div style="font-size:.78rem;color:var(--dim)" id="liveLastSync">Loading from Google Sheet...</div>
+                </div>
+                <button class="sync-btn" onclick="triggerSheetSync()">🔄 Sync Now</button>
+            </div>
+
+            <!-- Month tabs -->
+            <div class="exp-tab-row" id="expTabRow"></div>
+
+            <!-- Content panel per tab -->
+            <div id="expPanelContainer"></div>
+        </div>
+
+    </div><!-- /cfView -->
+</div><!-- /wrap -->
+
+<!-- ── Data Entry Modal ── -->
+<div class="modal-overlay" id="entryModal">
+    <div class="modal">
+        <h3>+ Enter Weekly Cash Flow Data</h3>
+        <div class="modal-sub">Enter actual revenue and costs for the week.</div>
+        <div class="form-grid">
+            <div class="form-group"><label>Week Ending Date</label><input type="date" id="entryDate"></div>
+            <div class="form-group"><label>Week Label (e.g. Wk6)</label><input type="text" id="entryWeekLabel" placeholder="Wk6"></div>
+            <div class="form-group full"><label style="font-size:.8rem;color:var(--blue)">── REVENUE BY VERTICAL ──</label></div>
+            <div class="form-group"><label>Legal Revenue ($)</label><input type="number" id="eRevLegal" placeholder="0"></div>
+            <div class="form-group"><label>Insurance Revenue ($)</label><input type="number" id="eRevInsurance" placeholder="0"></div>
+            <div class="form-group"><label>Home Services Revenue ($)</label><input type="number" id="eRevHomeServices" placeholder="0"></div>
+            <div class="form-group"><label>Travel Revenue ($)</label><input type="number" id="eRevTravel" placeholder="0"></div>
+            <div class="form-group"><label>Rehab Revenue ($)</label><input type="number" id="eRevRehab" placeholder="0"></div>
+            <div class="form-group"><label>Other Revenue ($)</label><input type="number" id="eRevOther" placeholder="0"></div>
+            <div class="form-group full"><label style="font-size:.8rem;color:var(--red)">── COSTS &amp; OUTFLOWS ──</label></div>
+            <div class="form-group"><label>Payroll / Staff ($)</label><input type="number" id="eCostPayroll" placeholder="0"></div>
+            <div class="form-group"><label>Management Fees ($)</label><input type="number" id="eCostMgmt" placeholder="0"></div>
+            <div class="form-group"><label>CC Payments ($)</label><input type="number" id="eCostCC" placeholder="0"></div>
+            <div class="form-group"><label>Other Costs ($)</label><input type="number" id="eCostOther" placeholder="0"></div>
+        </div>
+        <div class="modal-actions">
+            <button class="btn-secondary" onclick="closeEntryModal()">Cancel</button>
+            <button class="btn-primary" onclick="saveEntry()">Save Week</button>
+        </div>
+    </div>
 </div>
-<div class="card"><h2>📊 Weekly Revenue vs. Breakeven</h2>
-<div class="sub">Green = Revenue · Red = Expenses · Amber dashed = Breakeven ($41,570/wk)</div>
-<div class="chart-box"><canvas id="mainChart"></canvas></div></div>
-<div class="two-col">
-<div class="card"><h2>📈 Monthly Cash Flow</h2><div class="sub">Jan–May 2026</div>
-<div class="chart-box" style="height:280px"><canvas id="monthlyChart"></canvas></div></div>
-<div class="card"><h2>📋 Weekly Data</h2><div class="sub">Blue rows = projected</div>
-<table><thead><tr><th style="text-align:left">Week</th><th>Revenue</th><th>Expenses</th><th>Net</th><th>vs BE</th></tr></thead>
-<tbody><tr><td>Apr 13-19</td><td class="pos">$96,219</td><td class="neg">$120,733</td><td class="neg">-$24,514</td><td class="pos">+$54,649</td></tr>
-<tr><td>Apr 20-26</td><td class="pos">$234,277</td><td class="neg">$310,145</td><td class="neg">-$75,868</td><td class="pos">+$192,707</td></tr>
-<tr><td>Apr 27-May 3</td><td class="pos">$89,719</td><td class="neg">$64,760</td><td class="pos">+$24,959</td><td class="pos">+$48,149</td></tr>
-<tr><td>May 4-10</td><td class="pos">$77,362</td><td class="neg">$104,823</td><td class="neg">-$27,461</td><td class="pos">+$35,792</td></tr>
-<tr><td>May 11-17</td><td class="pos">$393,869</td><td class="neg">$194,738</td><td class="pos">+$199,131</td><td class="pos">+$352,299</td></tr>
-<tr class="proj"><td>May 18-24*</td><td class="pos">$263,021</td><td class="neg">$153,935</td><td class="pos">+$109,086</td><td class="pos">+$221,451</td></tr>
-<tr class="proj"><td>May 25-31*</td><td class="pos">$415,096</td><td class="neg">$218,924</td><td class="pos">+$196,172</td><td class="pos">+$373,526</td></tr>
-<tr class="proj"><td>Jun 1-7*</td><td class="pos">$567,171</td><td class="neg">$283,913</td><td class="pos">+$283,258</td><td class="pos">+$525,601</td></tr>
-</tbody></table></div></div>
-<div class="card"><h2>🔍 Analysis</h2><div class="insight"><h4>Current Position</h4>
-<p>Remix Dynamix avg weekly revenue is <span class="hl">$178,289</span> vs breakeven target of <span class="wn">$41,570/week</span>.
-Revenue trend: <span class="hl">↑ Upward ($+152,075/wk)</span>.
-YTD net: <span class="wn">-$53,838</span>.</p></div></div>
-<div class="footer">Remix Dynamix Breakeven Tracker · Data: Chase Bank · Updated May 18, 2026</div></div>
+
 <script>
-Chart.defaults.color='#94a3b8';Chart.defaults.borderColor='rgba(30,41,59,.4)';Chart.defaults.font.family="'Inter',sans-serif";
-const wk=["Apr 13-19", "Apr 20-26", "Apr 27-May 3", "May 4-10", "May 11-17", "May 18-24*", "May 25-31*", "Jun 1-7*"],rev=[96219, 234277, 89719, 77362, 393869, 263021, 415096, 567171],exp=[120733, 310145, 64760, 104823, 194738, 153935, 218924, 283913],be=Array(8).fill(41570);
-new Chart(document.getElementById('mainChart'),{type:'line',data:{labels:wk,datasets:[
-{label:'Revenue',data:rev,borderColor:'#10b981',borderWidth:3,fill:false,tension:.3,pointRadius:6,pointBackgroundColor:'#10b981',pointBorderColor:'#fff',pointBorderWidth:2,segment:{borderDash:ctx=>ctx.p0DataIndex>=4?[6,3]:undefined}},
-{label:'Expenses',data:exp,borderColor:'#ef4444',borderWidth:3,fill:false,tension:.3,pointRadius:6,pointBackgroundColor:'#ef4444',pointBorderColor:'#fff',pointBorderWidth:2,segment:{borderDash:ctx=>ctx.p0DataIndex>=4?[6,3]:undefined}},
-{label:'Breakeven',data:be,borderColor:'#f59e0b',borderWidth:2.5,borderDash:[10,5],pointRadius:0,fill:false}
-]},options:{responsive:true,maintainAspectRatio:false,interaction:{intersect:false,mode:'index'},plugins:{legend:{position:'top',labels:{usePointStyle:true,padding:16}},tooltip:{backgroundColor:'#1a2236',callbacks:{label:c=>`${c.dataset.label}: $${c.raw.toLocaleString()}`}}},scales:{y:{ticks:{callback:v=>'$'+Math.round(v/1000)+'K'},grid:{color:'rgba(30,41,59,.3)'}},x:{grid:{display:false}}}}});
-const mL=["Jan", "Feb", "Mar", "Apr", "May*"],mN=[-82692, -69194, 127442, -140136, 110742];
-new Chart(document.getElementById('monthlyChart'),{type:'bar',data:{labels:mL,datasets:[{data:mN,backgroundColor:mN.map(v=>v>=0?'rgba(16,185,129,.7)':'rgba(239,68,68,.7)'),borderColor:mN.map(v=>v>=0?'#10b981':'#ef4444'),borderWidth:2,borderRadius:6}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{backgroundColor:'#1a2236',callbacks:{label:c=>`Net: ${c.raw>=0?'+':'-'}$${Math.abs(c.raw).toLocaleString()}`}}},scales:{y:{ticks:{callback:v=>(v>=0?'+':'-')+'$'+Math.abs(v/1000).toFixed(0)+'K'},grid:{color:'rgba(30,41,59,.3)'}},x:{grid:{display:false}}}}});
-</script></body></html>
+// ─────────────────────────────────────────────────────────────────────────────
+//  BREAKEVEN VIEW
+// ─────────────────────────────────────────────────────────────────────────────
+const API_BASE = 'https://dashboard-assistant.digify.ai';
+
+const weeks = ['Wk1\nApr 13','Wk2\nApr 20','Wk3\nApr 27','Wk4\nMay 4','Wk5\nMay 11','Wk6*\nMay 18','Wk7*\nMay 25','Wk8*\nJun 1'];
+const rev =   [128669, 58647, 80097, 47750, 105910, 90825, 97731, 104637];
+const exp =   [65146, 99085, 46780, 72666, 124660, 100183, 119123, 138063];
+const beRed = Array(8).fill(56234);
+const beFull= Array(8).fill(130294);
+
+Chart.defaults.color = '#94a3b8';
+Chart.defaults.borderColor = 'rgba(30,41,59,.4)';
+Chart.defaults.font.family = "'Inter',sans-serif";
+
+new Chart(document.getElementById('mainChart'), {
+    type:'line',
+    data:{ labels:weeks, datasets:[
+        { label:'Revenue', data:rev, borderColor:'#10b981', backgroundColor:'rgba(16,185,129,.1)', borderWidth:3, fill:false, tension:.3,
+          pointRadius:[6,6,6,6,6,5,5,5], pointBackgroundColor:rev.map((v,i)=>i>=5?'rgba(16,185,129,.5)':'#10b981'), pointBorderColor:'#fff', pointBorderWidth:2,
+          segment:{borderDash:ctx=>ctx.p0DataIndex>=4?[6,3]:undefined} },
+        { label:'Expenses', data:exp, borderColor:'#ef4444', borderWidth:3, fill:false, tension:.3,
+          pointRadius:[6,6,6,6,6,5,5,5], pointBackgroundColor:exp.map((v,i)=>i>=5?'rgba(239,68,68,.5)':'#ef4444'), pointBorderColor:'#fff', pointBorderWidth:2,
+          segment:{borderDash:ctx=>ctx.p0DataIndex>=4?[6,3]:undefined} },
+        { label:'BE Reduced ($56K)', data:beRed, borderColor:'#f59e0b', borderWidth:2.5, borderDash:[10,5], pointRadius:0, fill:false },
+        { label:'BE Full ($130K)', data:beFull, borderColor:'#8b5cf6', borderWidth:2.5, borderDash:[6,6], pointRadius:0, fill:false }
+    ]},
+    options:{
+        responsive:true, maintainAspectRatio:false,
+        interaction:{intersect:false, mode:'index'},
+        plugins:{ legend:{display:false}, tooltip:{ backgroundColor:'#1a2236', titleColor:'#f1f5f9', bodyColor:'#94a3b8', borderColor:'#1e293b', borderWidth:1, padding:12, callbacks:{label:ctx=>`${ctx.dataset.label}: $${ctx.raw.toLocaleString()}`} }},
+        scales:{ y:{ticks:{callback:v=>'$'+Math.round(v/1000)+'K'}, grid:{color:'rgba(30,41,59,.3)'}, min:0, max:160000}, x:{grid:{display:false}} }
+    }
+});
+
+const tbl = document.getElementById('tbl');
+const labels=['Apr 13-19','Apr 20-26','Apr 27-May 3','May 4-10','May 11-17','May 18-24*','May 25-31*','Jun 1-7*'];
+for(let i=0;i<8;i++){
+    const net=rev[i]-exp[i], vsR=rev[i]-beRed[0], vsF=rev[i]-beFull[0], cls=i>=5?' class="proj"':'';
+    tbl.innerHTML+=`<tr${cls}><td>${labels[i]}</td><td class="pos">$${rev[i].toLocaleString()}</td><td class="neg">$${exp[i].toLocaleString()}</td>
+    <td class="${net>=0?'pos':'neg'}">${net>=0?'+':'-'}$${Math.abs(net).toLocaleString()}</td>
+    <td>$${beRed[0].toLocaleString()}</td><td>$${beFull[0].toLocaleString()}</td>
+    <td class="${vsR>=0?'pos':'neg'}">${vsR>=0?'+':'-'}$${Math.abs(vsR).toLocaleString()}</td>
+    <td class="${vsF>=0?'pos':'neg'}">${vsF>=0?'+':'-'}$${Math.abs(vsF).toLocaleString()}</td></tr>`;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+//  DATA SOURCES TRACKER
+// ─────────────────────────────────────────────────────────────────────────────
+const DS_KEY = 'remix-data-sources';
+const SOURCES = [
+    { id:'chase-9536', icon:'🏦', name:'Chase Bank — 9536', sub:'Revenue account · Primary income deposits', badge:'manual', badgeLabel:'Manual Pull', note:'Log in to Chase and check deposits since last review' },
+    { id:'chase-9207', icon:'🏦', name:'Chase Bank — 9207', sub:'Expense account · Payroll & operating costs', badge:'manual', badgeLabel:'Manual Pull', note:'Log in to Chase and check disbursements since last review' },
+    { id:'networks-expense', icon:'📊', name:'Networks 2026 Expense Reimbursement', sub:'Google Sheet · Staff reimbursements & expense tracking', badge:'manual', badgeLabel:'Manual Review', note:'Open the sheet and check for new entries or updates' },
+    { id:'remix-budget', icon:'📋', name:'Remix Dynamix Budget', sub:'Master budget spreadsheet · Breakeven calculations', badge:'manual' },
+    { id:'quickbooks', icon:'📚', name:'QuickBooks', sub:'Accounting platform · P&L, invoices, payroll', badge:'pending', badgeLabel:'Not Connected', note:'Connection in progress — manual review until integrated' },
+    { id:'bill-com', icon:'💳', name:'Bill.com', sub:'AP/AR platform · Vendor payments & invoicing', badge:'pending', badgeLabel:'Not Connected', note:'Connection in progress — manual review until integrated' },
+];
+let reviewDates = {};
+
+async function loadSources() {
+    try { const d=await(await fetch(API_BASE+'/data/'+DS_KEY)).json(); reviewDates=d&&d.dates?d.dates:{}; } catch(e){reviewDates={};}
+    renderSources();
+}
+function staleness(iso) { if(!iso)return'never'; return(Date.now()-new Date(iso))/3600000<=24?'fresh':'old'; }
+function formatDate(iso) {
+    if(!iso)return'Never reviewed';
+    const d=new Date(iso), days=Math.floor((Date.now()-d)/86400000);
+    const label=d.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+    if(days===0)return'Today — '+label; if(days===1)return'Yesterday — '+label;
+    return days+' days ago — '+label;
+}
+function renderSources() {
+    const grid=document.getElementById('sourcesGrid'), note=document.getElementById('sourcesNote');
+    if(!grid)return;
+    const bc={manual:'badge-manual',pending:'badge-pending',connected:'badge-connected'};
+    grid.innerHTML=SOURCES.map(s=>{
+        const last=reviewDates[s.id]||null, stale=staleness(last), ip=s.badge==='pending';
+        return`<div class="source-tile"><div class="st-icon">${s.icon}</div><div class="st-name">${s.name}</div><div class="st-sub">${s.sub}</div>
+        <span class="st-badge ${bc[s.badge]}">${s.badgeLabel}</span>
+        <div class="st-last"><div class="dot ${ip?'never':stale}"></div><span>${formatDate(last)}</span></div>
+        <div style="font-size:.65rem;color:var(--dim);margin-bottom:10px;font-style:italic">${s.note}</div>
+        <button class="mark-btn" id="btn-${s.id}" onclick="markReviewed('${s.id}')">${ip?'⏳ Pending Connection':'✅ Mark Reviewed Today'}</button></div>`;
+    }).join('');
+    const overdue=SOURCES.filter(s=>{if(s.badge==='pending')return false;const l=reviewDates[s.id];return!l||(Date.now()-new Date(l))>86400000;});
+    note.innerHTML=overdue.length>0?`⚠️ <strong style="color:#f59e0b">${overdue.length} source${overdue.length>1?'s':''} overdue:</strong> ${overdue.map(s=>s.name).join(', ')}`:'✅ All active sources reviewed within 24 hours';
+}
+async function markReviewed(id) {
+    const src=SOURCES.find(s=>s.id===id); if(!src||src.badge==='pending')return;
+    const btn=document.getElementById('btn-'+id); btn.disabled=true; btn.textContent='Saving...';
+    reviewDates[id]=new Date().toISOString();
+    try { await fetch(API_BASE+'/data/'+DS_KEY,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({dates:reviewDates,updatedAt:new Date().toISOString()})}); } catch(e){}
+    renderSources();
+}
+loadSources();
+
+// ─────────────────────────────────────────────────────────────────────────────
+//  CASH FLOW ENGINE — AGI CAP STYLE
+// ─────────────────────────────────────────────────────────────────────────────
+
+// ── Month definitions (Feb 2026 – Oct 2026, 9 months)
+const CF_MONTHS = [
+    {label:'Feb 26', actual:true},
+    {label:'Mar 26', actual:true},
+    {label:'Apr 26', actual:true},
+    {label:'May 26', actual:true, current:true},  // index 3 = current
+    {label:'Jun 26', actual:false},
+    {label:'Jul 26', actual:false},
+    {label:'Aug 26', actual:false},
+    {label:'Sep 26', actual:false},
+    {label:'Oct 26', actual:false},
+];
+
+// ── Opening & Closing Balances (from Agicap)
+const CF_OPEN  = [157431,  2012, 31057,  25097, -335428, -157849, -113644,  23886, 152443];
+const CF_CLOSE = [  2012, 31057, 25097, -335428, -157849, -113644,  23886, 152443, 279404];
+
+// ── Row definitions
+// type: 'hdr' | 'group' | 'sub' | 'total' | 'net'
+// vals: actual/forecast for each of 9 months
+// budget: planned amounts (for % badge on actual months)
+const CF_ROWS = [
+    // ════ INFLOWS ════
+    {id:'hdr_in',   label:'💚  Cash Inflow',    type:'hdr',   inflow:true,  indent:0},
+
+    // Customer Inflows (total)
+    {id:'cust',     label:'Customer Inflows',   type:'group', inflow:true,  indent:1, parent:'hdr_in',
+     vals:  [562892, 572486, 209475,  938717,  946151,  981355,  997555, 1079388, 1045169],
+     budget:[550000, 550000, 550000, 1600000,  946151,  981355,  997555, 1079388, 1045169]},
+
+    // ── Legal vertical
+    {id:'legal',    label:'Legal',              type:'group', inflow:true,  indent:2, parent:'cust',
+     vals:  [179155, 162511,  73700,  205949,  203570,  210800,  271321,  214827,  218684],
+     budget:[  3985, 288000, 180000,  306000,  203570,  210800,  271321,  214827,  218684]},
+    {id:'lg_ssdi',  label:'SSDI',               type:'sub',   inflow:true,  indent:3, parent:'legal',
+     vals:  [  4255,   1591,      0,   13585,    5210,    6453,    7014,    6413,    6825],
+     budget:[  3985,   2840,      0,    3660,    5210,    6453,    7014,    6413,    6825]},
+    {id:'lg_mva',   label:'MVA',                type:'sub',   inflow:true,  indent:3, parent:'legal',
+     vals:  [     0,      0,      0,   10220,   13729,   18443,   14555,   16043,   16837],
+     budget:[     0,      0,      0,   18250,   13729,   18443,   14555,   16043,   16837]},
+    {id:'lg_mt',    label:'Mass Tort',          type:'sub',   inflow:true,  indent:3, parent:'legal',
+     vals:  [174800, 160920,  73700,  182143,  184630,  185904,  189753,  192365,  195021],
+     budget:[     0, 270000, 180000,  271000,  184630,  185904,  189753,  192365,  195021]},
+
+    // ── Home Services
+    {id:'hs',       label:'Home Services',      type:'group', inflow:true,  indent:2, parent:'cust',
+     vals:  [ 31838,   2879,    406,   18388,   15158,   19262,   19149,   17900,   18817],
+     budget:[  7820,  35000,  40000,  153000,   15158,   19262,   19149,   17900,   18817]},
+    {id:'hs_roof',  label:'Roofing',            type:'sub',   inflow:true,  indent:3, parent:'hs',
+     vals:  [ 15409,   1128,    217,    8665,    8417,    8179,    7763,    7450,    7784],
+     budget:[  4080,   9500,  10000,   33000,    8417,    8179,    7763,    7450,    7784]},
+    {id:'hs_floor', label:'Flooring',           type:'sub',   inflow:true,  indent:3, parent:'hs',
+     vals:  [ 16230,      0,      0,    8467,    5679,    7638,    7395,    7037,    7423],
+     budget:[  3750,      0,      0,       0,    5679,    7638,    7395,    7037,    7423]},
+    {id:'hs_move',  label:'Moving',             type:'sub',   inflow:true,  indent:3, parent:'hs',
+     vals:  [     0,      0,      0,      77,     102,     136,     105,     115,     119],
+     budget:[     0,      0,      0,       0,     102,     136,     105,     115,     119]},
+    {id:'hs_bath',  label:'Bathroom',           type:'sub',   inflow:true,  indent:3, parent:'hs',
+     vals:  [     0,      0,    134,      45,     116,     155,     161,     144,     153],
+     budget:[     0,      0,      0,       0,     116,     155,     161,     144,     153]},
+    {id:'hs_win',   label:'Windows',            type:'sub',   inflow:true,  indent:3, parent:'hs',
+     vals:  [   200,      0,     55,      89,      52,      69,      70,      64,      68],
+     budget:[     0,      0,     87,       0,      52,      69,      70,      64,      68]},
+    {id:'hs_gar',   label:'Garage Door',        type:'sub',   inflow:true,  indent:3, parent:'hs',
+     vals:  [     0,   1751,      0,     778,    1038,     800,     872,     903,     858],
+     budget:[     0,      0,      0,       0,    1038,     800,     872,     903,     858]},
+    {id:'hs_pest',  label:'Pest Control',       type:'sub',   inflow:true,  indent:3, parent:'hs',
+     vals:  [     0,      0,      0,       0,    1556,    2584,    2793,    2187,    2402],
+     budget:[     0,      0,      0,       0,    1556,    2584,    2793,    2187,    2402]},
+    {id:'hs_plumb', label:'Plumbing',           type:'sub',   inflow:true,  indent:3, parent:'hs',
+     vals:  [     0,      0,      0,     268,       0,       0,       0,       0,       0],
+     budget:[     0,      0,      0,       0,       0,       0,       0,       0,       0]},
+    {id:'hs_sol',   label:'Solar',              type:'sub',   inflow:true,  indent:3, parent:'hs',
+     vals:  [     0,      0,      0,       0,       0,       0,       0,       0,       0],
+     budget:[     0,      0,      0,       0,       0,       0,       0,       0,       0]},
+
+    // ── Insurance
+    {id:'ins',      label:'Insurance',          type:'group', inflow:true,  indent:2, parent:'cust',
+     vals:  [209873, 282003, 106853,  587424,  607504,  626344,  640549,  659245,  677481],
+     budget:[474710, 353000, 316000,  917000,  607504,  626344,  640549,  659245,  677481]},
+    {id:'ins_fe',   label:'Final Expense',      type:'sub',   inflow:true,  indent:3, parent:'ins',
+     vals:  [ 65003, 162003,  71522,  305578,  314746,  324169,  333914,  343931,  354249],
+     budget:[260000, 197000, 170000,  437000,  314746,  324169,  333914,  343931,  354249]},
+    {id:'ins_med',  label:'Medicare',           type:'sub',   inflow:true,  indent:3, parent:'ins',
+     vals:  [ 30398,  16890,  13337,  177954,  183293,  188791,  194455,  200289,  206297],
+     budget:[ 42800,  33000,  17300,  201900,  183293,  188791,  194455,  200289,  206297]},
+    {id:'ins_aca',  label:'ACA',                type:'sub',   inflow:true,  indent:3, parent:'ins',
+     vals:  [ 47470,  52975,   3002,   58322,   62048,   65163,   63700,   66546,   66747],
+     budget:[ 41700,  56500,  75000,  832000,   62048,   65163,   63700,   66546,   66747]},
+    {id:'ins_hi',   label:'Home Insurance',     type:'sub',   inflow:true,  indent:3, parent:'ins',
+     vals:  [ 31799,  21402,    666,   26283,   24389,   25415,   26123,   26068,   26645],
+     budget:[ 22100,  28500,  22200,  164000,   24389,   25415,   26123,   26068,   26645]},
+    {id:'ins_ai',   label:'Auto Insurance',     type:'sub',   inflow:true,  indent:3, parent:'ins',
+     vals:  [  8240,  17864,  13426,   15359,   17803,   17775,   17489,   18220,   18363],
+     budget:[  1797,   4620,  10330,  381000,   17803,   17775,   17489,   18220,   18363]},
+    {id:'ins_sl',   label:'Senior Life',        type:'sub',   inflow:true,  indent:3, parent:'ins',
+     vals:  [ 26964,    150,      0,     159,     164,     169,     174,     179,     184],
+     budget:[     0,      0,      0,       0,     164,     169,     174,     179,     184]},
+    {id:'ins_u85',  label:'U85',                type:'sub',   inflow:true,  indent:3, parent:'ins',
+     vals:  [     0,   5700,   4900,    3788,    5062,    4843,    4694,    5012,    4995],
+     budget:[     0,      0,   2110,   37000,    5062,    4843,    4694,    5012,    4995]},
+
+    // ── Travel
+    {id:'travel',   label:'Travel',             type:'group', inflow:true,  indent:2, parent:'cust',
+     vals:  [ 91894,  95967,  19517,   97740,   99747,  101044,  102496,  104129,  105633],
+     budget:[ 22850,  87000,  97600,  465000,   99747,  101044,  102496,  104129,  105633]},
+    {id:'tr_fl',    label:'Flights',            type:'sub',   inflow:true,  indent:3, parent:'travel',
+     vals:  [ 91894,  95967,  19517,   97740,   99747,  101044,  102496,  104129,  105633],
+     budget:[ 22850,  87000,  97600,  465000,   99747,  101044,  102496,  104129,  105633]},
+
+    // ── Debt
+    {id:'debt',     label:'Debt',               type:'group', inflow:true,  indent:2, parent:'cust',
+     vals:  [ 28000,   7125,      0,   16217,   12171,   13903,   14520,   13937,   14544],
+     budget:[ 19630, 123000,      0,       0,   12171,   13903,   14520,   13937,   14544]},
+    {id:'dbt_tax',  label:'Tax Debt',           type:'sub',   inflow:true,  indent:3, parent:'debt',
+     vals:  [ 28000,   7125,      0,   16200,   12149,   13874,   14496,   13911,   14517],
+     budget:[ 19630,  22200,      0,       0,   12149,   13874,   14496,   13911,   14517]},
+    {id:'dbt_res',  label:'Debt Resolution',    type:'sub',   inflow:true,  indent:3, parent:'debt',
+     vals:  [     0,      0,      0,      17,      22,      30,      24,      26,      27],
+     budget:[     0,      0,      0,       0,      22,      30,      24,      26,      27]},
+    {id:'dbt_cr',   label:'Credit Repair',      type:'sub',   inflow:true,  indent:3, parent:'debt',
+     vals:  [     0,      0,      0,       0,       0,       0,       0,       0,       0],
+     budget:[     0,      0,      0,       0,       0,       0,       0,       0,       0]},
+
+    // ── Rehab / Weight Loss / Mortgage
+    {id:'rehab',    label:'Rehab',              type:'sub',   inflow:true,  indent:2, parent:'cust',
+     vals:  [  8930,   2000,   9000,   13000,    8000,   10000,    9520,    9357,   10000],
+     budget:[     0,      0,   4390,    4530,    5560,    7630,    7260,    9050,    9800]},
+    {id:'wloss',    label:'Weight Loss',        type:'sub',   inflow:true,  indent:2, parent:'cust',
+     vals:  [ 16000,      0,      0,       0,       0,       0,       0,       0,       0],
+     budget:[     0,      0,      0,       0,       0,       0,       0,       0,       0]},
+    {id:'mort',     label:'Mortgage',           type:'group', inflow:true,  indent:2, parent:'cust',
+     vals:  [     0,      0,      0,       0,       0,       0,       0,       0,       0],
+     budget:[     0,      0,      0,       0,       0,       0,       0,       0,       0]},
+    {id:'mort_b',   label:'Purchase',           type:'sub',   inflow:true,  indent:3, parent:'mort',
+     vals:  [     0,      0,      0,       0,       0,       0,       0,       0,       0],
+     budget:[     0,      0,      0,       0,       0,       0,       0,       0,       0]},
+    {id:'mort_r',   label:'Refinance',          type:'sub',   inflow:true,  indent:3, parent:'mort',
+     vals:  [     0,      0,      0,       0,       0,       0,       0,       0,       0],
+     budget:[     0,      0,      0,       0,       0,       0,       0,       0,       0]},
+
+    // ── Other Inflows
+    {id:'inv_fin',  label:'Invoice Financing',  type:'sub',   inflow:true,  indent:1, parent:'hdr_in',
+     vals:  [160899,  13766,      0,    1448,       0,       0,       0,       0,       0],
+     budget:[     0,      0,      0,       0,       0,       0,       0,       0,       0]},
+    {id:'oth_in',   label:'Other Operational Inflows', type:'sub', inflow:true, indent:1, parent:'hdr_in',
+     vals:  [  1750,  36000,   3630,    4158,       0,       0,       0,       0,       0],
+     budget:[     0,      0,      0,       0,       0,       0,       0,       0,       0]},
+    {id:'uncat',    label:'Uncategorized',       type:'sub',   inflow:true,  indent:1, parent:'hdr_in',
+     vals:  [     0,      0, 161478,  277791,   47231,       0,       0,       0,       0],
+     budget:[     0,      0,      0,       0,   47231,       0,       0,       0,       0]},
+
+    // ── Total Inflow
+    {id:'tot_in',   label:'TOTAL CASH INFLOW',  type:'total', inflow:true,  indent:0,
+     vals:  [777541, 657242, 387903, 1222112,  993381,  981355,  997555, 1079388, 1045169],
+     budget:[900000, 900000, 900000, 1900000,  993381,  981355,  997555, 1079388, 1045169]},
+
+    // ════ OUTFLOWS ════
+    {id:'hdr_out',  label:'🔴  Cash Outflow',   type:'hdr',   inflow:false, indent:0},
+
+    // G&A
+    {id:'gna',      label:'G&A Expenses',       type:'group', inflow:false, indent:1, parent:'hdr_out',
+     vals:  [134278, 109644,  47050,  105000,  106140,  106140,  106140,  106140,  106140],
+     budget:[ 95250,  95250,  95250,  122000,  106140,  106140,  106140,  106140,  106140]},
+    {id:'gna_net',  label:'Management Fee Networks', type:'sub', inflow:false, indent:2, parent:'gna',
+     vals:  [123414, 106000,  47050,   95000,   95000,   95000,   95000,   95000,   95000],
+     budget:[ 94920,  94640,  94100,  105550,   95000,   95000,   95000,   95000,   95000]},
+    {id:'gna_co',   label:'Management Fee Companies', type:'sub', inflow:false, indent:2, parent:'gna',
+     vals:  [     0,      0,      0,   10000,   10000,   10000,   10000,   10000,   70000],
+     budget:[     0,      0,      0,   19250,   10000,   10000,   10000,   10000,   70000]},
+    {id:'gna_prof', label:'Professional Fees',  type:'sub',   inflow:false, indent:2, parent:'gna',
+     vals:  [ 10864,   1719,      0,       0,       0,       0,       0,       0,       0],
+     budget:[     0,      0,      0,       0,       0,       0,       0,       0,       0]},
+    {id:'gna_mkt',  label:'Marketing & Advertising', type:'sub', inflow:false, indent:2, parent:'gna',
+     vals:  [     0,   1925,      0,       0,       0,       0,       0,       0,       0],
+     budget:[     0,      0,      0,       0,       0,       0,       0,       0,       0]},
+    {id:'gna_ins',  label:'Insurances',          type:'sub',   inflow:false, indent:2, parent:'gna',
+     vals:  [     0,      0,      0,       0,    1140,    1140,    1140,    1140,    1140],
+     budget:[     0,      0,      0,       0,    1140,    1140,    1140,    1140,    1140]},
+
+    // Staff
+    {id:'staff',    label:'Staff Expenses',      type:'group', inflow:false, indent:1, parent:'hdr_out',
+     vals:  [ 56729,  38698,  20920,   46000,   50000,   50000,   50000,   50000,   50000],
+     budget:[ 44320,  46100,  46380,  104700,   50000,   50000,   50000,   50000,   50000]},
+    {id:'st_pay',   label:'Payroll',             type:'sub',   inflow:false, indent:2, parent:'staff',
+     vals:  [ 58729,  38698,  20920,   46000,   50000,   50000,   50000,   50000,   50000],
+     budget:[ 45900,  46100,  46380,  104700,   50000,   50000,   50000,   50000,   50000]},
+    {id:'st_contr', label:'Contractors',         type:'sub',   inflow:false, indent:2, parent:'staff',
+     vals:  [     0,      0,      0,       0,       0,       0,       0,       0,       0],
+     budget:[     0,      0,      0,       0,       0,       0,       0,       0,       0]},
+    {id:'st_bene',  label:'Benefits & Pensions', type:'sub',   inflow:false, indent:2, parent:'staff',
+     vals:  [     0,      0,      0,       0,       0,       0,       0,       0,       0],
+     budget:[     0,      0,      0,       0,       0,       0,       0,       0,       0]},
+
+    // Media COGS
+    {id:'cogs',     label:'Media COGS',          type:'group', inflow:false, indent:1, parent:'hdr_out',
+     vals:  [  9387,  33516,    407,  241386,       0,       0,       0,       0,       0],
+     budget:[     0,      0,      0,       0,       0,       0,       0,       0,       0]},
+    {id:'cg_tv',    label:'TV COGS',             type:'sub',   inflow:false, indent:2, parent:'cogs',
+     vals:  [     0,  32455,      0,  209161,       0,       0,       0,       0,       0],
+     budget:[     0,      0,      0,       0,       0,       0,       0,       0,       0]},
+    {id:'cg_fb',    label:'Facebook COGS',       type:'sub',   inflow:false, indent:2, parent:'cogs',
+     vals:  [     0,   1020,      0,   32103,       0,       0,       0,       0,       0],
+     budget:[     0,      0,      0,       0,       0,       0,       0,       0,       0]},
+    {id:'cg_dig',   label:'Digital COGS',        type:'sub',   inflow:false, indent:2, parent:'cogs',
+     vals:  [  9387,     41,    407,     122,       0,       0,       0,       0,       0],
+     budget:[     0,      0,      0,       0,       0,       0,       0,       0,       0]},
+
+    // CC Payments
+    {id:'cc_pay',   label:'CC Payments',         type:'sub',   inflow:false, indent:1, parent:'hdr_out',
+     vals:  [202211, 136000, 208000,  199084,  198011,  319302,  211630,  215937,  222091],
+     budget:[235000, 158000, 240000,  383000,  198011,  319302,  211630,  215937,  222091]},
+
+    // Financing
+    {id:'fin',      label:'Financing Outflows',  type:'group', inflow:false, indent:1, parent:'hdr_out',
+     vals:  [ 45333,  45333,  28333,   17000,       0,       0,       0,       0,       0],
+     budget:[     0,      0,      0,       0,       0,       0,       0,       0,       0]},
+    {id:'fin_l',    label:'Financial Leasing',   type:'sub',   inflow:false, indent:2, parent:'fin',
+     vals:  [ 45333,  45333,  28333,   17000,       0,       0,       0,       0,       0],
+     budget:[     0,      0,      0,       0,       0,       0,       0,       0,       0]},
+    {id:'fin_d',    label:'Paid Dividends',      type:'sub',   inflow:false, indent:2, parent:'fin',
+     vals:  [     0,      0,      0,       0,       0,       0,       0,       0,       0],
+     budget:[     0,      0,      0,       0,       0,       0,       0,       0,       0]},
+
+    // Cash Transfers (out)
+    {id:'xfr',      label:'Cash Transfers',      type:'group', inflow:false, indent:1, parent:'hdr_out',
+     vals:  [ 61000,  27000,      0,       0,       0,       0,       0,       0,       0],
+     budget:[     0,      0,      0,       0,       0,       0,       0,       0,       0]},
+    {id:'xfr_ic',   label:'Intercompany / Shareholder', type:'sub', inflow:false, indent:2, parent:'xfr',
+     vals:  [ 61000,      0,      0,       0,       0,       0,       0,       0,       0],
+     budget:[     0,      0,      0,       0,       0,       0,       0,       0,       0]},
+    {id:'xfr_in',   label:'Intracompany',        type:'sub',   inflow:false, indent:2, parent:'xfr',
+     vals:  [     0,  27000,      0,       0,       0,       0,       0,       0,       0],
+     budget:[     0,      0,      0,       0,       0,       0,       0,       0,       0]},
+
+    // Investment / Banking / Other
+    {id:'invest',   label:'Investment Outflows', type:'group', inflow:false, indent:1, parent:'hdr_out',
+     vals:  [ 25000,      0,      0,       0,       0,       0,       0,       0,       0],
+     budget:[     0,      0,      0,       0,       0,       0,       0,       0,       0]},
+    {id:'inv_cap',  label:'Capital Expenditures',type:'sub',   inflow:false, indent:2, parent:'invest',
+     vals:  [ 25000,      0,      0,       0,       0,       0,       0,       0,       0],
+     budget:[     0,      0,      0,       0,       0,       0,       0,       0,       0]},
+    {id:'banking',  label:'Banking Fees',        type:'sub',   inflow:false, indent:1, parent:'hdr_out',
+     vals:  [  3993,   3392,   1697,    3458,       0,       0,       0,       0,       0],
+     budget:[     0,      0,      0,       0,       0,       0,       0,       0,       0]},
+    {id:'ic_out',   label:'Intercompany Operating Outflows', type:'sub', inflow:false, indent:1, parent:'hdr_out',
+     vals:  [100000,  55000,      0,       0,       0,       0,       0,       0,       0],
+     budget:[     0,      0,      0,       0,       0,       0,       0,       0,       0]},
+    {id:'pub',      label:'Publisher Costs',     type:'sub',   inflow:false, indent:1, parent:'hdr_out',
+     vals:  [     0,      0,      0,       0,       0,       0,       0,       0,       0],
+     budget:[     0,      0,      0,       0,       0,       0,       0,       0,       0]},
+    {id:'refunds',  label:'Sales Refunds',       type:'sub',   inflow:false, indent:1, parent:'hdr_out',
+     vals:  [     0,      0,      0,       0,       0,       0,       0,       0,       0],
+     budget:[     0,      0,      0,       0,       0,       0,       0,       0,       0]},
+    // Unclassified remainder (balance-sheet closure)
+    {id:'unc_out',  label:'Other / Unclassified', type:'sub',  inflow:false, indent:1, parent:'hdr_out',
+     vals:  [295029, 179614,  87456,  970709,  461651,  561708,  492255,  578754,  539977],
+     budget:[     0,      0,      0,       0,  461651,  561708,  492255,  578754,  539977]},
+
+    // Total Outflow
+    {id:'tot_out',  label:'TOTAL CASH OUTFLOW',  type:'total', inflow:false, indent:0,
+     vals:  [932960, 628197, 393863, 1582637,  815802,  937150,  860025,  950831,  918208],
+     budget:[932960, 628197, 393863, 1582637,  815802,  937150,  860025,  950831,  918208]},
+
+    // Net Change
+    {id:'net',      label:'Net Change in Cash Flow', type:'net', indent:0,
+     vals:  [-155419,  29045,  -5960, -360525,  177579,   44205,  137530,  128557,  126961],
+     budget:[     0,       0,      0,       0,       0,       0,       0,       0,       0]},
+];
+
+// ── Expand/collapse state
+const cfExpanded = new Set(['hdr_in','cust','legal','hs','ins','travel','debt','hdr_out','gna','staff','cogs','fin','xfr','invest','cc_pay']);
+
+// ── Visible months range (driven by dropdowns)
+let cfStartIdx = 3; // May 26
+let cfEndIdx   = 8; // Oct 26
+
+// ── Overview chart instance
+let cfChartObj = null;
+
+// ── % badge helper
+function pctBadge(actual, budget, isActual) {
+    if (!isActual || budget <= 0 || actual === 0) return '';
+    const pct = Math.round(actual / budget * 100);
+    if (Math.abs(pct - 100) < 5) return `<span class="pct pct-near">${pct}%</span>`;
+    return pct > 100
+        ? `<span class="pct pct-over">${pct}%</span>`
+        : `<span class="pct pct-under">${pct}%</span>`;
+}
+
+// ── Format currency
+function fmt(n) {
+    if (n === 0) return '<span style="color:#334155">0</span>';
+    return (n >= 0 ? '' : '-') + '$' + Math.abs(Math.round(n)).toLocaleString();
+}
+function fmtNet(n) {
+    return (n >= 0 ? '+' : '-') + '$' + Math.abs(Math.round(n)).toLocaleString();
+}
+
+// ── Check if row is visible (parent expanded)
+function isVisible(row) {
+    if (!row.parent) return true;
+    if (!cfExpanded.has(row.parent)) return false;
+    const parentRow = CF_ROWS.find(r => r.id === row.parent);
+    if (!parentRow) return true;
+    return isVisible(parentRow);
+}
+
+// ── Build table HTML
+function buildCFTable(visMonths) {
+    const tbl = document.getElementById('cfTable');
+    let html = '';
+
+    // Header
+    html += '<thead><tr><th style="text-align:left;min-width:240px">Category</th>';
+    visMonths.forEach(mi => {
+        const m = CF_MONTHS[mi];
+        html += `<th class="${m.current?'curr-hdr':''}">${m.label}${m.current?' ●':''}</th>`;
+    });
+    html += '</tr></thead><tbody>';
+
+    // Opening Balance
+    html += '<tr class="cf-bal-row">';
+    html += '<td>🔵 Cash Balance at Beginning of Month</td>';
+    visMonths.forEach(mi => {
+        const v = CF_OPEN[mi];
+        const cls = CF_MONTHS[mi].current ? 'curr' : '';
+        html += `<td class="${cls}" style="color:${v>=0?'#93c5fd':'#f87171'}">${fmt(v)}</td>`;
+    });
+    html += '</tr>';
+
+    // Data rows
+    CF_ROWS.forEach(row => {
+        if (!isVisible(row)) return;
+
+        const isGroup = row.type === 'group';
+        const isHdr   = row.type === 'hdr';
+        const isTotal = row.type === 'total';
+        const isNet   = row.type === 'net';
+        const isSub   = row.type === 'sub';
+
+        let rowCls = '';
+        if (isHdr)   rowCls = `cf-hdr-row${row.inflow===false?' out':''}`;
+        if (isGroup) rowCls = `cf-group-row ind${row.indent}${cfExpanded.has(row.id)?' open':''}`;
+        if (isSub)   rowCls = `cf-sub-row ind${row.indent}`;
+        if (isTotal) rowCls = `cf-total-row ${row.inflow?'in':'out'}`;
+        if (isNet)   {
+            const mayVal = row.vals ? row.vals[3] : 0;
+            rowCls = `cf-net-row${mayVal < 0 ? ' neg' : ''}`;
+        }
+
+        html += `<tr class="${rowCls}"${isGroup?` onclick="cfToggle('${row.id}')"`:''}`;
+        html += ` data-id="${row.id}">`;
+        html += `<td>${row.label}</td>`;
+
+        if (row.vals) {
+            visMonths.forEach(mi => {
+                const v   = row.vals[mi];
+                const bud = row.budget ? row.budget[mi] : 0;
+                const m   = CF_MONTHS[mi];
+                const isAct = m.actual;
+                const curr  = m.current;
+                const fcls  = isAct ? '' : 'forecast-val';
+                const ccls  = curr ? 'curr' : '';
+                const combined = [ccls, fcls].filter(Boolean).join(' ');
+
+                let cellHtml = '';
+                if (isNet) {
+                    const color = v >= 0 ? 'var(--green)' : 'var(--red)';
+                    cellHtml = `<span style="color:${color}">${fmtNet(v)}</span>`;
+                } else if (isTotal) {
+                    cellHtml = fmt(v);
+                } else {
+                    cellHtml = fmt(v) + pctBadge(v, bud, isAct);
+                }
+                html += `<td class="${combined}">${cellHtml}</td>`;
+            });
+        } else {
+            visMonths.forEach(mi => {
+                html += `<td class="${CF_MONTHS[mi].current?'curr':''}"></td>`;
+            });
+        }
+        html += '</tr>';
+    });
+
+    // Closing Balance
+    html += '<tr class="cf-bal-row">';
+    html += '<td>🔵 End of Month Cash Balance</td>';
+    visMonths.forEach(mi => {
+        const v = CF_CLOSE[mi];
+        const cls = CF_MONTHS[mi].current ? 'curr' : '';
+        html += `<td class="${cls}" style="color:${v>=0?'#93c5fd':'#f87171'}">${fmt(v)}</td>`;
+    });
+    html += '</tr>';
+
+    html += '</tbody>';
+    tbl.innerHTML = html;
+}
+
+// ── Build overview chart
+function buildCFChart(visMonths) {
+    const labels  = visMonths.map(i => CF_MONTHS[i].label);
+    const inflows = visMonths.map(i => CF_ROWS.find(r=>r.id==='tot_in').vals[i]);
+    const outflows= visMonths.map(i => CF_ROWS.find(r=>r.id==='tot_out').vals[i]);
+    const balance = visMonths.map(i => CF_CLOSE[i]);
+
+    const inColors  = visMonths.map(i => CF_MONTHS[i].actual ? 'rgba(16,185,129,.7)'  : 'rgba(16,185,129,.3)');
+    const outColors = visMonths.map(i => CF_MONTHS[i].actual ? 'rgba(239,68,68,.65)'  : 'rgba(239,68,68,.25)');
+
+    if (cfChartObj) { cfChartObj.destroy(); cfChartObj = null; }
+
+    cfChartObj = new Chart(document.getElementById('cfOverviewChart'), {
+        type: 'bar',
+        data: {
+            labels,
+            datasets: [
+                { label:'Cash Inflow',  data: inflows,  backgroundColor: inColors,
+                  borderColor: inColors.map(c=>c.replace(/[\d.]+\)$/,'1)')), borderWidth:1, borderRadius:4, order:2 },
+                { label:'Cash Outflow', data: outflows, backgroundColor: outColors,
+                  borderColor: outColors.map(c=>c.replace(/[\d.]+\)$/,'1)')), borderWidth:1, borderRadius:4, order:3 },
+                { label:'Closing Balance', data: balance, type:'line',
+                  borderColor:'#00d4ff', borderWidth:2.5, borderDash:[6,4], pointRadius:5,
+                  pointBackgroundColor:balance.map(v=>v>=0?'#00d4ff':'#ef4444'),
+                  pointBorderColor:'#fff', pointBorderWidth:2, fill:false, tension:.3, order:1,
+                  segment:{borderDash:ctx=>visMonths[ctx.p0DataIndex]>=4?[6,4]:undefined} }
+            ]
+        },
+        options: {
+            responsive:true, maintainAspectRatio:false,
+            interaction:{intersect:false, mode:'index'},
+            plugins:{
+                legend:{display:true, position:'top', labels:{color:'#94a3b8',font:{size:11},boxWidth:12,padding:16}},
+                tooltip:{
+                    backgroundColor:'#1a2236', titleColor:'#f1f5f9', bodyColor:'#94a3b8',
+                    borderColor:'#1e293b', borderWidth:1, padding:12,
+                    callbacks:{label:ctx=>`${ctx.dataset.label}: $${Math.abs(ctx.raw).toLocaleString()}`}
+                }
+            },
+            scales:{
+                y:{ticks:{callback:v=>'$'+Math.round(v/1000)+'K', color:'#64748b'}, grid:{color:'rgba(30,41,59,.4)'}},
+                x:{grid:{display:false}, ticks:{color:ctx=>CF_MONTHS[visMonths[ctx.index]]?.current?'#93c5fd':'#94a3b8'}}
+            }
+        }
+    });
+}
+
+// ── Update header balance display
+function updateCFHeader(startIdx) {
+    const openBal = CF_OPEN[startIdx];
+    const el = document.getElementById('cfBalNum');
+    const dot = document.getElementById('cfBalDot');
+    const sub = document.getElementById('cfBalSub');
+    el.textContent = (openBal >= 0 ? '+' : '') + '$' + Math.abs(openBal).toLocaleString();
+    el.className = 'cf-bal-num ' + (openBal >= 0 ? 'pos' : 'neg');
+    dot.style.background = openBal >= 0 ? 'var(--green)' : 'var(--red)';
+    sub.textContent = `Opening balance — ${CF_MONTHS[startIdx].label}`;
+}
+
+// ── Render Forecast Intelligence flags
+function renderCFFlags(visMonths) {
+    const currIdx = 3;
+    const inflow  = CF_ROWS.find(r=>r.id==='tot_in').vals[currIdx];
+    const outflow = CF_ROWS.find(r=>r.id==='tot_out').vals[currIdx];
+    const insVal  = CF_ROWS.find(r=>r.id==='ins').vals[currIdx];
+    const legVal  = CF_ROWS.find(r=>r.id==='legal').vals[currIdx];
+    const mtVal   = CF_ROWS.find(r=>r.id==='lg_mt').vals[currIdx];
+    const trVal   = CF_ROWS.find(r=>r.id==='travel').vals[currIdx];
+    const netMay  = CF_CLOSE[currIdx];
+
+    const insPct  = Math.round(insVal / inflow * 100);
+    const legPct  = Math.round(legVal / inflow * 100);
+
+    const flags = [
+        { type: netMay >= 0 ? 'good' : 'warn', icon: netMay >= 0 ? '💰' : '⚠️',
+          title: `May Closing Balance: ${netMay >= 0 ? '+' : ''}$${netMay.toLocaleString()}`,
+          detail: netMay < 0
+            ? `May 2026 ended with a negative cash balance of $${Math.abs(netMay).toLocaleString()}. The largest drivers are CC Payments ($199K), Media COGS ($241K), and a large unclassified outflow bucket. Once QuickBooks is connected, the unclassified amount will be resolved into specific categories.`
+            : `Cash position is positive — strong month for inflows.` },
+        { type:'info', icon:'📊',
+          title: `Insurance = ${insPct}% of May Revenue ($${(insVal/1000).toFixed(0)}K of $${(inflow/1000).toFixed(0)}K)`,
+          detail: `Revenue verticals for Remix Dynamix — data to be configured.` },
+        { type:'info', icon:'⚖️',
+          title: `Legal Revenue: $${(legVal/1000).toFixed(0)}K (${legPct}% of total) — Mass Tort driving ${Math.round(mtVal/legVal*100)}%`,
+          detail: `Mass Tort ($182K) dominates the Legal vertical. SSDI and MVA are growing. Legal margins are among the highest across all verticals — strong economics if volume holds.` },
+        { type:'warn', icon:'✈️',
+          title: `Travel (Flights): $${(trVal/1000).toFixed(0)}K — Down significantly in April`,
+          detail: `Travel dropped from ~$96K/month (Feb-Mar) to $19K in April before recovering to $97K in May. Investigate the April dip — was it a payment timing issue or a client pause? If one client drives all flight revenue, this is a concentration risk.` },
+        { type:'info', icon:'🔗',
+          title: 'Connect QuickBooks + Bill.com to Resolve $971K in Unclassified Outflows',
+          detail: `May has $970K in outflows not yet matched to specific categories. This is normal before accounting integration. Once QuickBooks is connected, these will auto-classify into G&A, vendor payments, publisher payouts, and other known buckets.` },
+    ];
+
+    document.getElementById('cfFlagRow').innerHTML = flags.map(f =>
+        `<div class="flag ${f.type}"><div class="flag-icon">${f.icon}</div><div class="flag-body"><div class="flag-title">${f.title}</div><div class="flag-detail">${f.detail}</div></div></div>`
+    ).join('');
+}
+
+// ── Main render function
+function renderCFView() {
+    cfStartIdx = parseInt(document.getElementById('cfStart').value);
+    cfEndIdx   = parseInt(document.getElementById('cfEnd').value);
+    if (cfEndIdx < cfStartIdx) cfEndIdx = cfStartIdx;
+
+    const visMonths = [];
+    for (let i = cfStartIdx; i <= cfEndIdx; i++) visMonths.push(i);
+
+    const startLabel = CF_MONTHS[cfStartIdx].label;
+    const endLabel   = CF_MONTHS[cfEndIdx].label;
+    document.getElementById('cfChartLabel').textContent = startLabel + ' – ' + endLabel;
+
+    updateCFHeader(cfStartIdx);
+    buildCFChart(visMonths);
+    buildCFTable(visMonths);
+    renderCFFlags(visMonths);
+}
+
+// ── Toggle group expand/collapse
+function cfToggle(id) {
+    if (cfExpanded.has(id)) cfExpanded.delete(id);
+    else cfExpanded.add(id);
+    const visMonths = [];
+    for (let i = cfStartIdx; i <= cfEndIdx; i++) visMonths.push(i);
+    buildCFTable(visMonths);
+}
+
+function cfExpandAll() {
+    CF_ROWS.filter(r=>r.type==='group'||r.type==='hdr').forEach(r=>cfExpanded.add(r.id));
+    const visMonths = [];
+    for (let i = cfStartIdx; i <= cfEndIdx; i++) visMonths.push(i);
+    buildCFTable(visMonths);
+}
+
+function cfCollapseAll() {
+    cfExpanded.clear();
+    const visMonths = [];
+    for (let i = cfStartIdx; i <= cfEndIdx; i++) visMonths.push(i);
+    buildCFTable(visMonths);
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+//  VIEW TOGGLE
+// ─────────────────────────────────────────────────────────────────────────────
+let cfInitialized = false;
+function switchView(view) {
+    document.getElementById('beView').style.display = view === 'breakeven' ? 'block' : 'none';
+    document.getElementById('cfView').style.display = view === 'cashflow'  ? 'block' : 'none';
+    document.getElementById('btnBreakeven').classList.toggle('active', view === 'breakeven');
+    document.getElementById('btnCashflow').classList.toggle('active',  view === 'cashflow');
+    if (view === 'cashflow' && !cfInitialized) {
+        cfInitialized = true;
+        renderCFView();
+    }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+//  DATA ENTRY MODAL
+// ─────────────────────────────────────────────────────────────────────────────
+function openEntryModal() {
+    document.getElementById('entryDate').value = new Date().toISOString().split('T')[0];
+    document.getElementById('entryModal').classList.add('open');
+}
+function closeEntryModal() { document.getElementById('entryModal').classList.remove('open'); }
+async function saveEntry() {
+    const entry = {
+        date: document.getElementById('entryDate').value,
+        weekLabel: document.getElementById('entryWeekLabel').value,
+        rev: {
+            legal:        +document.getElementById('eRevLegal').value||0,
+            insurance:    +document.getElementById('eRevInsurance').value||0,
+            homeServices: +document.getElementById('eRevHomeServices').value||0,
+            travel:       +document.getElementById('eRevTravel').value||0,
+            rehab:        +document.getElementById('eRevRehab').value||0,
+            other:        +document.getElementById('eRevOther').value||0,
+        },
+        cost: {
+            payroll:    +document.getElementById('eCostPayroll').value||0,
+            mgmtFees:   +document.getElementById('eCostMgmt').value||0,
+            ccPayments: +document.getElementById('eCostCC').value||0,
+            other:      +document.getElementById('eCostOther').value||0,
+        },
+        savedAt: new Date().toISOString()
+    };
+    try {
+        let existing = [];
+        try { existing = await (await fetch(API_BASE+'/data/cem-cashflow')).json(); if(!Array.isArray(existing))existing=[]; } catch(e){}
+        existing = existing.filter(e=>e.date!==entry.date);
+        existing.push(entry);
+        existing.sort((a,b)=>new Date(a.date)-new Date(b.date));
+        await fetch(API_BASE+'/data/cem-cashflow',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(existing)});
+        closeEntryModal();
+        alert('✅ Week saved!');
+    } catch(e) { alert('Error saving: '+e.message); }
+}
+
+// ──────────────────────────────────────────────────────────────────────────
+//  LIVE EXPENSES — Google Sheet Pull
+// ──────────────────────────────────────────────────────────────────────────
+
+// Month labels for the CF table (starts Feb 2026) — uses existing CF_MONTHS from above
+
+let liveExpData = null;
+let activeExpTab = null;
+
+function fmtMoney(n) {
+    if (!n || n === 0) return '$0';
+    return '$' + Math.round(n).toLocaleString();
+}
+
+async function loadLiveExpenses() {
+    try {
+        const r = await fetch(API_BASE + '/sheets/remix');
+        liveExpData = await r.json();
+        if (liveExpData && liveExpData.months) {
+            renderLiveExpenses();
+        } else {
+            document.getElementById('liveLastSync').textContent = 'No data yet — click Sync Now';
+        }
+    } catch(e) {
+        document.getElementById('liveLastSync').textContent = 'Could not reach server — ' + e.message;
+    }
+}
+
+function renderLiveExpenses() {
+    if (!liveExpData || !liveExpData.months) return;
+
+    const tabs = Object.keys(liveExpData.months);
+    if (!activeExpTab || !liveExpData.months[activeExpTab]) activeExpTab = tabs[tabs.length - 1]; // default to latest
+
+    // Sync status
+    const syncedAt = liveExpData.syncedAt ? new Date(liveExpData.syncedAt) : null;
+    const syncLabel = syncedAt
+        ? 'Last synced: ' + syncedAt.toLocaleDateString('en-US', {month:'short',day:'numeric'}) + ' at ' + syncedAt.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'})
+        : 'Never synced';
+    const el = document.getElementById('liveLastSync');
+    if (el) el.textContent = syncLabel + ' · Source: Networks 2026 Expense Reimbursement (Google Sheet)';
+
+    // Build tab row
+    const tabRow = document.getElementById('expTabRow');
+    if (tabRow) {
+        tabRow.innerHTML = tabs.map(tab => {
+            const m = liveExpData.months[tab];
+            const total = m.computedTotal || m.grandTotal || 0;
+            return '<button class="exp-tab' + (tab === activeExpTab ? ' active' : '') + '" onclick="switchExpTab(\'' + tab + '\')">'
+                + tab + ' <span style="font-weight:400;font-size:.65rem;opacity:.7">' + fmtMoney(total) + '</span></button>';
+        }).join('');
+    }
+
+    // Build content panels
+    const container = document.getElementById('expPanelContainer');
+    if (!container) return;
+
+    const m = liveExpData.months[activeExpTab];
+    if (!m) { container.innerHTML = '<div class="exp-placeholder">No data for this tab.</div>'; return; }
+    if (m.error) { container.innerHTML = '<div class="exp-placeholder">⚠️ Error loading: ' + m.error + '</div>'; return; }
+
+    const staffTotal    = m.staffTotal    || 0;
+    const vendorTotal   = m.vendorTotal   || 0;
+    const platformTotal = m.platformTotal || 0;
+    const total         = m.computedTotal || (staffTotal + vendorTotal + platformTotal);
+    const grandTotal    = m.grandTotal    || total;
+
+    let html = '';
+
+    // ── Employees
+    if (m.employees && m.employees.length) {
+        html += '<div class="exp-section">';
+        html += '<div class="exp-section-hdr">'
+            + '<span>👥 Staff / Payroll (' + m.employees.length + ' people)</span>'
+            + '<span class="amt">' + fmtMoney(staffTotal) + '</span></div>';
+        m.employees.forEach(function(e) {
+            html += '<div class="exp-item">'
+                + '<span class="ei-name">' + e.name + '</span>'
+                + '<span class="ei-actual">Actual: ' + fmtMoney(e.actual) + '</span>'
+                + '<span class="ei-cem">' + fmtMoney(e.cemAmt) + '</span></div>';
+        });
+        html += '</div>';
+    }
+
+    // ── Accounting / Vendors
+    if (m.vendors && m.vendors.length) {
+        html += '<div class="exp-section">';
+        html += '<div class="exp-section-hdr">'
+            + '<span>💼 Accounting & Vendors</span>'
+            + '<span class="amt">' + fmtMoney(vendorTotal) + '</span></div>';
+        m.vendors.forEach(function(v) {
+            html += '<div class="exp-item">'
+                + '<span class="ei-name">' + v.name + '</span>'
+                + '<span class="ei-actual">Actual: ' + fmtMoney(v.actual) + '</span>'
+                + '<span class="ei-cem">' + fmtMoney(v.cemAmt) + '</span></div>';
+        });
+        html += '</div>';
+    }
+
+    // ── Platforms (collapsible, since many)
+    if (m.platforms && m.platforms.length) {
+        html += '<div class="exp-section">';
+        html += '<div class="exp-section-hdr">'
+            + '<span>💻 Platforms & Software (' + m.platforms.length + ' items)</span>'
+            + '<span class="amt">' + fmtMoney(platformTotal) + '</span></div>';
+        html += '<div id="platformList_' + activeExpTab + '" style="display:none">';
+        m.platforms.forEach(function(p) {
+            html += '<div class="exp-item">'
+                + '<span class="ei-name">' + p.name + '</span>'
+                + '<span class="ei-actual">Actual: ' + fmtMoney(p.actual) + '</span>'
+                + '<span class="ei-cem">' + fmtMoney(p.cemAmt) + '</span></div>';
+        });
+        html += '</div>';
+        html += '<button onclick="togglePlatforms(\'' + activeExpTab + '\')" style="font-size:.7rem;color:var(--dim);background:none;border:none;cursor:pointer;margin-top:4px;padding:4px 10px;" id="platToggle_' + activeExpTab + '">▼ Show all platforms</button>';
+        html += '</div>';
+    }
+
+    // ── Totals summary
+    html += '<div class="exp-totals">';
+    html += '<div class="exp-tot-item"><div class="etl">Staff</div><div class="etv red">' + fmtMoney(staffTotal) + '</div></div>';
+    html += '<div class="exp-tot-item"><div class="etl">Vendors + Platforms</div><div class="etv red">' + fmtMoney(vendorTotal + platformTotal) + '</div></div>';
+    html += '<div class="exp-tot-item"><div class="etl">Total Remix Dynamix Expense</div><div class="etv red">' + fmtMoney(total) + '</div></div>';
+    html += '</div>';
+
+    // ── Context note
+    html += '<div style="font-size:.68rem;color:var(--dim);margin-top:12px;padding:10px;background:rgba(255,255,255,.02);border-radius:8px;border:1px solid var(--border)">';
+    if (activeExpTab === 'May') {
+        html += 'ℹ️ <strong>Note:</strong> The "May" tab contains <strong>April 2026</strong> expenses (per Tommy). Use these numbers for the April expense period.';
+    } else {
+        html += 'ℹ️ Data pulled live from the <strong>Networks 2026 Expense Reimbursement (Remix column)</strong>. Tab name = month of the expense.';
+    }
+    html += '</div>';
+
+    container.innerHTML = html;
+}
+
+function switchExpTab(tab) {
+    activeExpTab = tab;
+    renderLiveExpenses();
+}
+
+function togglePlatforms(tab) {
+    const list = document.getElementById('platformList_' + tab);
+    const btn  = document.getElementById('platToggle_' + tab);
+    if (!list) return;
+    const showing = list.style.display !== 'none';
+    list.style.display = showing ? 'none' : 'block';
+    if (btn) btn.textContent = showing ? '▼ Show all platforms' : '▲ Hide platforms';
+}
+
+async function triggerSheetSync() {
+    const syncBtn = document.querySelector('.sync-btn');
+    if (syncBtn) { syncBtn.textContent = '⏳ Syncing...'; syncBtn.disabled = true; }
+    try {
+        await fetch(API_BASE + '/sheets/remix/sync');
+        // Wait 25 seconds then reload data (sync runs in background)
+        setTimeout(async function() {
+            await loadLiveExpenses();
+            if (syncBtn) { syncBtn.textContent = '🔄 Sync Now'; syncBtn.disabled = false; }
+        }, 25000);
+    } catch(e) {
+        if (syncBtn) { syncBtn.textContent = '🔄 Sync Now'; syncBtn.disabled = false; }
+        alert('Sync error: ' + e.message);
+    }
+}
+
+// Load live expense data on startup — always visible in CF view
+document.addEventListener('DOMContentLoaded', function() {
+    // Auto-load if CF view is active or becomes active
+    loadLiveExpenses();
+    // Also patch the CF toggle button to reload on each visit
+    document.querySelectorAll('.vt-btn').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            if (btn.dataset.view === 'cashflow' || btn.textContent.toLowerCase().includes('cash')) {
+                setTimeout(loadLiveExpenses, 100);
+            }
+        });
+    });
+});
+</script>
+</body>
+</html>

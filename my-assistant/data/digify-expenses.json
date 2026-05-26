@@ -1,0 +1,84 @@
+{
+  "syncedAt": "2026-05-26T07:00:01.652Z",
+  "sheetId": "1zW-orwWjQ4k3MFYduw4_vkpnqgAPmaD8a1UWMIwNkX4",
+  "company": "digify",
+  "months": {
+    "January": {
+      "tab": "January",
+      "dashMonth": "2026-01",
+      "employees": [],
+      "vendors": [],
+      "platforms": [],
+      "staffTotal": 0,
+      "vendorTotal": 0,
+      "platformTotal": 0,
+      "grandTotal": 157584.57,
+      "computedTotal": 0
+    },
+    "February": {
+      "tab": "February",
+      "dashMonth": "2026-02",
+      "employees": [],
+      "vendors": [],
+      "platforms": [],
+      "staffTotal": 0,
+      "vendorTotal": 0,
+      "platformTotal": 0,
+      "grandTotal": 139089.16,
+      "computedTotal": 0
+    },
+    "March": {
+      "tab": "March",
+      "dashMonth": "2026-03",
+      "employees": [],
+      "vendors": [],
+      "platforms": [],
+      "staffTotal": 0,
+      "vendorTotal": 0,
+      "platformTotal": 0,
+      "grandTotal": 137796.26,
+      "computedTotal": 0
+    },
+    "April": {
+      "tab": "April",
+      "dashMonth": "2026-04",
+      "employees": [],
+      "vendors": [],
+      "platforms": [
+        {
+          "name": "Item-66",
+          "actual": 0,
+          "cemAmt": 123654.27
+        }
+      ],
+      "staffTotal": 0,
+      "vendorTotal": 0,
+      "platformTotal": 123654.27,
+      "grandTotal": 123654.27,
+      "computedTotal": 123654.27
+    },
+    "May": {
+      "tab": "May",
+      "dashMonth": "2026-04",
+      "employees": [],
+      "vendors": [],
+      "platforms": [
+        {
+          "name": "Claude AI",
+          "actual": 125,
+          "cemAmt": 47.92
+        },
+        {
+          "name": "Ideagram.AI",
+          "actual": 65,
+          "cemAmt": 24.92
+        }
+      ],
+      "staffTotal": 0,
+      "vendorTotal": 0,
+      "platformTotal": 72.84,
+      "grandTotal": 105849.5,
+      "computedTotal": 72.84
+    }
+  }
+}

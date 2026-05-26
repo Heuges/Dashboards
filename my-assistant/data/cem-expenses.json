@@ -1,0 +1,1228 @@
+{
+  "syncedAt": "2026-05-26T07:00:01.652Z",
+  "sheetId": "1zW-orwWjQ4k3MFYduw4_vkpnqgAPmaD8a1UWMIwNkX4",
+  "company": "cem",
+  "months": {
+    "January": {
+      "tab": "January",
+      "dashMonth": "2026-01",
+      "employees": [
+        {
+          "name": "Tommy",
+          "actual": 13000,
+          "cemAmt": 8926.67
+        },
+        {
+          "name": "Stacey Schaedel",
+          "actual": 9983.33,
+          "cemAmt": 7712.12
+        },
+        {
+          "name": "Stacey Schaedel - Insurance Stipen",
+          "actual": 400,
+          "cemAmt": 412
+        },
+        {
+          "name": "Jolene - HR, Payroll, Benefits, Insurance",
+          "actual": 3000,
+          "cemAmt": 1545
+        },
+        {
+          "name": "Emily Laurita",
+          "actual": 5167.67,
+          "cemAmt": 5322.7
+        },
+        {
+          "name": "Cherie",
+          "actual": 3900,
+          "cemAmt": 2008.5
+        },
+        {
+          "name": "Atonelia Rondan",
+          "actual": 2500,
+          "cemAmt": 643.75
+        },
+        {
+          "name": "Sumurthia Raghaven",
+          "actual": 1600,
+          "cemAmt": 1280
+        },
+        {
+          "name": "Scott Kellerman",
+          "actual": 10000,
+          "cemAmt": 10300
+        },
+        {
+          "name": "Nathan Kay - Aff Manager",
+          "actual": 5833.34,
+          "cemAmt": 6008.34
+        },
+        {
+          "name": "Jordi Shahhan - Setup",
+          "actual": 2500,
+          "cemAmt": 1716.67
+        },
+        {
+          "name": "Chuck Lazaros - Web/IT",
+          "actual": 9583.33,
+          "cemAmt": 6580.55
+        },
+        {
+          "name": "Jeff Cefaul - Ops Assistant",
+          "actual": 5416.67,
+          "cemAmt": 3719.45
+        },
+        {
+          "name": "Alex Zayas-Bazan - Onboarding",
+          "actual": 3125,
+          "cemAmt": 2500
+        },
+        {
+          "name": "SA Tuhin - Reporting",
+          "actual": 1558.8,
+          "cemAmt": 1247.04
+        },
+        {
+          "name": "Jimmy - setup",
+          "actual": 650,
+          "cemAmt": 520
+        },
+        {
+          "name": "Tarun Wadhwa - Full Stack",
+          "actual": 2600,
+          "cemAmt": 1560
+        },
+        {
+          "name": "Vendant Bhatia - Full Stack",
+          "actual": 2600,
+          "cemAmt": 1560
+        }
+      ],
+      "vendors": [
+        {
+          "name": "WestLake Accounting Services",
+          "actual": 3070.14,
+          "cemAmt": 2330,
+          "category": "accounting"
+        }
+      ],
+      "platforms": [
+        {
+          "name": "A10 Web AI",
+          "actual": 60,
+          "cemAmt": 34.5
+        },
+        {
+          "name": "Adobe Photoshop",
+          "actual": 200,
+          "cemAmt": 115
+        },
+        {
+          "name": "AGI Cap - CashFlow",
+          "actual": 1250,
+          "cemAmt": 718.75
+        },
+        {
+          "name": "Apollo.AI",
+          "actual": 531.88,
+          "cemAmt": 611.66
+        },
+        {
+          "name": "Last Min Add - Jan 13",
+          "actual": 850,
+          "cemAmt": 1020
+        },
+        {
+          "name": "Asana",
+          "actual": 600,
+          "cemAmt": 345
+        },
+        {
+          "name": "BlackList",
+          "actual": 1000,
+          "cemAmt": 575
+        },
+        {
+          "name": "Brandy",
+          "actual": 150,
+          "cemAmt": 86.25
+        },
+        {
+          "name": "CallPliance",
+          "actual": 125,
+          "cemAmt": 71.88
+        },
+        {
+          "name": "Crazy Egg",
+          "actual": 300,
+          "cemAmt": 172.5
+        },
+        {
+          "name": "Credit Safe",
+          "actual": 250,
+          "cemAmt": 143.75
+        },
+        {
+          "name": "Digital Ocean",
+          "actual": 25,
+          "cemAmt": 14.38
+        },
+        {
+          "name": "Docusign",
+          "actual": 300,
+          "cemAmt": 172.5
+        },
+        {
+          "name": "Last Min Add - Jan 13",
+          "actual": 25,
+          "cemAmt": 30
+        },
+        {
+          "name": "Last Min Add - Jan 13",
+          "actual": 250,
+          "cemAmt": 300
+        },
+        {
+          "name": "https://metricool.com/",
+          "actual": 45,
+          "cemAmt": 25.88
+        },
+        {
+          "name": "Jasper",
+          "actual": 138,
+          "cemAmt": 79.35
+        },
+        {
+          "name": "Linktrust",
+          "actual": 599,
+          "cemAmt": 434.28
+        },
+        {
+          "name": "N8N AI server",
+          "actual": 60,
+          "cemAmt": 36
+        },
+        {
+          "name": "Ringba",
+          "actual": 27798.09,
+          "cemAmt": 19376.16
+        },
+        {
+          "name": "RingCenteral",
+          "actual": 1000,
+          "cemAmt": 575
+        },
+        {
+          "name": "SEMRush",
+          "actual": 139.95,
+          "cemAmt": 80.47
+        },
+        {
+          "name": "Server - AWS",
+          "actual": 1045,
+          "cemAmt": 836
+        },
+        {
+          "name": "TrackDrive",
+          "actual": 1108,
+          "cemAmt": 849.47
+        },
+        {
+          "name": "Trusted Form",
+          "actual": 2050,
+          "cemAmt": 1178.75
+        },
+        {
+          "name": "Twillio",
+          "actual": 250,
+          "cemAmt": 143.75
+        },
+        {
+          "name": "Zoho",
+          "actual": 210,
+          "cemAmt": 241.5
+        },
+        {
+          "name": "GoDaddy Websites",
+          "actual": 200,
+          "cemAmt": 115
+        },
+        {
+          "name": "Google Suites",
+          "actual": 1656.31,
+          "cemAmt": 952.38
+        },
+        {
+          "name": "Chad",
+          "actual": 28,
+          "cemAmt": 483
+        },
+        {
+          "name": "Chad",
+          "actual": 45,
+          "cemAmt": 258.75
+        }
+      ],
+      "staffTotal": 63562.79,
+      "vendorTotal": 2330,
+      "platformTotal": 30076.910000000003,
+      "grandTotal": 95969.53,
+      "computedTotal": 95969.70000000001
+    },
+    "February": {
+      "tab": "February",
+      "dashMonth": "2026-02",
+      "employees": [
+        {
+          "name": "Tommy",
+          "actual": 13000,
+          "cemAmt": 6695
+        },
+        {
+          "name": "Stacey Schaedel",
+          "actual": 9983.33,
+          "cemAmt": 7712.12
+        },
+        {
+          "name": "Stacey Schaedel - Insurance Stipen",
+          "actual": 400,
+          "cemAmt": 412
+        },
+        {
+          "name": "Jolene - HR, Payroll, Benefits, Insurance",
+          "actual": 3000,
+          "cemAmt": 1545
+        },
+        {
+          "name": "Emily Laurita",
+          "actual": 5167.67,
+          "cemAmt": 5322.7
+        },
+        {
+          "name": "Cherie",
+          "actual": 3900,
+          "cemAmt": 2008.5
+        },
+        {
+          "name": "Atonelia Rondan",
+          "actual": 2500,
+          "cemAmt": 643.75
+        },
+        {
+          "name": "Sumurthia Raghaven",
+          "actual": 1600,
+          "cemAmt": 1280
+        },
+        {
+          "name": "Scott Kellerman",
+          "actual": 10833.33,
+          "cemAmt": 11158.33
+        },
+        {
+          "name": "Nathan Kay - Aff Manager",
+          "actual": 5833.34,
+          "cemAmt": 6008.34
+        },
+        {
+          "name": "Jordi Shahhan - Setup",
+          "actual": 2500,
+          "cemAmt": 1716.67
+        },
+        {
+          "name": "Chuck Lazaros - Web/IT",
+          "actual": 9583.33,
+          "cemAmt": 4935.41
+        },
+        {
+          "name": "Jeff Cefaul - Ops Assistant",
+          "actual": 5416.67,
+          "cemAmt": 2789.59
+        },
+        {
+          "name": "Alex Zayas-Bazan - Onboarding",
+          "actual": 3125,
+          "cemAmt": 2500
+        },
+        {
+          "name": "SA Tuhin - Reporting",
+          "actual": 1558.8,
+          "cemAmt": 1247.04
+        },
+        {
+          "name": "Jimmy - setup",
+          "actual": 650,
+          "cemAmt": 520
+        },
+        {
+          "name": "Tarun Wadhwa - Full Stack",
+          "actual": 2600,
+          "cemAmt": 1560
+        },
+        {
+          "name": "Vendant Bhatia - Full Stack",
+          "actual": 2600,
+          "cemAmt": 1560
+        }
+      ],
+      "vendors": [
+        {
+          "name": "WestLake Accounting Services",
+          "actual": 3070.14,
+          "cemAmt": 2330,
+          "category": "accounting"
+        }
+      ],
+      "platforms": [
+        {
+          "name": "A10 Web AI",
+          "actual": 60,
+          "cemAmt": 34.5
+        },
+        {
+          "name": "Adobe Photoshop",
+          "actual": 200,
+          "cemAmt": 115
+        },
+        {
+          "name": "AGI Cap - CashFlow",
+          "actual": 1250,
+          "cemAmt": 718.75
+        },
+        {
+          "name": "Apollo.AI",
+          "actual": 531.88,
+          "cemAmt": 611.66
+        },
+        {
+          "name": "Artist.IO",
+          "actual": 850,
+          "cemAmt": 1020
+        },
+        {
+          "name": "Asana",
+          "actual": 600,
+          "cemAmt": 345
+        },
+        {
+          "name": "BlackList",
+          "actual": 1000,
+          "cemAmt": 575
+        },
+        {
+          "name": "Brandy",
+          "actual": 150,
+          "cemAmt": 86.25
+        },
+        {
+          "name": "CallPliance",
+          "actual": 125,
+          "cemAmt": 71.88
+        },
+        {
+          "name": "Crazy Egg",
+          "actual": 300,
+          "cemAmt": 172.5
+        },
+        {
+          "name": "Credit Safe",
+          "actual": 250,
+          "cemAmt": 143.75
+        },
+        {
+          "name": "Digital Ocean",
+          "actual": 25,
+          "cemAmt": 14.38
+        },
+        {
+          "name": "Docusign",
+          "actual": 300,
+          "cemAmt": 172.5
+        },
+        {
+          "name": "Eleven Labs.IO",
+          "actual": 25,
+          "cemAmt": 30
+        },
+        {
+          "name": "Gemni AI",
+          "actual": 250,
+          "cemAmt": 300
+        },
+        {
+          "name": "https://metricool.com/",
+          "actual": 45,
+          "cemAmt": 25.88
+        },
+        {
+          "name": "Jasper",
+          "actual": 138,
+          "cemAmt": 79.35
+        },
+        {
+          "name": "Linktrust",
+          "actual": 599,
+          "cemAmt": 434.28
+        },
+        {
+          "name": "N8N AI server",
+          "actual": 60,
+          "cemAmt": 36
+        },
+        {
+          "name": "Ringba",
+          "actual": 24077.77,
+          "cemAmt": 16262.9
+        },
+        {
+          "name": "RingCenteral",
+          "actual": 1000,
+          "cemAmt": 575
+        },
+        {
+          "name": "SEMRush",
+          "actual": 139.95,
+          "cemAmt": 80.47
+        },
+        {
+          "name": "Server - AWS",
+          "actual": 1045,
+          "cemAmt": 836
+        },
+        {
+          "name": "TrackDrive",
+          "actual": 600,
+          "cemAmt": 460
+        },
+        {
+          "name": "Trusted Form",
+          "actual": 2050,
+          "cemAmt": 1178.75
+        },
+        {
+          "name": "Twillio",
+          "actual": 250,
+          "cemAmt": 143.75
+        },
+        {
+          "name": "Zoho",
+          "actual": 210,
+          "cemAmt": 241.5
+        },
+        {
+          "name": "GoDaddy Websites",
+          "actual": 200,
+          "cemAmt": 115
+        },
+        {
+          "name": "Google Suites",
+          "actual": 1656.31,
+          "cemAmt": 952.38
+        },
+        {
+          "name": "Google per user",
+          "actual": 28,
+          "cemAmt": 483
+        }
+      ],
+      "staffTotal": 59614.450000000004,
+      "vendorTotal": 2330,
+      "platformTotal": 26315.430000000004,
+      "grandTotal": 88259.88,
+      "computedTotal": 88259.88
+    },
+    "March": {
+      "tab": "March",
+      "dashMonth": "2026-03",
+      "employees": [
+        {
+          "name": "Tommy",
+          "actual": 13000,
+          "cemAmt": 6695
+        },
+        {
+          "name": "Stacey Schaedel",
+          "actual": 9983.33,
+          "cemAmt": 10282.83
+        },
+        {
+          "name": "Stacey Schaedel - Insurance Stipen",
+          "actual": 400,
+          "cemAmt": 412
+        },
+        {
+          "name": "Jolene - HR, Payroll, Benefits, Insurance",
+          "actual": 3000,
+          "cemAmt": 1545
+        },
+        {
+          "name": "Emily Laurita",
+          "actual": 5167.67,
+          "cemAmt": 5322.7
+        },
+        {
+          "name": "Cherie",
+          "actual": 3900,
+          "cemAmt": 2008.5
+        },
+        {
+          "name": "Atonelia Rondan",
+          "actual": 2500,
+          "cemAmt": 643.75
+        },
+        {
+          "name": "Sumurthia Raghaven",
+          "actual": 1600,
+          "cemAmt": 1280
+        },
+        {
+          "name": "Scott Kellerman",
+          "actual": 10833.33,
+          "cemAmt": 11158.33
+        },
+        {
+          "name": "Nathan Kay - Aff Manager",
+          "actual": 5833.34,
+          "cemAmt": 6008.34
+        },
+        {
+          "name": "Jordi Shahhan - Setup",
+          "actual": 2500,
+          "cemAmt": 1716.67
+        },
+        {
+          "name": "Chuck Lazaros - Web/IT",
+          "actual": 9583.33,
+          "cemAmt": 4935.41
+        },
+        {
+          "name": "Jeff Cefaul - Ops Assistant",
+          "actual": 5416.67,
+          "cemAmt": 2789.59
+        },
+        {
+          "name": "Alex Zayas-Bazan - Onboarding",
+          "actual": 3125,
+          "cemAmt": 2500
+        },
+        {
+          "name": "SA Tuhin - Reporting",
+          "actual": 1558.8,
+          "cemAmt": 1247.04
+        }
+      ],
+      "vendors": [
+        {
+          "name": "WestLake Accounting Services",
+          "actual": 3070.14,
+          "cemAmt": 2330,
+          "category": "accounting"
+        }
+      ],
+      "platforms": [
+        {
+          "name": "A10 Web AI",
+          "actual": 60,
+          "cemAmt": 34.5
+        },
+        {
+          "name": "Adobe Photoshop",
+          "actual": 200,
+          "cemAmt": 115
+        },
+        {
+          "name": "AGI Cap - CashFlow",
+          "actual": 1250,
+          "cemAmt": 718.75
+        },
+        {
+          "name": "Apollo.AI",
+          "actual": 531.88,
+          "cemAmt": 611.66
+        },
+        {
+          "name": "Artist.IO",
+          "actual": 850,
+          "cemAmt": 1020
+        },
+        {
+          "name": "Asana",
+          "actual": 600,
+          "cemAmt": 345
+        },
+        {
+          "name": "BlackList",
+          "actual": 1500,
+          "cemAmt": 862.5
+        },
+        {
+          "name": "Brandy",
+          "actual": 150,
+          "cemAmt": 86.25
+        },
+        {
+          "name": "CallPliance",
+          "actual": 125,
+          "cemAmt": 71.88
+        },
+        {
+          "name": "Crazy Egg",
+          "actual": 300,
+          "cemAmt": 172.5
+        },
+        {
+          "name": "Credit Safe",
+          "actual": 250,
+          "cemAmt": 143.75
+        },
+        {
+          "name": "Digital Ocean",
+          "actual": 25,
+          "cemAmt": 14.38
+        },
+        {
+          "name": "Docusign",
+          "actual": 300,
+          "cemAmt": 172.5
+        },
+        {
+          "name": "Eleven Labs.IO",
+          "actual": 25,
+          "cemAmt": 30
+        },
+        {
+          "name": "Gemni AI",
+          "actual": 250,
+          "cemAmt": 300
+        },
+        {
+          "name": "https://metricool.com/",
+          "actual": 45,
+          "cemAmt": 25.88
+        },
+        {
+          "name": "Jasper",
+          "actual": 138,
+          "cemAmt": 79.35
+        },
+        {
+          "name": "Linktrust",
+          "actual": 599,
+          "cemAmt": 434.28
+        },
+        {
+          "name": "N8N AI server",
+          "actual": 60,
+          "cemAmt": 36
+        },
+        {
+          "name": "Ringba",
+          "actual": 21171.17,
+          "cemAmt": 14208.23
+        },
+        {
+          "name": "RingCenteral",
+          "actual": 1000,
+          "cemAmt": 575
+        },
+        {
+          "name": "SEMRush",
+          "actual": 139.95,
+          "cemAmt": 80.47
+        },
+        {
+          "name": "Server - AWS",
+          "actual": 1200,
+          "cemAmt": 960
+        },
+        {
+          "name": "TrackDrive",
+          "actual": 600,
+          "cemAmt": 460
+        },
+        {
+          "name": "Trusted Form",
+          "actual": 2050,
+          "cemAmt": 1178.75
+        },
+        {
+          "name": "Twillio",
+          "actual": 250,
+          "cemAmt": 143.75
+        },
+        {
+          "name": "Zoho",
+          "actual": 210,
+          "cemAmt": 241.5
+        },
+        {
+          "name": "GoDaddy Websites",
+          "actual": 200,
+          "cemAmt": 115
+        },
+        {
+          "name": "Google Suites",
+          "actual": 1950.76,
+          "cemAmt": 1121.69
+        },
+        {
+          "name": "Google per user",
+          "actual": 28,
+          "cemAmt": 483
+        },
+        {
+          "name": "Godaddy - URLs",
+          "actual": 45,
+          "cemAmt": 258.75
+        }
+      ],
+      "staffTotal": 58545.159999999996,
+      "vendorTotal": 2330,
+      "platformTotal": 25100.32,
+      "grandTotal": 85975.31,
+      "computedTotal": 85975.48
+    },
+    "April": {
+      "tab": "April",
+      "dashMonth": "2026-04",
+      "employees": [
+        {
+          "name": "Tommy",
+          "actual": 13000,
+          "cemAmt": 6695
+        },
+        {
+          "name": "Stacey Schaedel",
+          "actual": 9983.33,
+          "cemAmt": 10282.83
+        },
+        {
+          "name": "Stacey Schaedel - Insurance Stipen",
+          "actual": 400,
+          "cemAmt": 412
+        },
+        {
+          "name": "Jolene - HR, Payroll, Benefits, Insurance",
+          "actual": 3000,
+          "cemAmt": 1545
+        },
+        {
+          "name": "Emily Laurita",
+          "actual": 5167.67,
+          "cemAmt": 5322.7
+        },
+        {
+          "name": "Cherie",
+          "actual": 3900,
+          "cemAmt": 2008.5
+        },
+        {
+          "name": "Sumurthia Raghaven",
+          "actual": 1600,
+          "cemAmt": 960
+        },
+        {
+          "name": "Scott Kellerman",
+          "actual": 10833.33,
+          "cemAmt": 11158.33
+        },
+        {
+          "name": "Jordi Shahhan - Setup",
+          "actual": 2500,
+          "cemAmt": 1716.67
+        },
+        {
+          "name": "Chuck Lazaros - Web/IT",
+          "actual": 9583.33,
+          "cemAmt": 4935.41
+        },
+        {
+          "name": "Jeff Cefaul - Ops Assistant",
+          "actual": 5416.67,
+          "cemAmt": 2789.59
+        },
+        {
+          "name": "Alex Zayas-Bazan - Onboarding",
+          "actual": 3125,
+          "cemAmt": 2500
+        },
+        {
+          "name": "SA Tuhin - Reporting",
+          "actual": 1558.8,
+          "cemAmt": 1247.04
+        },
+        {
+          "name": "Tommy will Cancel",
+          "actual": 60,
+          "cemAmt": 34.5
+        }
+      ],
+      "vendors": [],
+      "platforms": [
+        {
+          "name": "AGI Cap - CashFlow",
+          "actual": 1250,
+          "cemAmt": 718.75
+        },
+        {
+          "name": "Apollo.AI",
+          "actual": 531.88,
+          "cemAmt": 611.66
+        },
+        {
+          "name": "Tommy will Cancel",
+          "actual": 850,
+          "cemAmt": 1020
+        },
+        {
+          "name": "Asana",
+          "actual": 600,
+          "cemAmt": 345
+        },
+        {
+          "name": "BlackList",
+          "actual": 1500,
+          "cemAmt": 862.5
+        },
+        {
+          "name": "Tommy will Cancel",
+          "actual": 150,
+          "cemAmt": 86.25
+        },
+        {
+          "name": "CallPliance",
+          "actual": 125,
+          "cemAmt": 71.88
+        },
+        {
+          "name": "Crazy Egg",
+          "actual": 300,
+          "cemAmt": 172.5
+        },
+        {
+          "name": "Credit Safe",
+          "actual": 250,
+          "cemAmt": 143.75
+        },
+        {
+          "name": "Digital Ocean",
+          "actual": 25,
+          "cemAmt": 14.38
+        },
+        {
+          "name": "Docusign",
+          "actual": 300,
+          "cemAmt": 172.5
+        },
+        {
+          "name": "Tommy will Cancel",
+          "actual": 25,
+          "cemAmt": 30
+        },
+        {
+          "name": "Gemni AI",
+          "actual": 250,
+          "cemAmt": 300
+        },
+        {
+          "name": "Tommy will Cancel",
+          "actual": 45,
+          "cemAmt": 25.88
+        },
+        {
+          "name": "Jasper",
+          "actual": 138,
+          "cemAmt": 79.35
+        },
+        {
+          "name": "Linktrust",
+          "actual": 599,
+          "cemAmt": 434.28
+        },
+        {
+          "name": "N8N AI server",
+          "actual": 60,
+          "cemAmt": 36
+        },
+        {
+          "name": "Ringba",
+          "actual": 19117.06,
+          "cemAmt": 5617.89
+        },
+        {
+          "name": "RingCenteral",
+          "actual": 1000,
+          "cemAmt": 575
+        },
+        {
+          "name": "SEMRush",
+          "actual": 139.95,
+          "cemAmt": 80.47
+        },
+        {
+          "name": "Server - AWS",
+          "actual": 1045,
+          "cemAmt": 836
+        },
+        {
+          "name": "TrackDrive",
+          "actual": 600,
+          "cemAmt": 460
+        },
+        {
+          "name": "Trusted Form",
+          "actual": 2050,
+          "cemAmt": 1178.75
+        },
+        {
+          "name": "Twillio",
+          "actual": 250,
+          "cemAmt": 143.75
+        },
+        {
+          "name": "Zoho",
+          "actual": 210,
+          "cemAmt": 241.5
+        },
+        {
+          "name": "GoDaddy Websites",
+          "actual": 200,
+          "cemAmt": 115
+        },
+        {
+          "name": "Google Suites",
+          "actual": 1656.31,
+          "cemAmt": 952.38
+        },
+        {
+          "name": "Google per user",
+          "actual": 28,
+          "cemAmt": 483
+        },
+        {
+          "name": "Godaddy - URLs",
+          "actual": 45,
+          "cemAmt": 258.75
+        },
+        {
+          "name": "Total",
+          "actual": 129345.38,
+          "cemAmt": 70119.58
+        }
+      ],
+      "staffTotal": 51607.57,
+      "vendorTotal": 0,
+      "platformTotal": 86186.75,
+      "grandTotal": 137794.32,
+      "computedTotal": 137794.32
+    },
+    "May": {
+      "tab": "May",
+      "dashMonth": "2026-04",
+      "employees": [
+        {
+          "name": "Lauren",
+          "actual": 3180.69,
+          "cemAmt": 2330
+        },
+        {
+          "name": "Stacey Schaedel",
+          "actual": 9983.33,
+          "cemAmt": 7487.5
+        },
+        {
+          "name": "Stacey Schaedel - Insurance Stipen",
+          "actual": 400,
+          "cemAmt": 200
+        },
+        {
+          "name": "Emily Laurita",
+          "actual": 5167.67,
+          "cemAmt": 2738.87
+        },
+        {
+          "name": "Sumurthia Raghaven",
+          "actual": 1600,
+          "cemAmt": 1280
+        },
+        {
+          "name": "Scott Kellerman",
+          "actual": 10833.33,
+          "cemAmt": 5741.66
+        },
+        {
+          "name": "Jordi Shahhan - Setup",
+          "actual": 2500,
+          "cemAmt": 466.67
+        },
+        {
+          "name": "Chuck Lazaros - Web/IT",
+          "actual": 9583.33,
+          "cemAmt": 1935.41
+        },
+        {
+          "name": "Jeff Cefaul - Ops Assistant",
+          "actual": 5416.67,
+          "cemAmt": 2789.59
+        },
+        {
+          "name": "Alex Zayas-Bazan - Onboarding",
+          "actual": 6250,
+          "cemAmt": 1166.67
+        },
+        {
+          "name": "SA Tuhin - Reporting",
+          "actual": 1558.8,
+          "cemAmt": 467.64
+        },
+        {
+          "name": "Jimmy - setup",
+          "actual": 650,
+          "cemAmt": 390
+        }
+      ],
+      "vendors": [],
+      "platforms": [
+        {
+          "name": "Canced 5/6",
+          "actual": 60,
+          "cemAmt": 34.5
+        },
+        {
+          "name": "Adobe Photoshop",
+          "actual": 200,
+          "cemAmt": 115
+        },
+        {
+          "name": "AGI Cap - CashFlow",
+          "actual": 1250,
+          "cemAmt": 718.75
+        },
+        {
+          "name": "Apollo.AI",
+          "actual": 531.88,
+          "cemAmt": 611.66
+        },
+        {
+          "name": "Artist.IO",
+          "actual": 850,
+          "cemAmt": 1020
+        },
+        {
+          "name": "Asana",
+          "actual": 600,
+          "cemAmt": 345
+        },
+        {
+          "name": "BlackList",
+          "actual": 1000,
+          "cemAmt": 575
+        },
+        {
+          "name": "Canceled 5/6",
+          "actual": 150,
+          "cemAmt": 86.25
+        },
+        {
+          "name": "CallPliance",
+          "actual": 125,
+          "cemAmt": 71.88
+        },
+        {
+          "name": "Crazy Egg",
+          "actual": 300,
+          "cemAmt": 172.5
+        },
+        {
+          "name": "Claude AI",
+          "actual": 125,
+          "cemAmt": 47.92
+        },
+        {
+          "name": "Credit Safe",
+          "actual": 250,
+          "cemAmt": 143.75
+        },
+        {
+          "name": "Canceled 5/6",
+          "actual": 25,
+          "cemAmt": 14.38
+        },
+        {
+          "name": "Docusign",
+          "actual": 300,
+          "cemAmt": 172.5
+        },
+        {
+          "name": "Eleven Labs.IO",
+          "actual": 25,
+          "cemAmt": 30
+        },
+        {
+          "name": "Gemni AI",
+          "actual": 250,
+          "cemAmt": 300
+        },
+        {
+          "name": "Canceled 5/6",
+          "actual": 45,
+          "cemAmt": 25.88
+        },
+        {
+          "name": "Ideagram.AI",
+          "actual": 65,
+          "cemAmt": 24.92
+        },
+        {
+          "name": "Jasper",
+          "actual": 138,
+          "cemAmt": 79.35
+        },
+        {
+          "name": "Linktrust",
+          "actual": 599,
+          "cemAmt": 434.28
+        },
+        {
+          "name": "N8N AI server",
+          "actual": 60,
+          "cemAmt": 36
+        },
+        {
+          "name": "Ringba",
+          "actual": 27798.09,
+          "cemAmt": 19376.16
+        },
+        {
+          "name": "RingCenteral",
+          "actual": 1000,
+          "cemAmt": 575
+        },
+        {
+          "name": "SEMRush",
+          "actual": 139.95,
+          "cemAmt": 80.47
+        },
+        {
+          "name": "Server - AWS",
+          "actual": 1045,
+          "cemAmt": 836
+        },
+        {
+          "name": "TrackDrive",
+          "actual": 600,
+          "cemAmt": 460
+        },
+        {
+          "name": "Trusted Form",
+          "actual": 2050,
+          "cemAmt": 1178.75
+        }
+      ],
+      "staffTotal": 26994.009999999995,
+      "vendorTotal": 0,
+      "platformTotal": 27565.9,
+      "grandTotal": 54559.909999999996,
+      "computedTotal": 54559.909999999996
+    }
+  }
+}

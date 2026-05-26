@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CEM — Breakeven & Cash Flow</title>
+    <title>CEM — Breakeven &amp; Cash Flow</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
@@ -15,48 +15,30 @@
         }
         * { margin:0; padding:0; box-sizing:border-box; }
         body { font-family:'Inter',sans-serif; background:var(--bg); color:var(--text); min-height:100vh; }
-        .wrap { max-width:1280px; margin:0 auto; padding:28px 24px; }
+        .wrap { max-width:1400px; margin:0 auto; padding:28px 24px; }
 
-        /* ── Header ──────────────────────────────────────────────────────── */
-        .top-bar {
-            display:flex; align-items:center; justify-content:space-between;
-            margin-bottom:28px; flex-wrap:wrap; gap:14px;
-        }
+        /* ── Header ── */
+        .top-bar { display:flex; align-items:center; justify-content:space-between; margin-bottom:28px; flex-wrap:wrap; gap:14px; }
         .logo-block { display:flex; align-items:center; gap:14px; }
         .logo-block img { height:40px; filter:brightness(1.1); }
-        .logo-block .co-name {
-            font-size:.72rem; font-weight:700; text-transform:uppercase;
-            letter-spacing:1.5px; color:var(--dim);
-        }
-        .view-toggle {
-            display:flex; gap:0; background:#111827; border-radius:12px;
-            padding:4px; border:1px solid var(--border);
-        }
-        .vt-btn {
-            padding:9px 22px; border-radius:9px; border:none;
-            font-size:.8rem; font-weight:700; cursor:pointer;
-            font-family:'Inter',sans-serif; transition:all .2s;
-            color:var(--dim); background:none;
-        }
-        .vt-btn.active {
-            background:linear-gradient(135deg,#1d4ed8,#3b82f6);
-            color:#fff; box-shadow:0 2px 12px rgba(59,130,246,.3);
-        }
+        .logo-block .co-name { font-size:.72rem; font-weight:700; text-transform:uppercase; letter-spacing:1.5px; color:var(--dim); }
+        .view-toggle { display:flex; gap:0; background:#111827; border-radius:12px; padding:4px; border:1px solid var(--border); }
+        .vt-btn { padding:9px 22px; border-radius:9px; border:none; font-size:.8rem; font-weight:700; cursor:pointer; font-family:'Inter',sans-serif; transition:all .2s; color:var(--dim); background:none; }
+        .vt-btn.active { background:linear-gradient(135deg,#1d4ed8,#3b82f6); color:#fff; box-shadow:0 2px 12px rgba(59,130,246,.3); }
 
-        /* ── Shared card styles ───────────────────────────────────────────── */
+        /* ── Shared card ── */
         .card { background:var(--card); border:1px solid var(--border); border-radius:16px; padding:28px; margin-bottom:22px; }
         .card h2 { font-size:1.05rem; font-weight:700; margin-bottom:4px; }
         .card .sub { font-size:.78rem; color:var(--dim); margin-bottom:20px; }
         .chart-box { position:relative; height:380px; }
 
-        /* ── Breakeven view ───────────────────────────────────────────────── */
+        /* ── Breakeven view ── */
         .legend-custom { display:flex; gap:24px; justify-content:center; flex-wrap:wrap; margin-bottom:16px; }
         .legend-item { display:flex; align-items:center; gap:6px; font-size:.82rem; color:var(--muted); }
         .legend-line { width:28px; height:3px; border-radius:2px; }
         .legend-dash { width:28px; height:0; border-top:3px dashed; }
         table { width:100%; border-collapse:separate; border-spacing:0; font-size:.85rem; }
-        th { background:#111827; color:var(--muted); font-weight:600; text-transform:uppercase; font-size:.7rem;
-             letter-spacing:1px; padding:12px 14px; text-align:right; border-bottom:1px solid var(--border); }
+        th { background:#111827; color:var(--muted); font-weight:600; text-transform:uppercase; font-size:.7rem; letter-spacing:1px; padding:12px 14px; text-align:right; border-bottom:1px solid var(--border); }
         th:first-child { text-align:left; border-radius:8px 0 0 0; }
         th:last-child { border-radius:0 8px 0 0; }
         td { padding:10px 14px; text-align:right; border-bottom:1px solid rgba(30,41,59,.4); }
@@ -72,7 +54,7 @@
         .wn { color:var(--amber); font-weight:700; }
         .footer-bar { text-align:center; margin-top:24px; color:var(--dim); font-size:.72rem; border-top:1px solid var(--border); padding-top:16px; }
 
-        /* ── Data Sources Tracker ─────────────────────────────────────────── */
+        /* ── Data Sources Tracker ── */
         .sources-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:14px; margin-top:16px; }
         .source-tile { background:rgba(255,255,255,.03); border:1px solid var(--border); border-radius:14px; padding:16px; transition:border-color .2s; }
         .source-tile:hover { border-color:#334155; }
@@ -93,72 +75,66 @@
         .mark-btn:disabled { opacity:.45; cursor:default; }
         .sources-note { font-size:.72rem; color:var(--dim); margin-top:10px; text-align:center; }
 
-        /* ── Cash Flow View ───────────────────────────────────────────────── */
+        /* ── Cash Flow View ── */
         #cfView { display:none; }
 
-        /* KPI tiles */
-        .kpi-row { display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:14px; margin-bottom:22px; }
-        .kpi { background:var(--card); border:1px solid var(--border); border-radius:14px; padding:18px 20px; }
-        .kpi .kpi-label { font-size:.65rem; font-weight:700; text-transform:uppercase; letter-spacing:.8px; color:var(--dim); margin-bottom:8px; }
-        .kpi .kpi-val { font-size:1.8rem; font-weight:800; line-height:1; }
-        .kpi .kpi-sub { font-size:.7rem; color:var(--dim); margin-top:5px; }
-        .kpi .kpi-badge { display:inline-flex; align-items:center; gap:4px; font-size:.7rem; font-weight:700; margin-top:6px; padding:2px 8px; border-radius:20px; }
-        .badge-up   { background:rgba(16,185,129,.15); color:#10b981; }
-        .badge-down { background:rgba(239,68,68,.15);  color:#ef4444; }
+        /* CF Header Strip */
+        .cf-header-strip { display:flex; align-items:center; justify-content:space-between; background:var(--card); border:1px solid var(--border); border-radius:16px; padding:18px 26px; margin-bottom:22px; flex-wrap:wrap; gap:16px; }
+        .cf-bal-num { font-size:2.2rem; font-weight:800; }
+        .cf-bal-num.pos { color:var(--green); }
+        .cf-bal-num.neg { color:var(--red); }
+        .cf-bal-lbl { font-size:.72rem; color:var(--dim); font-weight:600; margin-top:2px; display:flex; align-items:center; gap:5px; }
+        .cf-bal-dot { width:8px; height:8px; border-radius:50%; background:var(--green); display:inline-block; }
+        .cf-range-controls { display:flex; align-items:center; gap:12px; flex-wrap:wrap; }
+        .cf-range-controls select { background:#111827; border:1px solid var(--border); border-radius:10px; padding:8px 14px; color:var(--text); font-size:.82rem; font-family:'Inter',sans-serif; cursor:pointer; outline:none; }
+        .cf-range-controls select:focus { border-color:var(--blue); }
+        .cf-range-arrow { color:var(--dim); font-size:.9rem; }
+        .cf-pill { background:rgba(16,185,129,.1); color:var(--green); border:1px solid rgba(16,185,129,.2); border-radius:20px; padding:5px 14px; font-size:.72rem; font-weight:700; }
 
-        /* Scenario + horizon selectors */
-        .cf-controls { display:flex; align-items:center; gap:12px; flex-wrap:wrap; margin-bottom:20px; }
-        .cf-controls .ctrl-label { font-size:.72rem; color:var(--dim); font-weight:600; text-transform:uppercase; letter-spacing:.5px; }
-        .seg-ctrl { display:flex; background:#111827; border-radius:9px; padding:3px; border:1px solid var(--border); }
-        .seg-btn { padding:6px 14px; border-radius:7px; border:none; font-size:.75rem; font-weight:700; cursor:pointer; font-family:'Inter',sans-serif; transition:all .18s; color:var(--dim); background:none; }
-        .seg-btn.active { color:#fff; }
-        .seg-btn.active.green { background:#059669; }
-        .seg-btn.active.blue  { background:var(--blue); }
-        .seg-btn.active.amber { background:#d97706; }
-
-        /* Waterfall chart */
-        .waterfall-wrap { position:relative; height:280px; margin-bottom:22px; }
-
-        /* Cash flow balance sheet table */
-        .cf-table { width:100%; border-collapse:collapse; font-size:.82rem; }
-        .cf-table th {
-            background:#111827; color:var(--dim); font-size:.65rem; font-weight:700;
-            text-transform:uppercase; letter-spacing:.8px; padding:10px 14px;
-            text-align:right; border-bottom:2px solid var(--border); white-space:nowrap;
-        }
-        .cf-table th:first-child { text-align:left; }
-        .cf-table td { padding:9px 14px; text-align:right; border-bottom:1px solid rgba(30,41,59,.3); }
+        /* CF Table */
+        .cf-table { width:100%; border-collapse:collapse; font-size:.82rem; min-width:1000px; }
+        .cf-table th { background:#0f1729; color:var(--muted); font-size:.68rem; font-weight:700; text-transform:uppercase; letter-spacing:.8px; padding:11px 14px; text-align:right; border-bottom:2px solid var(--border); white-space:nowrap; position:sticky; top:0; z-index:5; }
+        .cf-table th:first-child { text-align:left; min-width:230px; z-index:6; }
+        .cf-table th.curr-hdr { background:rgba(59,130,246,.2); color:#93c5fd; }
+        .cf-table td { padding:8px 14px; text-align:right; border-bottom:1px solid rgba(30,41,59,.25); }
         .cf-table td:first-child { text-align:left; }
-        /* Section header rows */
-        .cf-section-hdr td {
-            background:linear-gradient(90deg,rgba(59,130,246,.1),transparent);
-            color:var(--text); font-weight:800; font-size:.78rem;
-            text-transform:uppercase; letter-spacing:.6px; padding-top:14px;
-            border-top:1px solid rgba(59,130,246,.2);
-        }
-        .cf-section-hdr td:first-child { color:var(--blue); }
-        /* Vertical rows */
-        .cf-vertical td { font-weight:700; color:var(--text); background:rgba(255,255,255,.02); }
-        .cf-vertical td:first-child { padding-left:14px; }
-        /* Client rows */
-        .cf-client td { color:var(--muted); font-size:.8rem; }
-        .cf-client td:first-child { padding-left:32px; color:var(--dim); }
-        /* Total rows */
-        .cf-total td { font-weight:800; border-top:2px solid var(--border); padding-top:12px; padding-bottom:12px; }
-        .cf-total.inflow td { color:var(--green); }
-        .cf-total.outflow td { color:var(--red); }
-        .cf-net td { font-weight:800; font-size:.92rem; background:rgba(16,185,129,.06); border-top:2px solid #10b981; }
-        .cf-net.neg td { color:var(--red); background:rgba(239,68,68,.06); border-top:2px solid #ef4444; }
-        /* Forecast columns */
-        .cf-forecast { color:var(--dim); font-style:italic; }
-        .cf-forecast-hdr { background:rgba(99,102,241,.07); color:#a5b4fc; border-left:1px dashed rgba(99,102,241,.3); }
-        .cf-forecast-hdr.first { border-left:1px dashed rgba(99,102,241,.3); }
-        /* Toggle child rows */
-        .cf-client { display:none; }
-        .cf-vertical.expanded ~ .cf-client { display:table-row; }
-        .cf-vertical td:first-child { cursor:pointer; user-select:none; }
-        .cf-vertical td:first-child::before { content:'▶ '; font-size:.6rem; color:var(--dim); transition:transform .2s; display:inline-block; }
-        .cf-vertical.expanded td:first-child::before { transform:rotate(90deg); }
+        .cf-table td.curr { background:rgba(59,130,246,.06); }
+        .cf-table th.curr-hdr, .cf-table td.curr { border-left:1px solid rgba(59,130,246,.2); border-right:1px solid rgba(59,130,246,.2); }
+
+        /* Row types */
+        .cf-bal-row td { background:rgba(59,130,246,.12); color:#93c5fd; font-weight:800; font-size:.88rem; padding:12px 14px; border-top:2px solid rgba(59,130,246,.35); border-bottom:2px solid rgba(59,130,246,.35); }
+        .cf-bal-row td:first-child { display:flex; align-items:center; gap:8px; }
+        .cf-bal-row td.curr { background:rgba(59,130,246,.22); }
+        .cf-hdr-row td { background:linear-gradient(90deg,rgba(16,185,129,.07),transparent); color:var(--text); font-weight:800; font-size:.78rem; text-transform:uppercase; letter-spacing:.6px; padding:14px 14px 10px; border-top:1px solid rgba(30,41,59,.6); }
+        .cf-hdr-row.out td { background:linear-gradient(90deg,rgba(239,68,68,.07),transparent); }
+        .cf-hdr-row td.curr { background:rgba(59,130,246,.05); }
+        .cf-group-row td { font-weight:700; color:var(--text); background:rgba(255,255,255,.015); cursor:pointer; transition:background .15s; }
+        .cf-group-row:hover td { background:rgba(59,130,246,.05); }
+        .cf-group-row td:first-child::before { content:'▶ '; font-size:.55rem; color:var(--dim); transition:transform .2s; display:inline-block; margin-right:1px; }
+        .cf-group-row.open td:first-child::before { transform:rotate(90deg); }
+        .cf-sub-row td { color:var(--muted); font-size:.8rem; }
+        .cf-sub-row td:first-child { color:var(--dim); }
+        .cf-total-row td { font-weight:800; font-size:.88rem; border-top:2px solid var(--border); padding:14px; }
+        .cf-total-row.in td { color:var(--green); background:rgba(16,185,129,.05); }
+        .cf-total-row.out td { color:var(--red); background:rgba(239,68,68,.05); }
+        .cf-total-row td.curr.in { background:rgba(16,185,129,.1); }
+        .cf-total-row td.curr.out { background:rgba(239,68,68,.1); }
+        .cf-net-row td { font-weight:800; font-size:.9rem; border-top:2px solid var(--green); background:rgba(16,185,129,.07); color:var(--green); padding:14px; }
+        .cf-net-row.neg td { color:var(--red); background:rgba(239,68,68,.07); border-top:2px solid var(--red); }
+        .cf-net-row td.curr { background:rgba(16,185,129,.14); }
+        .cf-net-row.neg td.curr { background:rgba(239,68,68,.14); }
+        .forecast-val { color:var(--dim) !important; font-style:italic; }
+
+        /* % Badges */
+        .pct { display:inline-block; font-size:.6rem; font-weight:700; padding:1px 5px; border-radius:4px; margin-left:4px; vertical-align:middle; line-height:1.4; }
+        .pct-over  { background:rgba(239,68,68,.2); color:#ef4444; }
+        .pct-under { background:rgba(16,185,129,.2); color:#10b981; }
+        .pct-near  { background:rgba(148,163,184,.1); color:#94a3b8; }
+
+        /* Indent levels */
+        .ind1 td:first-child { padding-left:14px; }
+        .ind2 td:first-child { padding-left:30px; }
+        .ind3 td:first-child { padding-left:48px; }
 
         /* Scenario flag badges */
         .flag-row { margin-top:16px; display:flex; flex-direction:column; gap:8px; }
@@ -180,22 +156,61 @@
         .form-grid { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
         .form-group { display:flex; flex-direction:column; gap:5px; }
         .form-group label { font-size:.7rem; font-weight:700; color:var(--dim); text-transform:uppercase; letter-spacing:.5px; }
-        .form-group input, .form-group select {
-            background:rgba(255,255,255,.05); border:1px solid var(--border);
-            border-radius:10px; padding:10px 12px; color:var(--text);
-            font-size:.88rem; font-family:'Inter',sans-serif; outline:none;
-        }
+        .form-group input, .form-group select { background:rgba(255,255,255,.05); border:1px solid var(--border); border-radius:10px; padding:10px 12px; color:var(--text); font-size:.88rem; font-family:'Inter',sans-serif; outline:none; }
         .form-group input:focus, .form-group select:focus { border-color:var(--blue); }
         .form-group.full { grid-column:1/-1; }
         .modal-actions { display:flex; gap:10px; justify-content:flex-end; margin-top:24px; }
         .btn-primary { background:linear-gradient(135deg,#1d4ed8,#3b82f6); color:#fff; border:none; border-radius:10px; padding:11px 24px; font-weight:700; font-size:.85rem; cursor:pointer; font-family:'Inter',sans-serif; }
         .btn-secondary { background:rgba(255,255,255,.06); color:var(--muted); border:1px solid var(--border); border-radius:10px; padding:11px 24px; font-weight:600; font-size:.85rem; cursor:pointer; font-family:'Inter',sans-serif; }
+
+        /* Breakeven scenario/horizon selectors */
+        .cf-controls { display:flex; align-items:center; gap:12px; flex-wrap:wrap; margin-bottom:20px; }
+        .cf-controls .ctrl-label { font-size:.72rem; color:var(--dim); font-weight:600; text-transform:uppercase; letter-spacing:.5px; }
+        .seg-ctrl { display:flex; background:#111827; border-radius:9px; padding:3px; border:1px solid var(--border); }
+        .seg-btn { padding:6px 14px; border-radius:7px; border:none; font-size:.75rem; font-weight:700; cursor:pointer; font-family:'Inter',sans-serif; transition:all .18s; color:var(--dim); background:none; }
+        .seg-btn.active { color:#fff; }
+        .seg-btn.active.green { background:#059669; }
+        .seg-btn.active.blue  { background:var(--blue); }
+        .seg-btn.active.amber { background:#d97706; }
+        .kpi-row { display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:14px; margin-bottom:22px; }
+        .kpi { background:var(--card); border:1px solid var(--border); border-radius:14px; padding:18px 20px; }
+        .kpi .kpi-label { font-size:.65rem; font-weight:700; text-transform:uppercase; letter-spacing:.8px; color:var(--dim); margin-bottom:8px; }
+        .kpi .kpi-val { font-size:1.8rem; font-weight:800; line-height:1; }
+        .kpi .kpi-sub { font-size:.7rem; color:var(--dim); margin-top:5px; }
+        .waterfall-wrap { position:relative; height:280px; margin-bottom:22px; }
+
+        /* ── Live Expenses Panel ── */
+        .live-badge { display:inline-flex; align-items:center; gap:5px; background:rgba(16,185,129,.12); color:#10b981; border:1px solid rgba(16,185,129,.25); border-radius:20px; padding:3px 10px; font-size:.65rem; font-weight:700; text-transform:uppercase; letter-spacing:.5px; }
+        .live-badge .pulse { width:6px; height:6px; border-radius:50%; background:#10b981; animation:pulse 2s infinite; flex-shrink:0; }
+        @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.5;transform:scale(1.3)} }
+        .exp-tab-row { display:flex; gap:6px; flex-wrap:wrap; margin-bottom:16px; }
+        .exp-tab { padding:6px 14px; border-radius:9px; border:1px solid var(--border); font-size:.75rem; font-weight:700; cursor:pointer; font-family:'Inter',sans-serif; color:var(--dim); background:rgba(255,255,255,.03); transition:all .2s; }
+        .exp-tab.active { background:rgba(59,130,246,.15); color:#93c5fd; border-color:rgba(59,130,246,.3); }
+        .exp-tab:hover:not(.active) { background:rgba(255,255,255,.06); color:var(--muted); }
+        .exp-panel { display:none; }
+        .exp-panel.visible { display:block; }
+        .exp-section { margin-bottom:14px; }
+        .exp-section-hdr { font-size:.72rem; font-weight:700; text-transform:uppercase; letter-spacing:.6px; color:var(--dim); padding:8px 0 6px; border-bottom:1px solid var(--border); margin-bottom:8px; display:flex; align-items:center; justify-content:space-between; }
+        .exp-section-hdr .amt { color:var(--text); font-weight:800; font-size:.8rem; }
+        .exp-item { display:flex; align-items:center; justify-content:space-between; padding:7px 10px; border-radius:8px; transition:background .15s; }
+        .exp-item:hover { background:rgba(255,255,255,.03); }
+        .exp-item .ei-name { font-size:.8rem; color:var(--muted); flex:1; }
+        .exp-item .ei-actual { font-size:.72rem; color:var(--dim); margin-right:12px; }
+        .exp-item .ei-cem { font-size:.82rem; font-weight:700; color:var(--text); min-width:90px; text-align:right; }
+        .exp-totals { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-top:14px; padding:14px; background:rgba(255,255,255,.02); border-radius:12px; border:1px solid var(--border); }
+        .exp-tot-item { text-align:center; }
+        .exp-tot-item .etl { font-size:.65rem; font-weight:700; text-transform:uppercase; letter-spacing:.5px; color:var(--dim); margin-bottom:4px; }
+        .exp-tot-item .etv { font-size:1.15rem; font-weight:800; color:var(--text); }
+        .exp-tot-item .etv.red { color:var(--red); }
+        .sync-btn { padding:7px 16px; border-radius:9px; background:rgba(59,130,246,.12); color:var(--blue); border:1px solid rgba(59,130,246,.2); font-size:.72rem; font-weight:700; cursor:pointer; font-family:'Inter',sans-serif; display:inline-flex; align-items:center; gap:6px; transition:background .2s; }
+        .sync-btn:hover { background:rgba(59,130,246,.25); }
+        .exp-placeholder { text-align:center; padding:40px; color:var(--dim); font-size:.88rem; }
     </style>
 </head>
 <body>
 <div class="wrap">
 
-    <!-- Top Bar with Logo + View Toggle -->
+    <!-- Top Bar -->
     <div class="top-bar">
         <div class="logo-block">
             <img src="cem-logo.png" alt="Channel Edge Media">
@@ -209,11 +224,9 @@
         </div>
     </div>
 
-    <!-- ════════════════════════════════════════════════════════════════
-         BREAKEVEN VIEW
-    ════════════════════════════════════════════════════════════════ -->
+    <!-- ════ BREAKEVEN VIEW ════ -->
     <div id="beView">
-        <div style="text-align:center; margin-bottom:28px;">
+        <div style="text-align:center;margin-bottom:28px;">
             <h1 style="font-size:1.6rem;font-weight:800;background:linear-gradient(135deg,#fff,#94a3b8);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">CEM Breakeven Tracker — Weekly View</h1>
             <p style="color:var(--muted);font-size:.9rem;margin-top:6px;">Revenue vs. Breakeven (Reduced &amp; Full Strength) · Last 5 Weeks + 3 Week Projection</p>
         </div>
@@ -251,8 +264,7 @@
                 <h4>3-Week Projection</h4>
                 <p>Based on the last 3 weeks, revenue has an <span class="hl">upward trend of +$12,906/week</span>.
                 Projected weeks 6–8 show revenue between <span class="hl">$91K–$104K/week</span> —
-                comfortably above reduced BE but still <span class="wn">$26K–$39K short</span> of full strength BE.
-                At current trajectory, CEM would need approximately <span class="wn">6–8 more weeks</span> of this growth rate to reach full strength breakeven.</p>
+                comfortably above reduced BE but still <span class="wn">$26K–$39K short</span> of full strength BE.</p>
             </div>
             <div class="insight" style="margin-top:12px;border-color:rgba(139,92,246,.3);background:rgba(139,92,246,.08)">
                 <h4>Path to Full Strength</h4>
@@ -271,77 +283,63 @@
         </div>
     </div>
 
-    <!-- ════════════════════════════════════════════════════════════════
-         CASH FLOW VIEW
-    ════════════════════════════════════════════════════════════════ -->
+    <!-- ════ CASH FLOW VIEW ════ -->
     <div id="cfView">
 
-        <!-- Controls row -->
-        <div class="cf-controls">
-            <span class="ctrl-label">Forecast:</span>
-            <div class="seg-ctrl">
-                <button class="seg-btn active blue" id="h1m" onclick="setHorizon(1,this)">1 Month</button>
-                <button class="seg-btn" id="h3m" onclick="setHorizon(3,this)">3 Months</button>
-                <button class="seg-btn" id="h4m" onclick="setHorizon(4,this)">4 Months</button>
-                <button class="seg-btn" id="h6m" onclick="setHorizon(6,this)">6 Months</button>
+        <!-- Header Strip: Balance + Date Range Selector -->
+        <div class="cf-header-strip">
+            <div>
+                <div style="display:flex;align-items:baseline;gap:8px">
+                    <span class="cf-bal-num pos" id="cfBalNum">+$25,097</span>
+                    <span style="font-size:.82rem;color:var(--muted)">Opening Balance — May 2026</span>
+                </div>
+                <div class="cf-bal-lbl">
+                    <span class="cf-bal-dot" id="cfBalDot"></span>
+                    <span id="cfBalSub">Cash balance at beginning of current month</span>
+                </div>
             </div>
-            <span class="ctrl-label" style="margin-left:8px">Scenario:</span>
-            <div class="seg-ctrl">
-                <button class="seg-btn active green" id="sConservative" onclick="setScenario('conservative',this)">Conservative</button>
-                <button class="seg-btn" id="sBase" onclick="setScenario('base',this)">Base Case</button>
-                <button class="seg-btn" id="sGrowth" onclick="setScenario('growth',this)">Growth</button>
-            </div>
-            <button onclick="openEntryModal()" style="margin-left:auto;background:rgba(59,130,246,.15);color:var(--blue);border:1px solid rgba(59,130,246,.3);border-radius:10px;padding:8px 18px;font-size:.78rem;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;">
-                + Enter Weekly Data
-            </button>
-        </div>
-
-        <!-- KPI tiles -->
-        <div class="kpi-row">
-            <div class="kpi">
-                <div class="kpi-label">Cash Position</div>
-                <div class="kpi-val" id="kpiPosition" style="color:var(--green)">$0</div>
-                <div class="kpi-sub">Current net balance</div>
-            </div>
-            <div class="kpi">
-                <div class="kpi-label">Avg Weekly Inflow</div>
-                <div class="kpi-val" id="kpiInflow" style="color:var(--green)">$0</div>
-                <div class="kpi-sub" id="kpiInflowSub">5-week average</div>
-            </div>
-            <div class="kpi">
-                <div class="kpi-label">Avg Weekly Outflow</div>
-                <div class="kpi-val" id="kpiOutflow" style="color:var(--red)">$0</div>
-                <div class="kpi-sub">5-week average</div>
-            </div>
-            <div class="kpi">
-                <div class="kpi-label">Avg Net Flow</div>
-                <div class="kpi-val" id="kpiNet">$0</div>
-                <div class="kpi-sub">Inflow minus outflow</div>
-            </div>
-            <div class="kpi">
-                <div class="kpi-label">Revenue Trend</div>
-                <div class="kpi-val" id="kpiTrend" style="font-size:1.3rem;">—</div>
-                <div class="kpi-sub" id="kpiTrendSub">Week over week</div>
+            <div class="cf-range-controls">
+                <span style="font-size:.75rem;color:var(--dim);font-weight:600;">DATE RANGE</span>
+                <select id="cfStart" onchange="renderCFView()">
+                    <option value="0">Feb 2026</option>
+                    <option value="1">Mar 2026</option>
+                    <option value="2">Apr 2026</option>
+                    <option value="3" selected>May 2026</option>
+                </select>
+                <span class="cf-range-arrow">→</span>
+                <select id="cfEnd" onchange="renderCFView()">
+                    <option value="3">May 2026</option>
+                    <option value="4">Jun 2026</option>
+                    <option value="5">Jul 2026</option>
+                    <option value="6">Aug 2026</option>
+                    <option value="7">Sep 2026</option>
+                    <option value="8" selected>Oct 2026</option>
+                </select>
+                <span class="cf-pill">📊 Main Scenario · Consolidated</span>
             </div>
         </div>
 
-        <!-- Waterfall chart -->
+        <!-- Overview Chart (AGI Cap style: bars + balance line) -->
         <div class="card">
-            <h2>💧 Cash Flow Waterfall <span id="chartPeriodLabel" style="color:var(--dim);font-weight:400;font-size:.85rem;margin-left:8px"></span></h2>
-            <div class="sub">Opening balance → Inflows (green) → Outflows (red) → Projected closing balance</div>
-            <div class="waterfall-wrap"><canvas id="waterfallChart"></canvas></div>
+            <h2>📊 Monthly Cash Flow Overview
+                <span style="font-size:.78rem;font-weight:400;color:var(--dim);margin-left:8px" id="cfChartLabel">Feb 2026 – Oct 2026</span>
+            </h2>
+            <div class="sub">Green = Inflows · Red = Outflows · Blue dotted line = Closing Cash Balance</div>
+            <div style="position:relative;height:250px">
+                <canvas id="cfOverviewChart"></canvas>
+            </div>
         </div>
 
-        <!-- Balance sheet table -->
-        <div class="card">
-            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px">
+        <!-- Cash Flow Statement Table -->
+        <div class="card" style="padding:0;overflow:hidden">
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:24px 28px 16px;flex-wrap:wrap;gap:10px">
                 <div>
                     <h2>📋 Cash Flow Statement</h2>
-                    <div class="sub" style="margin-bottom:0">Click any Vertical row to expand clients · Shaded = forecast</div>
+                    <div class="sub" style="margin-bottom:0">Click <strong>▶</strong> rows to expand · <span style="color:#93c5fd">Blue column</span> = current month · Italic = forecast · <span style="color:#ef4444">Red %</span> = over budget</div>
                 </div>
-                <div style="font-size:.7rem;color:var(--dim);text-align:right">
-                    Scenario: <span id="scenarioLabel" style="color:var(--blue);font-weight:700">Conservative</span><br>
-                    Horizon: <span id="horizonLabel" style="color:var(--blue);font-weight:700">1 Month</span>
+                <div style="display:flex;gap:8px">
+                    <button onclick="cfExpandAll()" style="background:rgba(59,130,246,.1);color:var(--blue);border:1px solid rgba(59,130,246,.2);border-radius:8px;padding:6px 14px;font-size:.72rem;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;">Expand All</button>
+                    <button onclick="cfCollapseAll()" style="background:rgba(255,255,255,.05);color:var(--muted);border:1px solid var(--border);border-radius:8px;padding:6px 14px;font-size:.72rem;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;">Collapse All</button>
                 </div>
             </div>
             <div style="overflow-x:auto">
@@ -349,88 +347,55 @@
             </div>
         </div>
 
-        <!-- Intelligent Forecast Flags -->
+        <!-- Forecast Intelligence -->
         <div class="card">
             <h2>🧠 Forecast Intelligence</h2>
-            <div class="sub">AI-driven analysis of growth drivers, risks, and assumptions</div>
-            <div class="flag-row" id="flagRow"></div>
+            <div class="sub">Key observations and risks from the cash flow data</div>
+            <div class="flag-row" id="cfFlagRow"></div>
+        </div>
+
+        <!-- Live Expenses from Google Sheet -->
+        <div class="card" id="liveExpCard">
+            <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:16px">
+                <div>
+                    <h2 style="margin-bottom:4px">📋 Live Expense Breakdown — Networks 2026 Sheet
+                        <span class="live-badge" style="margin-left:8px" id="liveBadge"><span class="pulse"></span>LIVE</span>
+                    </h2>
+                    <div style="font-size:.78rem;color:var(--dim)" id="liveLastSync">Loading from Google Sheet...</div>
+                </div>
+                <button class="sync-btn" onclick="triggerSheetSync()">🔄 Sync Now</button>
+            </div>
+
+            <!-- Month tabs -->
+            <div class="exp-tab-row" id="expTabRow"></div>
+
+            <!-- Content panel per tab -->
+            <div id="expPanelContainer"></div>
         </div>
 
     </div><!-- /cfView -->
 </div><!-- /wrap -->
 
-<!-- ── Data Entry Modal ────────────────────────────────────────────── -->
+<!-- ── Data Entry Modal ── -->
 <div class="modal-overlay" id="entryModal">
     <div class="modal">
         <h3>+ Enter Weekly Cash Flow Data</h3>
-        <div class="modal-sub">Enter actual revenue and costs for the week. Data is saved to your dashboard server.</div>
+        <div class="modal-sub">Enter actual revenue and costs for the week.</div>
         <div class="form-grid">
-            <div class="form-group">
-                <label>Week Ending Date</label>
-                <input type="date" id="entryDate">
-            </div>
-            <div class="form-group">
-                <label>Week Label (e.g. Wk6)</label>
-                <input type="text" id="entryWeekLabel" placeholder="Wk6">
-            </div>
+            <div class="form-group"><label>Week Ending Date</label><input type="date" id="entryDate"></div>
+            <div class="form-group"><label>Week Label (e.g. Wk6)</label><input type="text" id="entryWeekLabel" placeholder="Wk6"></div>
             <div class="form-group full"><label style="font-size:.8rem;color:var(--blue)">── REVENUE BY VERTICAL ──</label></div>
-            <div class="form-group">
-                <label>Home Services Revenue ($)</label>
-                <input type="number" id="eRevHomeServices" placeholder="0">
-            </div>
-            <div class="form-group">
-                <label>→ Solar</label>
-                <input type="number" id="eRevSolar" placeholder="0">
-            </div>
-            <div class="form-group">
-                <label>→ Home Improvement</label>
-                <input type="number" id="eRevHomeImprove" placeholder="0">
-            </div>
-            <div class="form-group">
-                <label>Insurance Revenue ($)</label>
-                <input type="number" id="eRevInsurance" placeholder="0">
-            </div>
-            <div class="form-group">
-                <label>→ Final Expense</label>
-                <input type="number" id="eRevFinalExpense" placeholder="0">
-            </div>
-            <div class="form-group">
-                <label>→ Medicare Supplement</label>
-                <input type="number" id="eRevMedicare" placeholder="0">
-            </div>
-            <div class="form-group">
-                <label>Internal Media Rev ($)</label>
-                <input type="number" id="eRevInternal" placeholder="0">
-            </div>
-            <div class="form-group">
-                <label>Other Revenue ($)</label>
-                <input type="number" id="eRevOther" placeholder="0">
-            </div>
-            <div class="form-group full"><label style="font-size:.8rem;color:var(--red)">── COSTS & OUTFLOWS ──</label></div>
-            <div class="form-group">
-                <label>Payroll / Labor ($)</label>
-                <input type="number" id="eCostPayroll" placeholder="0">
-            </div>
-            <div class="form-group">
-                <label>Lead / Data Costs ($)</label>
-                <input type="number" id="eCostLeads" placeholder="0">
-            </div>
-            <div class="form-group">
-                <label>→ Solar Lead Costs ($)</label>
-                <input type="number" id="eCostSolarLeads" placeholder="0">
-            </div>
-            <div class="form-group">
-                <label>→ Insurance Lead Costs ($)</label>
-                <input type="number" id="eCostInsLeads" placeholder="0">
-            </div>
-            <div class="form-group">
-                <label>Media Spend (Radio/TV) ($)</label>
-                <input type="number" id="eCostMedia" placeholder="0">
-            </div>
-            <div class="form-group">
-                <label>Operations / Overhead ($)</label>
-                <input type="number" id="eCostOps" placeholder="0">
-            </div>
+            <div class="form-group"><label>Legal Revenue ($)</label><input type="number" id="eRevLegal" placeholder="0"></div>
+            <div class="form-group"><label>Insurance Revenue ($)</label><input type="number" id="eRevInsurance" placeholder="0"></div>
+            <div class="form-group"><label>Home Services Revenue ($)</label><input type="number" id="eRevHomeServices" placeholder="0"></div>
+            <div class="form-group"><label>Travel Revenue ($)</label><input type="number" id="eRevTravel" placeholder="0"></div>
+            <div class="form-group"><label>Rehab Revenue ($)</label><input type="number" id="eRevRehab" placeholder="0"></div>
+            <div class="form-group"><label>Other Revenue ($)</label><input type="number" id="eRevOther" placeholder="0"></div>
+            <div class="form-group full"><label style="font-size:.8rem;color:var(--red)">── COSTS &amp; OUTFLOWS ──</label></div>
+            <div class="form-group"><label>Payroll / Staff ($)</label><input type="number" id="eCostPayroll" placeholder="0"></div>
+            <div class="form-group"><label>Management Fees ($)</label><input type="number" id="eCostMgmt" placeholder="0"></div>
+            <div class="form-group"><label>CC Payments ($)</label><input type="number" id="eCostCC" placeholder="0"></div>
+            <div class="form-group"><label>Other Costs ($)</label><input type="number" id="eCostOther" placeholder="0"></div>
         </div>
         <div class="modal-actions">
             <button class="btn-secondary" onclick="closeEntryModal()">Cancel</button>
@@ -526,7 +491,6 @@ function renderSources() {
     }).join('');
     const overdue=SOURCES.filter(s=>{if(s.badge==='pending')return false;const l=reviewDates[s.id];return!l||(Date.now()-new Date(l))>86400000;});
     note.innerHTML=overdue.length>0?`⚠️ <strong style="color:#f59e0b">${overdue.length} source${overdue.length>1?'s':''} overdue:</strong> ${overdue.map(s=>s.name).join(', ')}`:'✅ All active sources reviewed within 24 hours';
-
 }
 async function markReviewed(id) {
     const src=SOURCES.find(s=>s.id===id); if(!src||src.badge==='pending')return;
@@ -538,276 +502,546 @@ async function markReviewed(id) {
 loadSources();
 
 // ─────────────────────────────────────────────────────────────────────────────
-//  CASH FLOW ENGINE
+//  CASH FLOW ENGINE — AGI CAP STYLE
 // ─────────────────────────────────────────────────────────────────────────────
 
-// Actual weekly data — keyed by vertical/client
-// Week actuals: [wk1, wk2, wk3, wk4, wk5] (Apr13 → May11)
-const CF_ACTUALS = {
-    // Revenue
-    rev: {
-        homeServices:  { total:[22000,12000,18000, 8000,28000], clients:{ solar:[15000,7000,12000,4000,18000], homeImprove:[7000,5000,6000,4000,10000] }},
-        insurance:     { total:[60000,28000,38000,22000,50000], clients:{ finalExpense:[40000,18000,25000,15000,35000], medicare:[20000,10000,13000,7000,15000] }},
-        internalMedia: { total:[35000,12000,18000,12000,22000], clients:{ radio:[20000,7000,10000,7000,13000], tv:[15000,5000,8000,5000,9000] }},
-        other:         { total:[11669,6647,6097,5750,5910], clients:{} },
-    },
-    // Costs
-    cost: {
-        payroll:       { total:[30000,38000,22000,30000,50000], clients:{} },
-        leadData:      { total:[18000,35000,12000,25000,44000], clients:{ solarLeads:[8000,20000,5000,12000,20000], insLeads:[10000,15000,7000,13000,24000] }},
-        media:         { total:[10000,18000,8000,12000,22000], clients:{} },
-        operations:    { total:[7146, 8085, 4780, 5666,  8660], clients:{} },
-    }
-};
+// ── Month definitions (Feb 2026 – Oct 2026, 9 months)
+const CF_MONTHS = [
+    {label:'Feb 26', actual:true},
+    {label:'Mar 26', actual:true},
+    {label:'Apr 26', actual:true},
+    {label:'May 26', actual:true, current:true},  // index 3 = current
+    {label:'Jun 26', actual:false},
+    {label:'Jul 26', actual:false},
+    {label:'Aug 26', actual:false},
+    {label:'Sep 26', actual:false},
+    {label:'Oct 26', actual:false},
+];
 
-let cfHorizon  = 1;
-let cfScenario = 'conservative';
-let waterfallChartObj = null;
-const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+// ── Opening & Closing Balances (from Agicap)
+const CF_OPEN  = [157431,  2012, 31057,  25097, -335428, -157849, -113644,  23886, 152443];
+const CF_CLOSE = [  2012, 31057, 25097, -335428, -157849, -113644,  23886, 152443, 279404];
 
-function getMonthLabels(horizon) {
-    const now = new Date();
-    const result = [];
-    for(let i = 0; i < horizon; i++) {
-        const d = new Date(now.getFullYear(), now.getMonth() + i, 1);
-        result.push(MONTHS[d.getMonth()] + ' ' + d.getFullYear());
-    }
-    return result;
+// ── Row definitions
+// type: 'hdr' | 'group' | 'sub' | 'total' | 'net'
+// vals: actual/forecast for each of 9 months
+// budget: planned amounts (for % badge on actual months)
+const CF_ROWS = [
+    // ════ INFLOWS ════
+    {id:'hdr_in',   label:'💚  Cash Inflow',    type:'hdr',   inflow:true,  indent:0},
+
+    // Customer Inflows (total)
+    {id:'cust',     label:'Customer Inflows',   type:'group', inflow:true,  indent:1, parent:'hdr_in',
+     vals:  [562892, 572486, 209475,  938717,  946151,  981355,  997555, 1079388, 1045169],
+     budget:[550000, 550000, 550000, 1600000,  946151,  981355,  997555, 1079388, 1045169]},
+
+    // ── Legal vertical
+    {id:'legal',    label:'Legal',              type:'group', inflow:true,  indent:2, parent:'cust',
+     vals:  [179155, 162511,  73700,  205949,  203570,  210800,  271321,  214827,  218684],
+     budget:[  3985, 288000, 180000,  306000,  203570,  210800,  271321,  214827,  218684]},
+    {id:'lg_ssdi',  label:'SSDI',               type:'sub',   inflow:true,  indent:3, parent:'legal',
+     vals:  [  4255,   1591,      0,   13585,    5210,    6453,    7014,    6413,    6825],
+     budget:[  3985,   2840,      0,    3660,    5210,    6453,    7014,    6413,    6825]},
+    {id:'lg_mva',   label:'MVA',                type:'sub',   inflow:true,  indent:3, parent:'legal',
+     vals:  [     0,      0,      0,   10220,   13729,   18443,   14555,   16043,   16837],
+     budget:[     0,      0,      0,   18250,   13729,   18443,   14555,   16043,   16837]},
+    {id:'lg_mt',    label:'Mass Tort',          type:'sub',   inflow:true,  indent:3, parent:'legal',
+     vals:  [174800, 160920,  73700,  182143,  184630,  185904,  189753,  192365,  195021],
+     budget:[     0, 270000, 180000,  271000,  184630,  185904,  189753,  192365,  195021]},
+
+    // ── Home Services
+    {id:'hs',       label:'Home Services',      type:'group', inflow:true,  indent:2, parent:'cust',
+     vals:  [ 31838,   2879,    406,   18388,   15158,   19262,   19149,   17900,   18817],
+     budget:[  7820,  35000,  40000,  153000,   15158,   19262,   19149,   17900,   18817]},
+    {id:'hs_roof',  label:'Roofing',            type:'sub',   inflow:true,  indent:3, parent:'hs',
+     vals:  [ 15409,   1128,    217,    8665,    8417,    8179,    7763,    7450,    7784],
+     budget:[  4080,   9500,  10000,   33000,    8417,    8179,    7763,    7450,    7784]},
+    {id:'hs_floor', label:'Flooring',           type:'sub',   inflow:true,  indent:3, parent:'hs',
+     vals:  [ 16230,      0,      0,    8467,    5679,    7638,    7395,    7037,    7423],
+     budget:[  3750,      0,      0,       0,    5679,    7638,    7395,    7037,    7423]},
+    {id:'hs_move',  label:'Moving',             type:'sub',   inflow:true,  indent:3, parent:'hs',
+     vals:  [     0,      0,      0,      77,     102,     136,     105,     115,     119],
+     budget:[     0,      0,      0,       0,     102,     136,     105,     115,     119]},
+    {id:'hs_bath',  label:'Bathroom',           type:'sub',   inflow:true,  indent:3, parent:'hs',
+     vals:  [     0,      0,    134,      45,     116,     155,     161,     144,     153],
+     budget:[     0,      0,      0,       0,     116,     155,     161,     144,     153]},
+    {id:'hs_win',   label:'Windows',            type:'sub',   inflow:true,  indent:3, parent:'hs',
+     vals:  [   200,      0,     55,      89,      52,      69,      70,      64,      68],
+     budget:[     0,      0,     87,       0,      52,      69,      70,      64,      68]},
+    {id:'hs_gar',   label:'Garage Door',        type:'sub',   inflow:true,  indent:3, parent:'hs',
+     vals:  [     0,   1751,      0,     778,    1038,     800,     872,     903,     858],
+     budget:[     0,      0,      0,       0,    1038,     800,     872,     903,     858]},
+    {id:'hs_pest',  label:'Pest Control',       type:'sub',   inflow:true,  indent:3, parent:'hs',
+     vals:  [     0,      0,      0,       0,    1556,    2584,    2793,    2187,    2402],
+     budget:[     0,      0,      0,       0,    1556,    2584,    2793,    2187,    2402]},
+    {id:'hs_plumb', label:'Plumbing',           type:'sub',   inflow:true,  indent:3, parent:'hs',
+     vals:  [     0,      0,      0,     268,       0,       0,       0,       0,       0],
+     budget:[     0,      0,      0,       0,       0,       0,       0,       0,       0]},
+    {id:'hs_sol',   label:'Solar',              type:'sub',   inflow:true,  indent:3, parent:'hs',
+     vals:  [     0,      0,      0,       0,       0,       0,       0,       0,       0],
+     budget:[     0,      0,      0,       0,       0,       0,       0,       0,       0]},
+
+    // ── Insurance
+    {id:'ins',      label:'Insurance',          type:'group', inflow:true,  indent:2, parent:'cust',
+     vals:  [209873, 282003, 106853,  587424,  607504,  626344,  640549,  659245,  677481],
+     budget:[474710, 353000, 316000,  917000,  607504,  626344,  640549,  659245,  677481]},
+    {id:'ins_fe',   label:'Final Expense',      type:'sub',   inflow:true,  indent:3, parent:'ins',
+     vals:  [ 65003, 162003,  71522,  305578,  314746,  324169,  333914,  343931,  354249],
+     budget:[260000, 197000, 170000,  437000,  314746,  324169,  333914,  343931,  354249]},
+    {id:'ins_med',  label:'Medicare',           type:'sub',   inflow:true,  indent:3, parent:'ins',
+     vals:  [ 30398,  16890,  13337,  177954,  183293,  188791,  194455,  200289,  206297],
+     budget:[ 42800,  33000,  17300,  201900,  183293,  188791,  194455,  200289,  206297]},
+    {id:'ins_aca',  label:'ACA',                type:'sub',   inflow:true,  indent:3, parent:'ins',
+     vals:  [ 47470,  52975,   3002,   58322,   62048,   65163,   63700,   66546,   66747],
+     budget:[ 41700,  56500,  75000,  832000,   62048,   65163,   63700,   66546,   66747]},
+    {id:'ins_hi',   label:'Home Insurance',     type:'sub',   inflow:true,  indent:3, parent:'ins',
+     vals:  [ 31799,  21402,    666,   26283,   24389,   25415,   26123,   26068,   26645],
+     budget:[ 22100,  28500,  22200,  164000,   24389,   25415,   26123,   26068,   26645]},
+    {id:'ins_ai',   label:'Auto Insurance',     type:'sub',   inflow:true,  indent:3, parent:'ins',
+     vals:  [  8240,  17864,  13426,   15359,   17803,   17775,   17489,   18220,   18363],
+     budget:[  1797,   4620,  10330,  381000,   17803,   17775,   17489,   18220,   18363]},
+    {id:'ins_sl',   label:'Senior Life',        type:'sub',   inflow:true,  indent:3, parent:'ins',
+     vals:  [ 26964,    150,      0,     159,     164,     169,     174,     179,     184],
+     budget:[     0,      0,      0,       0,     164,     169,     174,     179,     184]},
+    {id:'ins_u85',  label:'U85',                type:'sub',   inflow:true,  indent:3, parent:'ins',
+     vals:  [     0,   5700,   4900,    3788,    5062,    4843,    4694,    5012,    4995],
+     budget:[     0,      0,   2110,   37000,    5062,    4843,    4694,    5012,    4995]},
+
+    // ── Travel
+    {id:'travel',   label:'Travel',             type:'group', inflow:true,  indent:2, parent:'cust',
+     vals:  [ 91894,  95967,  19517,   97740,   99747,  101044,  102496,  104129,  105633],
+     budget:[ 22850,  87000,  97600,  465000,   99747,  101044,  102496,  104129,  105633]},
+    {id:'tr_fl',    label:'Flights',            type:'sub',   inflow:true,  indent:3, parent:'travel',
+     vals:  [ 91894,  95967,  19517,   97740,   99747,  101044,  102496,  104129,  105633],
+     budget:[ 22850,  87000,  97600,  465000,   99747,  101044,  102496,  104129,  105633]},
+
+    // ── Debt
+    {id:'debt',     label:'Debt',               type:'group', inflow:true,  indent:2, parent:'cust',
+     vals:  [ 28000,   7125,      0,   16217,   12171,   13903,   14520,   13937,   14544],
+     budget:[ 19630, 123000,      0,       0,   12171,   13903,   14520,   13937,   14544]},
+    {id:'dbt_tax',  label:'Tax Debt',           type:'sub',   inflow:true,  indent:3, parent:'debt',
+     vals:  [ 28000,   7125,      0,   16200,   12149,   13874,   14496,   13911,   14517],
+     budget:[ 19630,  22200,      0,       0,   12149,   13874,   14496,   13911,   14517]},
+    {id:'dbt_res',  label:'Debt Resolution',    type:'sub',   inflow:true,  indent:3, parent:'debt',
+     vals:  [     0,      0,      0,      17,      22,      30,      24,      26,      27],
+     budget:[     0,      0,      0,       0,      22,      30,      24,      26,      27]},
+    {id:'dbt_cr',   label:'Credit Repair',      type:'sub',   inflow:true,  indent:3, parent:'debt',
+     vals:  [     0,      0,      0,       0,       0,       0,       0,       0,       0],
+     budget:[     0,      0,      0,       0,       0,       0,       0,       0,       0]},
+
+    // ── Rehab / Weight Loss / Mortgage
+    {id:'rehab',    label:'Rehab',              type:'sub',   inflow:true,  indent:2, parent:'cust',
+     vals:  [  8930,   2000,   9000,   13000,    8000,   10000,    9520,    9357,   10000],
+     budget:[     0,      0,   4390,    4530,    5560,    7630,    7260,    9050,    9800]},
+    {id:'wloss',    label:'Weight Loss',        type:'sub',   inflow:true,  indent:2, parent:'cust',
+     vals:  [ 16000,      0,      0,       0,       0,       0,       0,       0,       0],
+     budget:[     0,      0,      0,       0,       0,       0,       0,       0,       0]},
+    {id:'mort',     label:'Mortgage',           type:'group', inflow:true,  indent:2, parent:'cust',
+     vals:  [     0,      0,      0,       0,       0,       0,       0,       0,       0],
+     budget:[     0,      0,      0,       0,       0,       0,       0,       0,       0]},
+    {id:'mort_b',   label:'Purchase',           type:'sub',   inflow:true,  indent:3, parent:'mort',
+     vals:  [     0,      0,      0,       0,       0,       0,       0,       0,       0],
+     budget:[     0,      0,      0,       0,       0,       0,       0,       0,       0]},
+    {id:'mort_r',   label:'Refinance',          type:'sub',   inflow:true,  indent:3, parent:'mort',
+     vals:  [     0,      0,      0,       0,       0,       0,       0,       0,       0],
+     budget:[     0,      0,      0,       0,       0,       0,       0,       0,       0]},
+
+    // ── Other Inflows
+    {id:'inv_fin',  label:'Invoice Financing',  type:'sub',   inflow:true,  indent:1, parent:'hdr_in',
+     vals:  [160899,  13766,      0,    1448,       0,       0,       0,       0,       0],
+     budget:[     0,      0,      0,       0,       0,       0,       0,       0,       0]},
+    {id:'oth_in',   label:'Other Operational Inflows', type:'sub', inflow:true, indent:1, parent:'hdr_in',
+     vals:  [  1750,  36000,   3630,    4158,       0,       0,       0,       0,       0],
+     budget:[     0,      0,      0,       0,       0,       0,       0,       0,       0]},
+    {id:'uncat',    label:'Uncategorized',       type:'sub',   inflow:true,  indent:1, parent:'hdr_in',
+     vals:  [     0,      0, 161478,  277791,   47231,       0,       0,       0,       0],
+     budget:[     0,      0,      0,       0,   47231,       0,       0,       0,       0]},
+
+    // ── Total Inflow
+    {id:'tot_in',   label:'TOTAL CASH INFLOW',  type:'total', inflow:true,  indent:0,
+     vals:  [777541, 657242, 387903, 1222112,  993381,  981355,  997555, 1079388, 1045169],
+     budget:[900000, 900000, 900000, 1900000,  993381,  981355,  997555, 1079388, 1045169]},
+
+    // ════ OUTFLOWS ════
+    {id:'hdr_out',  label:'🔴  Cash Outflow',   type:'hdr',   inflow:false, indent:0},
+
+    // G&A
+    {id:'gna',      label:'G&A Expenses',       type:'group', inflow:false, indent:1, parent:'hdr_out',
+     vals:  [134278, 109644,  47050,  105000,  106140,  106140,  106140,  106140,  106140],
+     budget:[ 95250,  95250,  95250,  122000,  106140,  106140,  106140,  106140,  106140]},
+    {id:'gna_net',  label:'Management Fee Networks', type:'sub', inflow:false, indent:2, parent:'gna',
+     vals:  [123414, 106000,  47050,   95000,   95000,   95000,   95000,   95000,   95000],
+     budget:[ 94920,  94640,  94100,  105550,   95000,   95000,   95000,   95000,   95000]},
+    {id:'gna_co',   label:'Management Fee Companies', type:'sub', inflow:false, indent:2, parent:'gna',
+     vals:  [     0,      0,      0,   10000,   10000,   10000,   10000,   10000,   70000],
+     budget:[     0,      0,      0,   19250,   10000,   10000,   10000,   10000,   70000]},
+    {id:'gna_prof', label:'Professional Fees',  type:'sub',   inflow:false, indent:2, parent:'gna',
+     vals:  [ 10864,   1719,      0,       0,       0,       0,       0,       0,       0],
+     budget:[     0,      0,      0,       0,       0,       0,       0,       0,       0]},
+    {id:'gna_mkt',  label:'Marketing & Advertising', type:'sub', inflow:false, indent:2, parent:'gna',
+     vals:  [     0,   1925,      0,       0,       0,       0,       0,       0,       0],
+     budget:[     0,      0,      0,       0,       0,       0,       0,       0,       0]},
+    {id:'gna_ins',  label:'Insurances',          type:'sub',   inflow:false, indent:2, parent:'gna',
+     vals:  [     0,      0,      0,       0,    1140,    1140,    1140,    1140,    1140],
+     budget:[     0,      0,      0,       0,    1140,    1140,    1140,    1140,    1140]},
+
+    // Staff
+    {id:'staff',    label:'Staff Expenses',      type:'group', inflow:false, indent:1, parent:'hdr_out',
+     vals:  [ 56729,  38698,  20920,   46000,   50000,   50000,   50000,   50000,   50000],
+     budget:[ 44320,  46100,  46380,  104700,   50000,   50000,   50000,   50000,   50000]},
+    {id:'st_pay',   label:'Payroll',             type:'sub',   inflow:false, indent:2, parent:'staff',
+     vals:  [ 58729,  38698,  20920,   46000,   50000,   50000,   50000,   50000,   50000],
+     budget:[ 45900,  46100,  46380,  104700,   50000,   50000,   50000,   50000,   50000]},
+    {id:'st_contr', label:'Contractors',         type:'sub',   inflow:false, indent:2, parent:'staff',
+     vals:  [     0,      0,      0,       0,       0,       0,       0,       0,       0],
+     budget:[     0,      0,      0,       0,       0,       0,       0,       0,       0]},
+    {id:'st_bene',  label:'Benefits & Pensions', type:'sub',   inflow:false, indent:2, parent:'staff',
+     vals:  [     0,      0,      0,       0,       0,       0,       0,       0,       0],
+     budget:[     0,      0,      0,       0,       0,       0,       0,       0,       0]},
+
+    // Media COGS
+    {id:'cogs',     label:'Media COGS',          type:'group', inflow:false, indent:1, parent:'hdr_out',
+     vals:  [  9387,  33516,    407,  241386,       0,       0,       0,       0,       0],
+     budget:[     0,      0,      0,       0,       0,       0,       0,       0,       0]},
+    {id:'cg_tv',    label:'TV COGS',             type:'sub',   inflow:false, indent:2, parent:'cogs',
+     vals:  [     0,  32455,      0,  209161,       0,       0,       0,       0,       0],
+     budget:[     0,      0,      0,       0,       0,       0,       0,       0,       0]},
+    {id:'cg_fb',    label:'Facebook COGS',       type:'sub',   inflow:false, indent:2, parent:'cogs',
+     vals:  [     0,   1020,      0,   32103,       0,       0,       0,       0,       0],
+     budget:[     0,      0,      0,       0,       0,       0,       0,       0,       0]},
+    {id:'cg_dig',   label:'Digital COGS',        type:'sub',   inflow:false, indent:2, parent:'cogs',
+     vals:  [  9387,     41,    407,     122,       0,       0,       0,       0,       0],
+     budget:[     0,      0,      0,       0,       0,       0,       0,       0,       0]},
+
+    // CC Payments
+    {id:'cc_pay',   label:'CC Payments',         type:'sub',   inflow:false, indent:1, parent:'hdr_out',
+     vals:  [202211, 136000, 208000,  199084,  198011,  319302,  211630,  215937,  222091],
+     budget:[235000, 158000, 240000,  383000,  198011,  319302,  211630,  215937,  222091]},
+
+    // Financing
+    {id:'fin',      label:'Financing Outflows',  type:'group', inflow:false, indent:1, parent:'hdr_out',
+     vals:  [ 45333,  45333,  28333,   17000,       0,       0,       0,       0,       0],
+     budget:[     0,      0,      0,       0,       0,       0,       0,       0,       0]},
+    {id:'fin_l',    label:'Financial Leasing',   type:'sub',   inflow:false, indent:2, parent:'fin',
+     vals:  [ 45333,  45333,  28333,   17000,       0,       0,       0,       0,       0],
+     budget:[     0,      0,      0,       0,       0,       0,       0,       0,       0]},
+    {id:'fin_d',    label:'Paid Dividends',      type:'sub',   inflow:false, indent:2, parent:'fin',
+     vals:  [     0,      0,      0,       0,       0,       0,       0,       0,       0],
+     budget:[     0,      0,      0,       0,       0,       0,       0,       0,       0]},
+
+    // Cash Transfers (out)
+    {id:'xfr',      label:'Cash Transfers',      type:'group', inflow:false, indent:1, parent:'hdr_out',
+     vals:  [ 61000,  27000,      0,       0,       0,       0,       0,       0,       0],
+     budget:[     0,      0,      0,       0,       0,       0,       0,       0,       0]},
+    {id:'xfr_ic',   label:'Intercompany / Shareholder', type:'sub', inflow:false, indent:2, parent:'xfr',
+     vals:  [ 61000,      0,      0,       0,       0,       0,       0,       0,       0],
+     budget:[     0,      0,      0,       0,       0,       0,       0,       0,       0]},
+    {id:'xfr_in',   label:'Intracompany',        type:'sub',   inflow:false, indent:2, parent:'xfr',
+     vals:  [     0,  27000,      0,       0,       0,       0,       0,       0,       0],
+     budget:[     0,      0,      0,       0,       0,       0,       0,       0,       0]},
+
+    // Investment / Banking / Other
+    {id:'invest',   label:'Investment Outflows', type:'group', inflow:false, indent:1, parent:'hdr_out',
+     vals:  [ 25000,      0,      0,       0,       0,       0,       0,       0,       0],
+     budget:[     0,      0,      0,       0,       0,       0,       0,       0,       0]},
+    {id:'inv_cap',  label:'Capital Expenditures',type:'sub',   inflow:false, indent:2, parent:'invest',
+     vals:  [ 25000,      0,      0,       0,       0,       0,       0,       0,       0],
+     budget:[     0,      0,      0,       0,       0,       0,       0,       0,       0]},
+    {id:'banking',  label:'Banking Fees',        type:'sub',   inflow:false, indent:1, parent:'hdr_out',
+     vals:  [  3993,   3392,   1697,    3458,       0,       0,       0,       0,       0],
+     budget:[     0,      0,      0,       0,       0,       0,       0,       0,       0]},
+    {id:'ic_out',   label:'Intercompany Operating Outflows', type:'sub', inflow:false, indent:1, parent:'hdr_out',
+     vals:  [100000,  55000,      0,       0,       0,       0,       0,       0,       0],
+     budget:[     0,      0,      0,       0,       0,       0,       0,       0,       0]},
+    {id:'pub',      label:'Publisher Costs',     type:'sub',   inflow:false, indent:1, parent:'hdr_out',
+     vals:  [     0,      0,      0,       0,       0,       0,       0,       0,       0],
+     budget:[     0,      0,      0,       0,       0,       0,       0,       0,       0]},
+    {id:'refunds',  label:'Sales Refunds',       type:'sub',   inflow:false, indent:1, parent:'hdr_out',
+     vals:  [     0,      0,      0,       0,       0,       0,       0,       0,       0],
+     budget:[     0,      0,      0,       0,       0,       0,       0,       0,       0]},
+    // Unclassified remainder (balance-sheet closure)
+    {id:'unc_out',  label:'Other / Unclassified', type:'sub',  inflow:false, indent:1, parent:'hdr_out',
+     vals:  [295029, 179614,  87456,  970709,  461651,  561708,  492255,  578754,  539977],
+     budget:[     0,      0,      0,       0,  461651,  561708,  492255,  578754,  539977]},
+
+    // Total Outflow
+    {id:'tot_out',  label:'TOTAL CASH OUTFLOW',  type:'total', inflow:false, indent:0,
+     vals:  [932960, 628197, 393863, 1582637,  815802,  937150,  860025,  950831,  918208],
+     budget:[932960, 628197, 393863, 1582637,  815802,  937150,  860025,  950831,  918208]},
+
+    // Net Change
+    {id:'net',      label:'Net Change in Cash Flow', type:'net', indent:0,
+     vals:  [-155419,  29045,  -5960, -360525,  177579,   44205,  137530,  128557,  126961],
+     budget:[     0,       0,      0,       0,       0,       0,       0,       0,       0]},
+];
+
+// ── Expand/collapse state
+const cfExpanded = new Set(['hdr_in','cust','legal','hs','ins','travel','debt','hdr_out','gna','staff','cogs','fin','xfr','invest','cc_pay']);
+
+// ── Visible months range (driven by dropdowns)
+let cfStartIdx = 3; // May 26
+let cfEndIdx   = 8; // Oct 26
+
+// ── Overview chart instance
+let cfChartObj = null;
+
+// ── % badge helper
+function pctBadge(actual, budget, isActual) {
+    if (!isActual || budget <= 0 || actual === 0) return '';
+    const pct = Math.round(actual / budget * 100);
+    if (Math.abs(pct - 100) < 5) return `<span class="pct pct-near">${pct}%</span>`;
+    return pct > 100
+        ? `<span class="pct pct-over">${pct}%</span>`
+        : `<span class="pct pct-under">${pct}%</span>`;
 }
 
-function avgLast(arr, n) {
-    const slice = arr.slice(-n);
-    return slice.reduce((a,b)=>a+b,0)/slice.length;
+// ── Format currency
+function fmt(n) {
+    if (n === 0) return '<span style="color:#334155">0</span>';
+    return (n >= 0 ? '' : '-') + '$' + Math.abs(Math.round(n)).toLocaleString();
+}
+function fmtNet(n) {
+    return (n >= 0 ? '+' : '-') + '$' + Math.abs(Math.round(n)).toLocaleString();
 }
 
-function trendPerWeek(arr) {
-    if(arr.length < 2) return 0;
-    const n = arr.length;
-    let sumX=0,sumY=0,sumXY=0,sumX2=0;
-    arr.forEach((v,i)=>{sumX+=i;sumY+=v;sumXY+=i*v;sumX2+=i*i;});
-    return (n*sumXY - sumX*sumY)/(n*sumX2 - sumX*sumX);
+// ── Check if row is visible (parent expanded)
+function isVisible(row) {
+    if (!row.parent) return true;
+    if (!cfExpanded.has(row.parent)) return false;
+    const parentRow = CF_ROWS.find(r => r.id === row.parent);
+    if (!parentRow) return true;
+    return isVisible(parentRow);
 }
 
-function forecastMonthly(weeklyArr, months) {
-    const weeksPerMonth = 4.33;
-    const trend = trendPerWeek(weeklyArr);
-    const baseAvg3 = avgLast(weeklyArr, 3);
-    const baseAvg5 = avgLast(weeklyArr, 5);
-    const lastVal  = weeklyArr[weeklyArr.length-1];
+// ── Build table HTML
+function buildCFTable(visMonths) {
+    const tbl = document.getElementById('cfTable');
+    let html = '';
 
-    return Array.from({length: months}, (_,i) => {
-        const weekOffset = (i + 1) * weeksPerMonth;
-        let weeklyForecast;
-        if(cfScenario === 'conservative') weeklyForecast = baseAvg5; // pure 5-week avg, no growth
-        else if(cfScenario === 'base')    weeklyForecast = baseAvg3 + trend * (weekOffset/2); // weighted
-        else                              weeklyForecast = lastVal + trend * weekOffset; // full trend
-        return Math.max(0, Math.round(weeklyForecast * weeksPerMonth));
+    // Header
+    html += '<thead><tr><th style="text-align:left;min-width:240px">Category</th>';
+    visMonths.forEach(mi => {
+        const m = CF_MONTHS[mi];
+        html += `<th class="${m.current?'curr-hdr':''}">${m.label}${m.current?' ●':''}</th>`;
     });
+    html += '</tr></thead><tbody>';
+
+    // Opening Balance
+    html += '<tr class="cf-bal-row">';
+    html += '<td>🔵 Cash Balance at Beginning of Month</td>';
+    visMonths.forEach(mi => {
+        const v = CF_OPEN[mi];
+        const cls = CF_MONTHS[mi].current ? 'curr' : '';
+        html += `<td class="${cls}" style="color:${v>=0?'#93c5fd':'#f87171'}">${fmt(v)}</td>`;
+    });
+    html += '</tr>';
+
+    // Data rows
+    CF_ROWS.forEach(row => {
+        if (!isVisible(row)) return;
+
+        const isGroup = row.type === 'group';
+        const isHdr   = row.type === 'hdr';
+        const isTotal = row.type === 'total';
+        const isNet   = row.type === 'net';
+        const isSub   = row.type === 'sub';
+
+        let rowCls = '';
+        if (isHdr)   rowCls = `cf-hdr-row${row.inflow===false?' out':''}`;
+        if (isGroup) rowCls = `cf-group-row ind${row.indent}${cfExpanded.has(row.id)?' open':''}`;
+        if (isSub)   rowCls = `cf-sub-row ind${row.indent}`;
+        if (isTotal) rowCls = `cf-total-row ${row.inflow?'in':'out'}`;
+        if (isNet)   {
+            const mayVal = row.vals ? row.vals[3] : 0;
+            rowCls = `cf-net-row${mayVal < 0 ? ' neg' : ''}`;
+        }
+
+        html += `<tr class="${rowCls}"${isGroup?` onclick="cfToggle('${row.id}')"`:''}`;
+        html += ` data-id="${row.id}">`;
+        html += `<td>${row.label}</td>`;
+
+        if (row.vals) {
+            visMonths.forEach(mi => {
+                const v   = row.vals[mi];
+                const bud = row.budget ? row.budget[mi] : 0;
+                const m   = CF_MONTHS[mi];
+                const isAct = m.actual;
+                const curr  = m.current;
+                const fcls  = isAct ? '' : 'forecast-val';
+                const ccls  = curr ? 'curr' : '';
+                const combined = [ccls, fcls].filter(Boolean).join(' ');
+
+                let cellHtml = '';
+                if (isNet) {
+                    const color = v >= 0 ? 'var(--green)' : 'var(--red)';
+                    cellHtml = `<span style="color:${color}">${fmtNet(v)}</span>`;
+                } else if (isTotal) {
+                    cellHtml = fmt(v);
+                } else {
+                    cellHtml = fmt(v) + pctBadge(v, bud, isAct);
+                }
+                html += `<td class="${combined}">${cellHtml}</td>`;
+            });
+        } else {
+            visMonths.forEach(mi => {
+                html += `<td class="${CF_MONTHS[mi].current?'curr':''}"></td>`;
+            });
+        }
+        html += '</tr>';
+    });
+
+    // Closing Balance
+    html += '<tr class="cf-bal-row">';
+    html += '<td>🔵 End of Month Cash Balance</td>';
+    visMonths.forEach(mi => {
+        const v = CF_CLOSE[mi];
+        const cls = CF_MONTHS[mi].current ? 'curr' : '';
+        html += `<td class="${cls}" style="color:${v>=0?'#93c5fd':'#f87171'}">${fmt(v)}</td>`;
+    });
+    html += '</tr>';
+
+    html += '</tbody>';
+    tbl.innerHTML = html;
 }
 
-function buildCFData() {
-    const actRevTotals  = ['homeServices','insurance','internalMedia','other'].map(k => CF_ACTUALS.rev[k].total.reduce((a,b)=>a+b,0));
-    const actCostTotals = ['payroll','leadData','media','operations'].map(k => CF_ACTUALS.cost[k].total.reduce((a,b)=>a+b,0));
+// ── Build overview chart
+function buildCFChart(visMonths) {
+    const labels  = visMonths.map(i => CF_MONTHS[i].label);
+    const inflows = visMonths.map(i => CF_ROWS.find(r=>r.id==='tot_in').vals[i]);
+    const outflows= visMonths.map(i => CF_ROWS.find(r=>r.id==='tot_out').vals[i]);
+    const balance = visMonths.map(i => CF_CLOSE[i]);
 
-    const weeklyRevAll  = CF_ACTUALS.rev.homeServices.total.map((_,i) =>
-        ['homeServices','insurance','internalMedia','other'].reduce((s,k)=>s+CF_ACTUALS.rev[k].total[i],0)
-    );
-    const weeklyExpAll  = CF_ACTUALS.cost.payroll.total.map((_,i) =>
-        ['payroll','leadData','media','operations'].reduce((s,k)=>s+CF_ACTUALS.cost[k].total[i],0)
-    );
+    const inColors  = visMonths.map(i => CF_MONTHS[i].actual ? 'rgba(16,185,129,.7)'  : 'rgba(16,185,129,.3)');
+    const outColors = visMonths.map(i => CF_MONTHS[i].actual ? 'rgba(239,68,68,.65)'  : 'rgba(239,68,68,.25)');
 
-    const forecastRev  = forecastMonthly(weeklyRevAll,  cfHorizon);
-    const forecastCost = forecastMonthly(weeklyExpAll,  cfHorizon);
+    if (cfChartObj) { cfChartObj.destroy(); cfChartObj = null; }
 
-    return { weeklyRevAll, weeklyExpAll, forecastRev, forecastCost };
-}
-
-function updateKPIs() {
-    const {weeklyRevAll, weeklyExpAll} = buildCFData();
-    const avgRev  = Math.round(avgLast(weeklyRevAll,5));
-    const avgCost = Math.round(avgLast(weeklyExpAll,5));
-    const avgNet  = avgRev - avgCost;
-    const totalRev  = weeklyRevAll.reduce((a,b)=>a+b,0);
-    const totalCost = weeklyExpAll.reduce((a,b)=>a+b,0);
-    const position  = totalRev - totalCost;
-    const trend = trendPerWeek(weeklyRevAll);
-
-    document.getElementById('kpiPosition').textContent = '$'+Math.abs(position).toLocaleString();
-    document.getElementById('kpiPosition').style.color = position>=0?'var(--green)':'var(--red)';
-    document.getElementById('kpiInflow').textContent  = '$'+avgRev.toLocaleString();
-    document.getElementById('kpiOutflow').textContent = '$'+avgCost.toLocaleString();
-    document.getElementById('kpiNet').textContent     = (avgNet>=0?'+':'-')+'$'+Math.abs(avgNet).toLocaleString();
-    document.getElementById('kpiNet').style.color     = avgNet>=0?'var(--green)':'var(--red)';
-    const trendStr = (trend>=0?'+':'')+'$'+Math.round(trend*4.33).toLocaleString()+'/mo';
-    document.getElementById('kpiTrend').textContent   = trendStr;
-    document.getElementById('kpiTrend').style.color   = trend>=0?'var(--green)':'var(--red)';
-    document.getElementById('kpiTrendSub').textContent = trend>=0?'Upward trend':'Downward trend';
-}
-
-function renderWaterfall() {
-    const {forecastRev, forecastCost} = buildCFData();
-    const labels    = getMonthLabels(cfHorizon);
-    const nets      = forecastRev.map((r,i) => r - forecastCost[i]);
-    const opening   = rev.slice(0,5).reduce((a,b)=>a+b,0) - exp.slice(0,5).reduce((a,b)=>a+b,0);
-
-    document.getElementById('chartPeriodLabel').textContent = '· ' + labels[0] + (cfHorizon>1?' – '+labels[labels.length-1]:'');
-
-    const wfLabels    = ['Opening', ...labels, 'Closing'];
-    const wfData      = [opening, ...nets];
-    let running = opening;
-    const colors = [running>=0?'rgba(16,185,129,.7)':'rgba(239,68,68,.7)'];
-    nets.forEach(n => { running+=n; colors.push(n>=0?'rgba(16,185,129,.6)':'rgba(239,68,68,.6)'); });
-    running = opening + nets.reduce((a,b)=>a+b,0);
-    wfData.push(running);
-    colors.push(running>=0?'#10b981':'#ef4444');
-
-    if(waterfallChartObj) { waterfallChartObj.destroy(); waterfallChartObj=null; }
-    waterfallChartObj = new Chart(document.getElementById('waterfallChart'),{
-        type:'bar',
-        data:{ labels:wfLabels, datasets:[{
-            label:'Cash', data:wfData, backgroundColor:colors,
-            borderColor:colors.map(c=>c.replace(/[\d.]+\)$/,'1)')),
-            borderWidth:2, borderRadius:6,
-        }]},
-        options:{
+    cfChartObj = new Chart(document.getElementById('cfOverviewChart'), {
+        type: 'bar',
+        data: {
+            labels,
+            datasets: [
+                { label:'Cash Inflow',  data: inflows,  backgroundColor: inColors,
+                  borderColor: inColors.map(c=>c.replace(/[\d.]+\)$/,'1)')), borderWidth:1, borderRadius:4, order:2 },
+                { label:'Cash Outflow', data: outflows, backgroundColor: outColors,
+                  borderColor: outColors.map(c=>c.replace(/[\d.]+\)$/,'1)')), borderWidth:1, borderRadius:4, order:3 },
+                { label:'Closing Balance', data: balance, type:'line',
+                  borderColor:'#3b82f6', borderWidth:2.5, borderDash:[6,4], pointRadius:5,
+                  pointBackgroundColor:balance.map(v=>v>=0?'#3b82f6':'#ef4444'),
+                  pointBorderColor:'#fff', pointBorderWidth:2, fill:false, tension:.3, order:1,
+                  segment:{borderDash:ctx=>visMonths[ctx.p0DataIndex]>=4?[6,4]:undefined} }
+            ]
+        },
+        options: {
             responsive:true, maintainAspectRatio:false,
-            plugins:{ legend:{display:false}, tooltip:{ backgroundColor:'#1a2236', titleColor:'#f1f5f9', bodyColor:'#94a3b8',
-                callbacks:{ label:ctx=>`$${Math.abs(ctx.raw).toLocaleString()} ${ctx.raw<0?'(outflow)':''}` }}},
-            scales:{ y:{ ticks:{callback:v=>'$'+Math.round(v/1000)+'K'}, grid:{color:'rgba(30,41,59,.2)'} }, x:{grid:{display:false}} }
+            interaction:{intersect:false, mode:'index'},
+            plugins:{
+                legend:{display:true, position:'top', labels:{color:'#94a3b8',font:{size:11},boxWidth:12,padding:16}},
+                tooltip:{
+                    backgroundColor:'#1a2236', titleColor:'#f1f5f9', bodyColor:'#94a3b8',
+                    borderColor:'#1e293b', borderWidth:1, padding:12,
+                    callbacks:{label:ctx=>`${ctx.dataset.label}: $${Math.abs(ctx.raw).toLocaleString()}`}
+                }
+            },
+            scales:{
+                y:{ticks:{callback:v=>'$'+Math.round(v/1000)+'K', color:'#64748b'}, grid:{color:'rgba(30,41,59,.4)'}},
+                x:{grid:{display:false}, ticks:{color:ctx=>CF_MONTHS[visMonths[ctx.index]]?.current?'#93c5fd':'#94a3b8'}}
+            }
         }
     });
 }
 
-function renderCFTable() {
-    const months     = getMonthLabels(cfHorizon);
-    const {forecastRev, forecastCost} = buildCFData();
-
-    const actualMonthRev  = weeklyToMonthly(CF_ACTUALS.rev);
-    const actualMonthCost = weeklyToMonthly(CF_ACTUALS.cost);
-
-    const t = document.getElementById('cfTable');
-
-    // Build header
-    let hdr = `<thead><tr><th style="text-align:left;min-width:220px">Category</th>`;
-    hdr += `<th>Actual (5wk)</th>`;
-    months.forEach((m,i) => hdr += `<th class="cf-forecast-hdr${i===0?' first':''}">${m}*</th>`);
-    hdr += `</tr></thead>`;
-
-    // Revenue section
-    const revDefs = [
-        { key:'homeServices',  label:'Home Services', clients:[{key:'solar',label:'Solar'},{key:'homeImprove',label:'Home Improvement'}]},
-        { key:'insurance',     label:'Insurance',     clients:[{key:'finalExpense',label:'Final Expense'},{key:'medicare',label:'Medicare Supplement'}]},
-        { key:'internalMedia', label:'Internal Media (Radio/TV)', clients:[{key:'radio',label:'Radio'},{key:'tv',label:'TV'}]},
-        { key:'other',         label:'Other Revenue', clients:[]},
-    ];
-    const costDefs = [
-        { key:'payroll',    label:'Payroll / Labor', clients:[]},
-        { key:'leadData',   label:'Lead & Data Costs', clients:[{key:'solarLeads',label:'Solar Leads'},{key:'insLeads',label:'Insurance Leads'}]},
-        { key:'media',      label:'Media Spend (Radio/TV)', clients:[]},
-        { key:'operations', label:'Operations / Overhead', clients:[]},
-    ];
-
-    let body = '<tbody>';
-
-    // ── INFLOW section ──
-    body += `<tr class="cf-section-hdr"><td colspan="${2+months.length}">💚 Cash Inflow</td></tr>`;
-    let totalRevActual = 0;
-    revDefs.forEach(rd => {
-        const actual = CF_ACTUALS.rev[rd.key].total.reduce((a,b)=>a+b,0);
-        totalRevActual += actual;
-        const forecastShare = forecastRev.map(fr => Math.round(fr * (actual / (CF_ACTUALS.rev.homeServices.total.reduce((a,b)=>a+b,0)+CF_ACTUALS.rev.insurance.total.reduce((a,b)=>a+b,0)+CF_ACTUALS.rev.internalMedia.total.reduce((a,b)=>a+b,0)+CF_ACTUALS.rev.other.total.reduce((a,b)=>a+b,0)))));
-
-        body += `<tr class="cf-vertical" onclick="toggleClients(this)"><td>${rd.label}</td><td class="pos">$${actual.toLocaleString()}</td>`;
-        forecastShare.forEach(f => body += `<td class="cf-forecast pos">$${f.toLocaleString()}</td>`);
-        body += `</tr>`;
-        rd.clients.forEach(c => {
-            const cActual = CF_ACTUALS.rev[rd.key].clients[c.key]?.reduce((a,b)=>a+b,0)||0;
-            body += `<tr class="cf-client"><td>${c.label}</td><td style="color:var(--green)">$${cActual.toLocaleString()}</td>`;
-            forecastShare.forEach(f => body += `<td class="cf-forecast" style="color:var(--green)">$${Math.round(f*(cActual/actual)||0).toLocaleString()}</td>`);
-            body += `</tr>`;
-        });
-    });
-    body += `<tr class="cf-total inflow"><td>TOTAL INFLOW</td><td>$${totalRevActual.toLocaleString()}</td>`;
-    forecastRev.forEach(f => body += `<td class="cf-forecast">$${f.toLocaleString()}</td>`);
-    body += `</tr>`;
-
-    // ── OUTFLOW section ──
-    body += `<tr class="cf-section-hdr"><td colspan="${2+months.length}">🔴 Cash Outflow</td></tr>`;
-    let totalCostActual = 0;
-    costDefs.forEach(cd => {
-        const actual = CF_ACTUALS.cost[cd.key].total.reduce((a,b)=>a+b,0);
-        totalCostActual += actual;
-        const allCostActual = ['payroll','leadData','media','operations'].reduce((s,k)=>s+CF_ACTUALS.cost[k].total.reduce((a,b)=>a+b,0),0);
-        const forecastShare = forecastCost.map(fc => Math.round(fc * (actual / allCostActual)));
-        body += `<tr class="cf-vertical" onclick="toggleClients(this)"><td>${cd.label}</td><td class="neg">$${actual.toLocaleString()}</td>`;
-        forecastShare.forEach(f => body += `<td class="cf-forecast neg">$${f.toLocaleString()}</td>`);
-        body += `</tr>`;
-        cd.clients.forEach(c => {
-            const cActual = CF_ACTUALS.cost[cd.key].clients[c.key]?.reduce((a,b)=>a+b,0)||0;
-            body += `<tr class="cf-client"><td>${c.label}</td><td style="color:var(--red)">$${cActual.toLocaleString()}</td>`;
-            forecastShare.forEach(f => body += `<td class="cf-forecast" style="color:var(--red)">$${Math.round(f*(cActual/actual)||0).toLocaleString()}</td>`);
-            body += `</tr>`;
-        });
-    });
-    body += `<tr class="cf-total outflow"><td>TOTAL OUTFLOW</td><td>$${totalCostActual.toLocaleString()}</td>`;
-    forecastCost.forEach(f => body += `<td class="cf-forecast">$${f.toLocaleString()}</td>`);
-    body += `</tr>`;
-
-    // ── NET ──
-    const netActual = totalRevActual - totalCostActual;
-    const netCls = netActual>=0?'cf-net':'cf-net neg';
-    body += `<tr class="${netCls}"><td>NET CASH FLOW</td><td>${netActual>=0?'+':'-'}$${Math.abs(netActual).toLocaleString()}</td>`;
-    forecastRev.forEach((fr,i) => {
-        const net = fr - forecastCost[i];
-        body += `<td class="cf-forecast">${net>=0?'+':'-'}$${Math.abs(net).toLocaleString()}</td>`;
-    });
-    body += `</tr>`;
-    body += '</tbody>';
-
-    t.innerHTML = hdr + body;
+// ── Update header balance display
+function updateCFHeader(startIdx) {
+    const openBal = CF_OPEN[startIdx];
+    const el = document.getElementById('cfBalNum');
+    const dot = document.getElementById('cfBalDot');
+    const sub = document.getElementById('cfBalSub');
+    el.textContent = (openBal >= 0 ? '+' : '') + '$' + Math.abs(openBal).toLocaleString();
+    el.className = 'cf-bal-num ' + (openBal >= 0 ? 'pos' : 'neg');
+    dot.style.background = openBal >= 0 ? 'var(--green)' : 'var(--red)';
+    sub.textContent = `Opening balance — ${CF_MONTHS[startIdx].label}`;
 }
 
-function weeklyToMonthly(section) { return section; } // placeholder
+// ── Render Forecast Intelligence flags
+function renderCFFlags(visMonths) {
+    const currIdx = 3;
+    const inflow  = CF_ROWS.find(r=>r.id==='tot_in').vals[currIdx];
+    const outflow = CF_ROWS.find(r=>r.id==='tot_out').vals[currIdx];
+    const insVal  = CF_ROWS.find(r=>r.id==='ins').vals[currIdx];
+    const legVal  = CF_ROWS.find(r=>r.id==='legal').vals[currIdx];
+    const mtVal   = CF_ROWS.find(r=>r.id==='lg_mt').vals[currIdx];
+    const trVal   = CF_ROWS.find(r=>r.id==='travel').vals[currIdx];
+    const netMay  = CF_CLOSE[currIdx];
 
-function toggleClients(row) {
-    row.classList.toggle('expanded');
-}
-
-function renderFlags() {
-    const weeklyRevAll = CF_ACTUALS.rev.homeServices.total.map((_,i)=>
-        ['homeServices','insurance','internalMedia','other'].reduce((s,k)=>s+CF_ACTUALS.rev[k].total[i],0)
-    );
-    const trend = trendPerWeek(weeklyRevAll);
-    const insTotal = CF_ACTUALS.rev.insurance.total.reduce((a,b)=>a+b,0);
-    const totalRev  = weeklyRevAll.reduce((a,b)=>a+b,0);
-    const insPct = Math.round(insTotal/totalRev*100);
-    const trendMo = Math.round(trend*4.33);
-    const scenarioNote = {
-        conservative: 'Using 5-week trailing average — assumes no growth. Most cautious estimate.',
-        base:         'Using weighted recent average + partial trend. Moderate growth assumed.',
-        growth:       'Extrapolating the 3-week uptrend forward at full rate. Highest upside.'
-    }[cfScenario];
+    const insPct  = Math.round(insVal / inflow * 100);
+    const legPct  = Math.round(legVal / inflow * 100);
 
     const flags = [
-        { type:'info', icon:'📊', title:`Scenario: ${cfScenario.charAt(0).toUpperCase()+cfScenario.slice(1)}`, detail:scenarioNote },
-        { type: trend>=0?'good':'warn', icon: trend>=0?'📈':'📉', title:`Revenue Trend: ${trend>=0?'+':''}$${trendMo.toLocaleString()}/month`, detail: trend>=0?`CEM has shown a consistent upward revenue trend over the past 5 weeks. If this trend holds, the 6-month projection looks strong. Key question: Is this growth from existing clients buying more, or from new Publishers/Affiliates/Networks added recently?`:`Revenue has been declining week over week. Review which verticals are contracting and whether any Affiliate or Network partners have reduced send volume.` },
-        { type:'warn', icon:'⚠️', title:`Client Concentration: Insurance = ${insPct}% of Revenue`, detail:`Insurance (Final Expense + Medicare Supplement) represents ${insPct}% of total revenue. This is high concentration. If a major Insurance Publisher pulls back, revenue impact will be significant. Consider whether this is a seasonal peak or a new baseline.` },
-        { type:'info', icon:'📻', title:'Internal Media (Radio/TV) — Monitor ROI', detail:`CEM's internal Radio/TV traffic is contributing revenue but also carries direct media spend costs. Track whether the margin on internally-generated leads is improving as media spend is optimized.` },
-        { type:'info', icon:'🆕', title:'Growth Scenario Assumption', detail:`The Growth scenario assumes the current 3-week uptrend continues uninterrupted for ${cfHorizon} month${cfHorizon>1?'s':''}. This is optimistic — validate whether recent growth is from a test run by a new Network/Publisher (which may not continue) or from a durable new client relationship.` },
+        { type: netMay >= 0 ? 'good' : 'warn', icon: netMay >= 0 ? '💰' : '⚠️',
+          title: `May Closing Balance: ${netMay >= 0 ? '+' : ''}$${netMay.toLocaleString()}`,
+          detail: netMay < 0
+            ? `May 2026 ended with a negative cash balance of $${Math.abs(netMay).toLocaleString()}. The largest drivers are CC Payments ($199K), Media COGS ($241K), and a large unclassified outflow bucket. Once QuickBooks is connected, the unclassified amount will be resolved into specific categories.`
+            : `Cash position is positive — strong month for inflows.` },
+        { type:'info', icon:'📊',
+          title: `Insurance = ${insPct}% of May Revenue ($${(insVal/1000).toFixed(0)}K of $${(inflow/1000).toFixed(0)}K)`,
+          detail: `Insurance is CEM's largest vertical by revenue. Final Expense ($305K) and Medicare ($178K) are the top sub-categories. This concentration means exposure if publisher send volume drops. Monitor weekly.` },
+        { type:'info', icon:'⚖️',
+          title: `Legal Revenue: $${(legVal/1000).toFixed(0)}K (${legPct}% of total) — Mass Tort driving ${Math.round(mtVal/legVal*100)}%`,
+          detail: `Mass Tort ($182K) dominates the Legal vertical. SSDI and MVA are growing. Legal margins are among the highest across all verticals — strong economics if volume holds.` },
+        { type:'warn', icon:'✈️',
+          title: `Travel (Flights): $${(trVal/1000).toFixed(0)}K — Down significantly in April`,
+          detail: `Travel dropped from ~$96K/month (Feb-Mar) to $19K in April before recovering to $97K in May. Investigate the April dip — was it a payment timing issue or a client pause? If one client drives all flight revenue, this is a concentration risk.` },
+        { type:'info', icon:'🔗',
+          title: 'Connect QuickBooks + Bill.com to Resolve $971K in Unclassified Outflows',
+          detail: `May has $970K in outflows not yet matched to specific categories. This is normal before accounting integration. Once QuickBooks is connected, these will auto-classify into G&A, vendor payments, publisher payouts, and other known buckets.` },
     ];
 
-    document.getElementById('flagRow').innerHTML = flags.map(f =>
+    document.getElementById('cfFlagRow').innerHTML = flags.map(f =>
         `<div class="flag ${f.type}"><div class="flag-icon">${f.icon}</div><div class="flag-body"><div class="flag-title">${f.title}</div><div class="flag-detail">${f.detail}</div></div></div>`
     ).join('');
 }
 
-function renderCFAll() {
-    updateKPIs();
-    renderWaterfall();
-    renderCFTable();
-    renderFlags();
-    document.getElementById('scenarioLabel').textContent = cfScenario.charAt(0).toUpperCase()+cfScenario.slice(1);
-    document.getElementById('horizonLabel').textContent  = cfHorizon + ' Month' + (cfHorizon>1?'s':'');
+// ── Main render function
+function renderCFView() {
+    cfStartIdx = parseInt(document.getElementById('cfStart').value);
+    cfEndIdx   = parseInt(document.getElementById('cfEnd').value);
+    if (cfEndIdx < cfStartIdx) cfEndIdx = cfStartIdx;
+
+    const visMonths = [];
+    for (let i = cfStartIdx; i <= cfEndIdx; i++) visMonths.push(i);
+
+    const startLabel = CF_MONTHS[cfStartIdx].label;
+    const endLabel   = CF_MONTHS[cfEndIdx].label;
+    document.getElementById('cfChartLabel').textContent = startLabel + ' – ' + endLabel;
+
+    updateCFHeader(cfStartIdx);
+    buildCFChart(visMonths);
+    buildCFTable(visMonths);
+    renderCFFlags(visMonths);
+}
+
+// ── Toggle group expand/collapse
+function cfToggle(id) {
+    if (cfExpanded.has(id)) cfExpanded.delete(id);
+    else cfExpanded.add(id);
+    const visMonths = [];
+    for (let i = cfStartIdx; i <= cfEndIdx; i++) visMonths.push(i);
+    buildCFTable(visMonths);
+}
+
+function cfExpandAll() {
+    CF_ROWS.filter(r=>r.type==='group'||r.type==='hdr').forEach(r=>cfExpanded.add(r.id));
+    const visMonths = [];
+    for (let i = cfStartIdx; i <= cfEndIdx; i++) visMonths.push(i);
+    buildCFTable(visMonths);
+}
+
+function cfCollapseAll() {
+    cfExpanded.clear();
+    const visMonths = [];
+    for (let i = cfStartIdx; i <= cfEndIdx; i++) visMonths.push(i);
+    buildCFTable(visMonths);
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -815,33 +1049,14 @@ function renderCFAll() {
 // ─────────────────────────────────────────────────────────────────────────────
 let cfInitialized = false;
 function switchView(view) {
-    document.getElementById('beView').style.display = view==='breakeven' ? 'block' : 'none';
-    document.getElementById('cfView').style.display = view==='cashflow'  ? 'block' : 'none';
-    document.getElementById('btnBreakeven').classList.toggle('active', view==='breakeven');
-    document.getElementById('btnCashflow').classList.toggle('active',  view==='cashflow');
-    if(view==='cashflow' && !cfInitialized) { cfInitialized=true; renderCFAll(); }
-}
-
-
-// ─────────────────────────────────────────────────────────────────────────────
-//  SCENARIO & HORIZON SELECTORS
-// ─────────────────────────────────────────────────────────────────────────────
-function setHorizon(h, btn) {
-    cfHorizon = h;
-    document.querySelectorAll('.seg-ctrl').forEach(ctrl => {
-        if(ctrl.contains(btn)) ctrl.querySelectorAll('.seg-btn').forEach(b=>b.classList.remove('active'));
-    });
-    btn.classList.add('active','blue');
-    if(cfInitialized) renderCFAll();
-}
-function setScenario(s, btn) {
-    cfScenario = s;
-    const colorMap = {conservative:'green', base:'blue', growth:'amber'};
-    document.querySelectorAll('.seg-ctrl').forEach(ctrl => {
-        if(ctrl.contains(btn)) ctrl.querySelectorAll('.seg-btn').forEach(b=>{b.classList.remove('active','green','blue','amber');});
-    });
-    btn.classList.add('active', colorMap[s]);
-    if(cfInitialized) renderCFAll();
+    document.getElementById('beView').style.display = view === 'breakeven' ? 'block' : 'none';
+    document.getElementById('cfView').style.display = view === 'cashflow'  ? 'block' : 'none';
+    document.getElementById('btnBreakeven').classList.toggle('active', view === 'breakeven');
+    document.getElementById('btnCashflow').classList.toggle('active',  view === 'cashflow');
+    if (view === 'cashflow' && !cfInitialized) {
+        cfInitialized = true;
+        renderCFView();
+    }
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -857,22 +1072,18 @@ async function saveEntry() {
         date: document.getElementById('entryDate').value,
         weekLabel: document.getElementById('entryWeekLabel').value,
         rev: {
-            homeServices: +document.getElementById('eRevHomeServices').value||0,
-            solar:        +document.getElementById('eRevSolar').value||0,
-            homeImprove:  +document.getElementById('eRevHomeImprove').value||0,
+            legal:        +document.getElementById('eRevLegal').value||0,
             insurance:    +document.getElementById('eRevInsurance').value||0,
-            finalExpense: +document.getElementById('eRevFinalExpense').value||0,
-            medicare:     +document.getElementById('eRevMedicare').value||0,
-            internalMedia:+document.getElementById('eRevInternal').value||0,
+            homeServices: +document.getElementById('eRevHomeServices').value||0,
+            travel:       +document.getElementById('eRevTravel').value||0,
+            rehab:        +document.getElementById('eRevRehab').value||0,
             other:        +document.getElementById('eRevOther').value||0,
         },
         cost: {
             payroll:    +document.getElementById('eCostPayroll').value||0,
-            leadData:   +document.getElementById('eCostLeads').value||0,
-            solarLeads: +document.getElementById('eCostSolarLeads').value||0,
-            insLeads:   +document.getElementById('eCostInsLeads').value||0,
-            media:      +document.getElementById('eCostMedia').value||0,
-            operations: +document.getElementById('eCostOps').value||0,
+            mgmtFees:   +document.getElementById('eCostMgmt').value||0,
+            ccPayments: +document.getElementById('eCostCC').value||0,
+            other:      +document.getElementById('eCostOther').value||0,
         },
         savedAt: new Date().toISOString()
     };
@@ -887,6 +1098,186 @@ async function saveEntry() {
         alert('✅ Week saved!');
     } catch(e) { alert('Error saving: '+e.message); }
 }
+
+// ──────────────────────────────────────────────────────────────────────────
+//  LIVE EXPENSES — Google Sheet Pull
+// ──────────────────────────────────────────────────────────────────────────
+
+// Month labels for the CF table (starts Feb 2026) — uses existing CF_MONTHS from above
+
+let liveExpData = null;
+let activeExpTab = null;
+
+function fmtMoney(n) {
+    if (!n || n === 0) return '$0';
+    return '$' + Math.round(n).toLocaleString();
+}
+
+async function loadLiveExpenses() {
+    try {
+        const r = await fetch(API_BASE + '/sheets/cem');
+        liveExpData = await r.json();
+        if (liveExpData && liveExpData.months) {
+            renderLiveExpenses();
+        } else {
+            document.getElementById('liveLastSync').textContent = 'No data yet — click Sync Now';
+        }
+    } catch(e) {
+        document.getElementById('liveLastSync').textContent = 'Could not reach server — ' + e.message;
+    }
+}
+
+function renderLiveExpenses() {
+    if (!liveExpData || !liveExpData.months) return;
+
+    const tabs = Object.keys(liveExpData.months);
+    if (!activeExpTab || !liveExpData.months[activeExpTab]) activeExpTab = tabs[tabs.length - 1]; // default to latest
+
+    // Sync status
+    const syncedAt = liveExpData.syncedAt ? new Date(liveExpData.syncedAt) : null;
+    const syncLabel = syncedAt
+        ? 'Last synced: ' + syncedAt.toLocaleDateString('en-US', {month:'short',day:'numeric'}) + ' at ' + syncedAt.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'})
+        : 'Never synced';
+    const el = document.getElementById('liveLastSync');
+    if (el) el.textContent = syncLabel + ' · Source: Networks 2026 Expense Reimbursement (Google Sheet)';
+
+    // Build tab row
+    const tabRow = document.getElementById('expTabRow');
+    if (tabRow) {
+        tabRow.innerHTML = tabs.map(tab => {
+            const m = liveExpData.months[tab];
+            const total = m.computedTotal || m.grandTotal || 0;
+            return '<button class="exp-tab' + (tab === activeExpTab ? ' active' : '') + '" onclick="switchExpTab(\'' + tab + '\')">'
+                + tab + ' <span style="font-weight:400;font-size:.65rem;opacity:.7">' + fmtMoney(total) + '</span></button>';
+        }).join('');
+    }
+
+    // Build content panels
+    const container = document.getElementById('expPanelContainer');
+    if (!container) return;
+
+    const m = liveExpData.months[activeExpTab];
+    if (!m) { container.innerHTML = '<div class="exp-placeholder">No data for this tab.</div>'; return; }
+    if (m.error) { container.innerHTML = '<div class="exp-placeholder">⚠️ Error loading: ' + m.error + '</div>'; return; }
+
+    const staffTotal    = m.staffTotal    || 0;
+    const vendorTotal   = m.vendorTotal   || 0;
+    const platformTotal = m.platformTotal || 0;
+    const total         = m.computedTotal || (staffTotal + vendorTotal + platformTotal);
+    const grandTotal    = m.grandTotal    || total;
+
+    let html = '';
+
+    // ── Employees
+    if (m.employees && m.employees.length) {
+        html += '<div class="exp-section">';
+        html += '<div class="exp-section-hdr">'
+            + '<span>👥 Staff / Payroll (' + m.employees.length + ' people)</span>'
+            + '<span class="amt">' + fmtMoney(staffTotal) + '</span></div>';
+        m.employees.forEach(function(e) {
+            html += '<div class="exp-item">'
+                + '<span class="ei-name">' + e.name + '</span>'
+                + '<span class="ei-actual">Actual: ' + fmtMoney(e.actual) + '</span>'
+                + '<span class="ei-cem">' + fmtMoney(e.cemAmt) + '</span></div>';
+        });
+        html += '</div>';
+    }
+
+    // ── Accounting / Vendors
+    if (m.vendors && m.vendors.length) {
+        html += '<div class="exp-section">';
+        html += '<div class="exp-section-hdr">'
+            + '<span>💼 Accounting & Vendors</span>'
+            + '<span class="amt">' + fmtMoney(vendorTotal) + '</span></div>';
+        m.vendors.forEach(function(v) {
+            html += '<div class="exp-item">'
+                + '<span class="ei-name">' + v.name + '</span>'
+                + '<span class="ei-actual">Actual: ' + fmtMoney(v.actual) + '</span>'
+                + '<span class="ei-cem">' + fmtMoney(v.cemAmt) + '</span></div>';
+        });
+        html += '</div>';
+    }
+
+    // ── Platforms (collapsible, since many)
+    if (m.platforms && m.platforms.length) {
+        html += '<div class="exp-section">';
+        html += '<div class="exp-section-hdr">'
+            + '<span>💻 Platforms & Software (' + m.platforms.length + ' items)</span>'
+            + '<span class="amt">' + fmtMoney(platformTotal) + '</span></div>';
+        html += '<div id="platformList_' + activeExpTab + '" style="display:none">';
+        m.platforms.forEach(function(p) {
+            html += '<div class="exp-item">'
+                + '<span class="ei-name">' + p.name + '</span>'
+                + '<span class="ei-actual">Actual: ' + fmtMoney(p.actual) + '</span>'
+                + '<span class="ei-cem">' + fmtMoney(p.cemAmt) + '</span></div>';
+        });
+        html += '</div>';
+        html += '<button onclick="togglePlatforms(\'' + activeExpTab + '\')" style="font-size:.7rem;color:var(--dim);background:none;border:none;cursor:pointer;margin-top:4px;padding:4px 10px;" id="platToggle_' + activeExpTab + '">▼ Show all platforms</button>';
+        html += '</div>';
+    }
+
+    // ── Totals summary
+    html += '<div class="exp-totals">';
+    html += '<div class="exp-tot-item"><div class="etl">Staff</div><div class="etv red">' + fmtMoney(staffTotal) + '</div></div>';
+    html += '<div class="exp-tot-item"><div class="etl">Vendors + Platforms</div><div class="etv red">' + fmtMoney(vendorTotal + platformTotal) + '</div></div>';
+    html += '<div class="exp-tot-item"><div class="etl">Total CEM Expense</div><div class="etv red">' + fmtMoney(total) + '</div></div>';
+    html += '</div>';
+
+    // ── Context note
+    html += '<div style="font-size:.68rem;color:var(--dim);margin-top:12px;padding:10px;background:rgba(255,255,255,.02);border-radius:8px;border:1px solid var(--border)">';
+    if (activeExpTab === 'May') {
+        html += 'ℹ️ <strong>Note:</strong> The "May" tab contains <strong>April 2026</strong> expenses (per Tommy). Use these numbers for the April expense period.';
+    } else {
+        html += 'ℹ️ Data pulled live from the <strong>Networks 2026 Expense Reimbursement</strong> Google Sheet. Tab name = month of the expense.';
+    }
+    html += '</div>';
+
+    container.innerHTML = html;
+}
+
+function switchExpTab(tab) {
+    activeExpTab = tab;
+    renderLiveExpenses();
+}
+
+function togglePlatforms(tab) {
+    const list = document.getElementById('platformList_' + tab);
+    const btn  = document.getElementById('platToggle_' + tab);
+    if (!list) return;
+    const showing = list.style.display !== 'none';
+    list.style.display = showing ? 'none' : 'block';
+    if (btn) btn.textContent = showing ? '▼ Show all platforms' : '▲ Hide platforms';
+}
+
+async function triggerSheetSync() {
+    const syncBtn = document.querySelector('.sync-btn');
+    if (syncBtn) { syncBtn.textContent = '⏳ Syncing...'; syncBtn.disabled = true; }
+    try {
+        await fetch(API_BASE + '/sheets/cem/sync');
+        // Wait 25 seconds then reload data (sync runs in background)
+        setTimeout(async function() {
+            await loadLiveExpenses();
+            if (syncBtn) { syncBtn.textContent = '🔄 Sync Now'; syncBtn.disabled = false; }
+        }, 25000);
+    } catch(e) {
+        if (syncBtn) { syncBtn.textContent = '🔄 Sync Now'; syncBtn.disabled = false; }
+        alert('Sync error: ' + e.message);
+    }
+}
+
+// Load live expense data on startup — always visible in CF view
+document.addEventListener('DOMContentLoaded', function() {
+    // Auto-load if CF view is active or becomes active
+    loadLiveExpenses();
+    // Also patch the CF toggle button to reload on each visit
+    document.querySelectorAll('.vt-btn').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            if (btn.dataset.view === 'cashflow' || btn.textContent.toLowerCase().includes('cash')) {
+                setTimeout(loadLiveExpenses, 100);
+            }
+        });
+    });
+});
 </script>
 </body>
 </html>
