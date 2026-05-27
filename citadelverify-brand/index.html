@@ -3,214 +3,226 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>CitadelVerify™ Brand Guide V2</title>
+<title>CitadelVerify™ Brand Guide</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&family=Playfair+Display:wght@700;900&display=swap" rel="stylesheet"/>
 <style>
-  :root {
-    --black:       #000000;
-    --gold-light:  #F5D17A;
-    --gold-mid:    #C8953A;
-    --gold-dark:   #7A5500;
-    --gold-mirror: linear-gradient(135deg, #7A5500 0%, #C8953A 30%, #F5D17A 50%, #C8953A 70%, #7A5500 100%);
-    --white:       #FFFFFF;
-    --silver:      #C8C8D4;
-    --navy:        #0D1B2A;
-    --charcoal:    #1A1A1A;
-    --gray:        #888888;
-  }
-  * { margin:0; padding:0; box-sizing:border-box; }
-  body { background:#000; color:#fff; font-family:'Inter',sans-serif; }
+* { margin:0; padding:0; box-sizing:border-box; }
+body { background:#000; color:#fff; font-family:'Inter',sans-serif; min-height:100vh; }
 
-  /* ── HERO ── */
-  .hero {
-    background: #000;
-    min-height: 100vh;
-    display: flex; flex-direction: column;
-    align-items: center; justify-content: center;
-    text-align: center;
-    padding: 80px 40px;
-    border-bottom: 2px solid #C8953A;
-    position: relative;
-    overflow: hidden;
-  }
-  .hero::before {
-    content:'';
-    position:absolute; inset:0;
-    background: radial-gradient(ellipse 60% 40% at 50% 50%, rgba(200,149,58,0.06) 0%, transparent 70%);
-    pointer-events: none;
-  }
-  .hero-label {
-    font-size:11px; letter-spacing:6px; color:#C8953A;
-    text-transform:uppercase; margin-bottom:32px;
-  }
-  .hero img { width:260px; margin-bottom:40px; }
-  .hero h1 {
-    font-family:'Playfair Display',serif;
-    font-size:clamp(32px,5vw,64px);
-    background: linear-gradient(135deg, #7A5500, #C8953A, #F5D17A, #C8953A, #7A5500);
-    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-    margin-bottom:16px;
-  }
-  .hero p { color:#888; font-size:16px; max-width:480px; line-height:1.7; }
-  .version-badge {
-    display:inline-block; margin-top:32px;
-    border:1px solid #C8953A; color:#C8953A;
-    padding:6px 20px; font-size:12px; letter-spacing:4px;
-  }
+/* ── LOCK SCREEN ── */
+#lock-screen {
+  position:fixed; inset:0; z-index:9999;
+  background:#000;
+  display:flex; flex-direction:column;
+  align-items:center; justify-content:center;
+  padding:40px;
+}
+#lock-screen::before {
+  content:'';
+  position:absolute; inset:0;
+  background:radial-gradient(ellipse 50% 40% at 50% 50%, rgba(200,149,58,0.07) 0%, transparent 70%);
+  pointer-events:none;
+}
+.lock-badge {
+  font-size:11px; letter-spacing:6px; color:#C8953A;
+  text-transform:uppercase; margin-bottom:32px;
+}
+.lock-shield { font-size:72px; margin-bottom:24px; }
+.lock-title {
+  font-family:'Playfair Display',serif;
+  font-size:clamp(28px,4vw,52px);
+  background:linear-gradient(135deg,#7A5500,#C8953A,#F5D17A,#C8953A,#7A5500);
+  -webkit-background-clip:text; -webkit-text-fill-color:transparent;
+  text-align:center; margin-bottom:8px;
+}
+.lock-sub {
+  font-size:13px; color:#555; letter-spacing:3px;
+  text-transform:uppercase; margin-bottom:48px;
+}
+.lock-box {
+  width:100%; max-width:400px;
+  border:1px solid #C8953A;
+  padding:40px 36px;
+  background:rgba(200,149,58,0.03);
+  text-align:center;
+  position:relative; z-index:1;
+}
+.lock-box h3 {
+  font-size:11px; letter-spacing:4px; color:#888;
+  text-transform:uppercase; margin-bottom:24px;
+}
+.lock-input {
+  width:100%;
+  background:#0A0A0A;
+  border:1px solid #333;
+  border-radius:0;
+  color:#fff;
+  font-family:'Inter',sans-serif;
+  font-size:18px;
+  padding:14px 18px;
+  text-align:center;
+  letter-spacing:4px;
+  outline:none;
+  transition:border-color .3s;
+  margin-bottom:20px;
+}
+.lock-input:focus { border-color:#C8953A; }
+.lock-input::placeholder { color:#333; letter-spacing:2px; font-size:14px; }
+.lock-btn {
+  width:100%;
+  background:linear-gradient(135deg,#7A5500,#C8953A,#F5D17A,#C8953A,#7A5500);
+  background-size:200% 100%;
+  border:none; cursor:pointer;
+  color:#000; font-family:'Inter',sans-serif;
+  font-weight:900; font-size:13px;
+  letter-spacing:5px; text-transform:uppercase;
+  padding:16px;
+  transition:background-position .4s, transform .2s;
+}
+.lock-btn:hover { background-position:100% 0; transform:translateY(-1px); }
+.lock-btn:active { transform:translateY(0); }
+.lock-error {
+  margin-top:16px; font-size:12px;
+  color:#BA4A4A; letter-spacing:2px;
+  opacity:0; transition:opacity .3s;
+  text-transform:uppercase;
+}
+.lock-error.show { opacity:1; }
+.lock-footer {
+  margin-top:32px; font-size:11px; color:#333;
+  letter-spacing:2px; text-transform:uppercase;
+}
+.shake {
+  animation: shake 0.4s ease;
+}
+@keyframes shake {
+  0%,100%{transform:translateX(0)}
+  20%{transform:translateX(-8px)}
+  40%{transform:translateX(8px)}
+  60%{transform:translateX(-6px)}
+  80%{transform:translateX(6px)}
+}
 
-  /* ── SECTIONS ── */
-  section { padding: 100px 60px; border-bottom: 1px solid #1A1A1A; max-width:1200px; margin:0 auto; }
-  .section-label {
-    font-size:11px; letter-spacing:6px; color:#C8953A;
-    text-transform:uppercase; margin-bottom:16px;
-  }
-  .section-title {
-    font-family:'Playfair Display',serif;
-    font-size:clamp(24px,3vw,42px); margin-bottom:48px;
-    color:#fff;
-  }
+/* ── MAIN CONTENT (hidden until unlocked) ── */
+#brand-content { display:none; }
 
-  /* ── LOGO GRID ── */
-  .logo-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:24px; }
-  .logo-card {
-    background:#0D0D0D; border:1px solid #222;
-    display:flex; flex-direction:column; align-items:center;
-    padding:48px 32px 28px;
-    transition: border-color .3s;
-  }
-  .logo-card:hover { border-color:#C8953A; }
-  .logo-card.dark  { background:#000; }
-  .logo-card.light { background:#F5F5F0; }
-  .logo-card img { width:100%; max-width:220px; object-fit:contain; margin-bottom:20px; }
-  .logo-card .card-label {
-    font-size:11px; letter-spacing:3px; color:#888;
-    text-transform:uppercase; margin-top:8px;
-  }
-
-  /* ── COLOR PALETTE ── */
-  .palette-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:20px; }
-  .swatch {
-    border:1px solid #222; overflow:hidden;
-    transition: transform .3s;
-  }
-  .swatch:hover { transform: translateY(-4px); }
-  .swatch-color { height:120px; }
-  .swatch-info { padding:16px; background:#0D0D0D; }
-  .swatch-name { font-weight:700; font-size:14px; margin-bottom:4px; }
-  .swatch-hex  { font-size:12px; color:#888; font-family:monospace; }
-  .swatch-use  { font-size:11px; color:#666; margin-top:6px; }
-
-  /* Mirror gold swatch */
-  .mirror-swatch .swatch-color {
-    background: linear-gradient(135deg, #7A5500 0%, #C8953A 30%, #F5D17A 50%, #C8953A 70%, #7A5500 100%);
-  }
-
-  /* ── TYPOGRAPHY ── */
-  .type-row { margin-bottom:48px; padding-bottom:48px; border-bottom:1px solid #1A1A1A; }
-  .type-row:last-child { border:none; margin-bottom:0; }
-  .type-meta { font-size:11px; letter-spacing:3px; color:#C8953A; text-transform:uppercase; margin-bottom:16px; }
-  .type-sample-primary {
-    font-family:'Playfair Display',serif;
-    font-size:clamp(36px,5vw,72px); font-weight:900;
-    background: linear-gradient(135deg, #7A5500, #C8953A, #F5D17A, #C8953A, #7A5500);
-    -webkit-background-clip:text; -webkit-text-fill-color:transparent;
-    line-height:1.1; margin-bottom:12px;
-  }
-  .type-sample-secondary {
-    font-family:'Inter',sans-serif;
-    font-size:clamp(18px,2vw,28px); font-weight:700;
-    color:#fff; letter-spacing:4px; text-transform:uppercase;
-    margin-bottom:12px;
-  }
-  .type-sample-body { font-size:16px; color:#888; line-height:1.8; max-width:560px; }
-  .type-specs { display:flex; gap:32px; flex-wrap:wrap; margin-top:16px; }
-  .type-spec { font-size:11px; color:#555; }
-  .type-spec span { color:#C8953A; display:block; font-size:13px; font-weight:600; }
-
-  /* ── TIERS ── */
-  .tiers-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:20px; }
-  @media(max-width:700px) { .tiers-grid { grid-template-columns:1fr; } }
-  .tier-card {
-    border:1px solid #222; padding:32px 24px;
-    transition: border-color .3s, transform .3s;
-  }
-  .tier-card:hover { transform:translateY(-4px); }
-  .tier-card.silver { border-color:#C8C8D4; }
-  .tier-card.gold   { border-color:#C8953A; background:rgba(200,149,58,.05); }
-  .tier-card.platinum {
-    border-color:#F5D17A; border-width:2px;
-    background:rgba(245,209,122,.05);
-  }
-  .tier-name {
-    font-weight:900; font-size:20px; letter-spacing:4px;
-    text-transform:uppercase; margin-bottom:6px;
-  }
-  .tier-card.silver   .tier-name { color:#C8C8D4; }
-  .tier-card.gold     .tier-name { color:#C8953A; }
-  .tier-card.platinum .tier-name {
-    background:linear-gradient(135deg, #7A5500,#C8953A,#F5D17A,#C8953A,#7A5500);
-    -webkit-background-clip:text; -webkit-text-fill-color:transparent;
-  }
-  .tier-label { font-size:11px; color:#555; letter-spacing:2px; text-transform:uppercase; margin-bottom:20px; }
-  .tier-divider { height:1px; background:#222; margin-bottom:20px; }
-  .tier-card.gold   .tier-divider { background:#C8953A44; }
-  .tier-card.platinum .tier-divider { background:#F5D17A44; }
-  .tier-feature {
-    display:flex; align-items:flex-start; gap:10px;
-    font-size:13px; margin-bottom:10px; color:#888;
-    line-height:1.4;
-  }
-  .tier-feature .check { flex-shrink:0; }
-  .tier-card.silver .check   { color:#C8C8D4; }
-  .tier-card.gold .check     { color:#C8953A; }
-  .tier-card.platinum .check { color:#F5D17A; }
-  .tier-highlight {
-    background:rgba(245,209,122,.08);
-    border:1px solid rgba(245,209,122,.3);
-    padding:4px 8px; margin: -4px -8px;
-    border-radius:2px;
-  }
-
-  /* ── USAGE RULES ── */
-  .rules-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:20px; }
-  .rule-card { border:1px solid #1A1A1A; padding:28px; }
-  .rule-card.do   { border-top:3px solid #2A7A2A; }
-  .rule-card.dont { border-top:3px solid #7A1A1A; }
-  .rule-card h4 { font-size:13px; letter-spacing:3px; text-transform:uppercase; margin-bottom:16px; }
-  .rule-card.do   h4 { color:#4ABA4A; }
-  .rule-card.dont h4 { color:#BA4A4A; }
-  .rule-card ul { list-style:none; }
-  .rule-card ul li { font-size:13px; color:#888; margin-bottom:8px; padding-left:16px; position:relative; }
-  .rule-card ul li::before { content:'—'; position:absolute; left:0; color:#444; }
-
-  /* ── TAGLINE ── */
-  .tagline-box {
-    text-align:center; padding:80px 40px;
-    border:1px solid #C8953A;
-    background:rgba(200,149,58,.03);
-    margin-top:0;
-  }
-  .tagline-box blockquote {
-    font-family:'Playfair Display',serif;
-    font-size:clamp(20px,3vw,36px);
-    font-style:italic; color:#F5D17A; line-height:1.5;
-    margin-bottom:20px;
-  }
-  .tagline-box cite { font-size:12px; letter-spacing:4px; color:#555; text-transform:uppercase; }
-
-  /* ── FOOTER ── */
-  footer {
-    text-align:center; padding:60px 40px;
-    font-size:12px; color:#333; letter-spacing:2px;
-    border-top:1px solid #1A1A1A;
-  }
-  footer span { color:#C8953A; }
+/* ── BRAND GUIDE STYLES ── */
+:root {
+  --gold-light:#F5D17A; --gold-mid:#C8953A; --gold-dark:#7A5500;
+  --navy:#0D1B2A; --charcoal:#1A1A1A;
+}
+.hero {
+  background:#000; min-height:100vh;
+  display:flex; flex-direction:column;
+  align-items:center; justify-content:center;
+  text-align:center; padding:80px 40px;
+  border-bottom:2px solid #C8953A;
+  position:relative; overflow:hidden;
+}
+.hero::before {
+  content:''; position:absolute; inset:0;
+  background:radial-gradient(ellipse 60% 40% at 50% 50%, rgba(200,149,58,0.06) 0%, transparent 70%);
+  pointer-events:none;
+}
+.hero-label { font-size:11px; letter-spacing:6px; color:#C8953A; text-transform:uppercase; margin-bottom:32px; }
+.hero img { width:260px; margin-bottom:40px; }
+.hero h1 {
+  font-family:'Playfair Display',serif;
+  font-size:clamp(32px,5vw,64px);
+  background:linear-gradient(135deg,#7A5500,#C8953A,#F5D17A,#C8953A,#7A5500);
+  -webkit-background-clip:text; -webkit-text-fill-color:transparent;
+  margin-bottom:16px;
+}
+.hero p { color:#888; font-size:16px; max-width:480px; line-height:1.7; }
+.version-badge { display:inline-block; margin-top:32px; border:1px solid #C8953A; color:#C8953A; padding:6px 20px; font-size:12px; letter-spacing:4px; }
+section { padding:100px 60px; border-bottom:1px solid #1A1A1A; max-width:1200px; margin:0 auto; }
+.section-label { font-size:11px; letter-spacing:6px; color:#C8953A; text-transform:uppercase; margin-bottom:16px; }
+.section-title { font-family:'Playfair Display',serif; font-size:clamp(24px,3vw,42px); margin-bottom:48px; color:#fff; }
+.logo-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:24px; }
+.logo-card { background:#0D0D0D; border:1px solid #222; display:flex; flex-direction:column; align-items:center; padding:48px 32px 28px; transition:border-color .3s; }
+.logo-card:hover { border-color:#C8953A; }
+.logo-card img { width:100%; max-width:220px; object-fit:contain; margin-bottom:20px; }
+.logo-card .card-label { font-size:11px; letter-spacing:3px; color:#888; text-transform:uppercase; margin-top:8px; }
+.palette-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:20px; }
+.swatch { border:1px solid #222; overflow:hidden; transition:transform .3s; }
+.swatch:hover { transform:translateY(-4px); }
+.swatch-color { height:120px; }
+.swatch-info { padding:16px; background:#0D0D0D; }
+.swatch-name { font-weight:700; font-size:14px; margin-bottom:4px; }
+.swatch-hex { font-size:12px; color:#888; font-family:monospace; }
+.swatch-use { font-size:11px; color:#666; margin-top:6px; }
+.mirror-swatch .swatch-color { background:linear-gradient(135deg,#7A5500 0%,#C8953A 30%,#F5D17A 50%,#C8953A 70%,#7A5500 100%); }
+.type-row { margin-bottom:48px; padding-bottom:48px; border-bottom:1px solid #1A1A1A; }
+.type-row:last-child { border:none; margin-bottom:0; }
+.type-meta { font-size:11px; letter-spacing:3px; color:#C8953A; text-transform:uppercase; margin-bottom:16px; }
+.type-sample-primary { font-family:'Playfair Display',serif; font-size:clamp(36px,5vw,72px); font-weight:900; background:linear-gradient(135deg,#7A5500,#C8953A,#F5D17A,#C8953A,#7A5500); -webkit-background-clip:text; -webkit-text-fill-color:transparent; line-height:1.1; margin-bottom:12px; }
+.type-sample-secondary { font-family:'Inter',sans-serif; font-size:clamp(18px,2vw,28px); font-weight:700; color:#fff; letter-spacing:4px; text-transform:uppercase; margin-bottom:12px; }
+.type-sample-body { font-size:16px; color:#888; line-height:1.8; max-width:560px; }
+.type-specs { display:flex; gap:32px; flex-wrap:wrap; margin-top:16px; }
+.type-spec { font-size:11px; color:#555; }
+.type-spec span { color:#C8953A; display:block; font-size:13px; font-weight:600; }
+.tiers-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:20px; }
+@media(max-width:700px){.tiers-grid{grid-template-columns:1fr;}}
+.tier-card { border:1px solid #222; padding:32px 24px; transition:border-color .3s,transform .3s; }
+.tier-card:hover { transform:translateY(-4px); }
+.tier-card.silver { border-color:#C8C8D4; }
+.tier-card.gold { border-color:#C8953A; background:rgba(200,149,58,.05); }
+.tier-card.platinum { border-color:#F5D17A; border-width:2px; background:rgba(245,209,122,.05); }
+.tier-name { font-weight:900; font-size:20px; letter-spacing:4px; text-transform:uppercase; margin-bottom:6px; }
+.tier-card.silver .tier-name { color:#C8C8D4; }
+.tier-card.gold .tier-name { color:#C8953A; }
+.tier-card.platinum .tier-name { background:linear-gradient(135deg,#7A5500,#C8953A,#F5D17A,#C8953A,#7A5500); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+.tier-label { font-size:11px; color:#555; letter-spacing:2px; text-transform:uppercase; margin-bottom:20px; }
+.tier-divider { height:1px; background:#222; margin-bottom:20px; }
+.tier-card.gold .tier-divider { background:#C8953A44; }
+.tier-card.platinum .tier-divider { background:#F5D17A44; }
+.tier-feature { display:flex; align-items:flex-start; gap:10px; font-size:13px; margin-bottom:10px; color:#888; line-height:1.4; }
+.tier-feature .check { flex-shrink:0; }
+.tier-card.silver .check { color:#C8C8D4; }
+.tier-card.gold .check { color:#C8953A; }
+.tier-card.platinum .check { color:#F5D17A; }
+.tier-highlight { background:rgba(245,209,122,.08); border:1px solid rgba(245,209,122,.3); padding:4px 8px; margin:-4px -8px; border-radius:2px; }
+.rules-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:20px; }
+.rule-card { border:1px solid #1A1A1A; padding:28px; }
+.rule-card.do { border-top:3px solid #2A7A2A; }
+.rule-card.dont { border-top:3px solid #7A1A1A; }
+.rule-card h4 { font-size:13px; letter-spacing:3px; text-transform:uppercase; margin-bottom:16px; }
+.rule-card.do h4 { color:#4ABA4A; }
+.rule-card.dont h4 { color:#BA4A4A; }
+.rule-card ul { list-style:none; }
+.rule-card ul li { font-size:13px; color:#888; margin-bottom:8px; padding-left:16px; position:relative; }
+.rule-card ul li::before { content:'—'; position:absolute; left:0; color:#444; }
+.tagline-box { text-align:center; padding:80px 40px; border:1px solid #C8953A; background:rgba(200,149,58,.03); }
+.tagline-box blockquote { font-family:'Playfair Display',serif; font-size:clamp(20px,3vw,36px); font-style:italic; color:#F5D17A; line-height:1.5; margin-bottom:20px; }
+.tagline-box cite { font-size:12px; letter-spacing:4px; color:#555; text-transform:uppercase; }
+footer { text-align:center; padding:60px 40px; font-size:12px; color:#333; letter-spacing:2px; border-top:1px solid #1A1A1A; }
+footer span { color:#C8953A; }
 </style>
 </head>
 <body>
 
-<!-- HERO -->
-<div style="background:#000; border-bottom:2px solid #C8953A;">
+<!-- ══ LOCK SCREEN ══════════════════════════════════════════════════ -->
+<div id="lock-screen">
+  <div class="lock-badge">Confidential — Authorized Access Only</div>
+  <div class="lock-shield">🛡️</div>
+  <div class="lock-title">CitadelVerify™</div>
+  <div class="lock-sub">Brand Identity Guide &nbsp;·&nbsp; V2</div>
+
+  <div class="lock-box">
+    <h3>Enter Access Code</h3>
+    <input id="pwd-input" class="lock-input" type="password"
+           placeholder="Enter password" autocomplete="off"
+           onkeydown="if(event.key==='Enter')checkPassword()"/>
+    <button class="lock-btn" onclick="checkPassword()">Unlock &nbsp;→</button>
+    <div class="lock-error" id="lock-error">Incorrect password. Try again.</div>
+    <div class="lock-footer">CitadelVerify™ · Digify.AI · Confidential</div>
+  </div>
+</div>
+
+<!-- ══ BRAND CONTENT ════════════════════════════════════════════════ -->
+<div id="brand-content">
+
+<div style="background:#000;border-bottom:2px solid #C8953A;">
   <div class="hero">
     <div class="hero-label">Official Brand Standards</div>
     <img src="Logo/CitadelVerify_Logo_Primary.png" alt="CitadelVerify Logo"/>
@@ -220,28 +232,27 @@
   </div>
 </div>
 
-<!-- LOGO SUITE -->
 <div style="max-width:1200px;margin:0 auto;">
+
 <section>
   <div class="section-label">01 — Identity</div>
   <div class="section-title">Logo Suite</div>
   <div class="logo-grid">
-    <div class="logo-card dark">
+    <div class="logo-card">
       <img src="Logo/CitadelVerify_Logo_Primary.png" alt="Primary Logo"/>
       <div class="card-label">Primary Logo — Dark Background</div>
     </div>
-    <div class="logo-card dark">
+    <div class="logo-card">
       <img src="Logo/CitadelVerify_Wordmark_Horizontal.png" alt="Horizontal Wordmark"/>
       <div class="card-label">Wordmark — Horizontal</div>
     </div>
-    <div class="logo-card dark">
+    <div class="logo-card">
       <img src="Logo/CitadelVerify_Wordmark_Stacked.png" alt="Stacked Wordmark"/>
       <div class="card-label">Wordmark — Stacked</div>
     </div>
   </div>
 </section>
 
-<!-- COLOR PALETTE -->
 <section>
   <div class="section-label">02 — Color</div>
   <div class="section-title">Brand Color Palette</div>
@@ -259,7 +270,7 @@
       <div class="swatch-info">
         <div class="swatch-name" style="color:#F5D17A;">Gold Light</div>
         <div class="swatch-hex">#F5D17A</div>
-        <div class="swatch-use">Highlights, Platinum tier text, key callouts.</div>
+        <div class="swatch-use">Highlights, Platinum tier, key callouts.</div>
       </div>
     </div>
     <div class="swatch">
@@ -275,11 +286,11 @@
       <div class="swatch-info">
         <div class="swatch-name" style="color:#A07020;">Gold Dark</div>
         <div class="swatch-hex">#7A5500</div>
-        <div class="swatch-use">Shadow tone of metallic gold. Card backgrounds.</div>
+        <div class="swatch-use">Shadow tone of metallic gold.</div>
       </div>
     </div>
     <div class="swatch">
-      <div class="swatch-color" style="background:#000000; border:1px solid #333;"></div>
+      <div class="swatch-color" style="background:#000;border:1px solid #333;"></div>
       <div class="swatch-info">
         <div class="swatch-name" style="color:#fff;">Pure Black</div>
         <div class="swatch-hex">#000000</div>
@@ -291,15 +302,15 @@
       <div class="swatch-info">
         <div class="swatch-name" style="color:#5588BB;">Deep Navy</div>
         <div class="swatch-hex">#0D1B2A</div>
-        <div class="swatch-use">Secondary background. Section headers, cards.</div>
+        <div class="swatch-use">Secondary background. Cards, headers.</div>
       </div>
     </div>
     <div class="swatch">
-      <div class="swatch-color" style="background:#FFFFFF;"></div>
+      <div class="swatch-color" style="background:#fff;"></div>
       <div class="swatch-info">
         <div class="swatch-name" style="color:#111;">Pure White</div>
         <div class="swatch-hex">#FFFFFF</div>
-        <div class="swatch-use">Checkmark, waveform, body text on dark.</div>
+        <div class="swatch-use">Checkmark, waveform, body text.</div>
       </div>
     </div>
     <div class="swatch">
@@ -313,22 +324,19 @@
   </div>
 </section>
 
-<!-- TYPOGRAPHY -->
 <section>
   <div class="section-label">03 — Typography</div>
   <div class="section-title">Type System</div>
-
   <div class="type-row">
     <div class="type-meta">Display / Headlines</div>
     <div class="type-sample-primary">Playfair Display</div>
     <div class="type-specs">
       <div class="type-spec"><span>Font</span>Playfair Display</div>
       <div class="type-spec"><span>Weight</span>700 / 900</div>
-      <div class="type-spec"><span>Use</span>Hero titles, section headings, pull quotes</div>
+      <div class="type-spec"><span>Use</span>Hero titles, section headings</div>
       <div class="type-spec"><span>Color</span>Mirror Gold gradient</div>
     </div>
   </div>
-
   <div class="type-row">
     <div class="type-meta">UI / Labels / Navigation</div>
     <div class="type-sample-secondary">CITADEL VERIFY™</div>
@@ -339,7 +347,6 @@
       <div class="type-spec"><span>Tracking</span>4–8px</div>
     </div>
   </div>
-
   <div class="type-row">
     <div class="type-meta">Body / Descriptions</div>
     <div class="type-sample-body">Every CitadelVerify™ Platinum lead is AI voice-qualified, identity-verified, and backed by a live transfer guarantee. You are not buying data. You are buying a conversation.</div>
@@ -352,12 +359,10 @@
   </div>
 </section>
 
-<!-- TIER COLORS -->
 <section>
   <div class="section-label">04 — Product Tiers</div>
   <div class="section-title">Tier Identity</div>
   <div class="tiers-grid">
-
     <div class="tier-card silver">
       <div class="tier-name">Silver</div>
       <div class="tier-label">Entry Tier</div>
@@ -368,7 +373,6 @@
       <div class="tier-feature"><span class="check">✓</span> Full Form Delivered</div>
       <div class="tier-feature"><span class="check">✓</span> Call Recording Provided</div>
     </div>
-
     <div class="tier-card gold">
       <div class="tier-name">Gold</div>
       <div class="tier-label">Premium Tier</div>
@@ -380,7 +384,6 @@
       <div class="tier-feature"><span class="check">✓</span> Full Form Delivered</div>
       <div class="tier-feature"><span class="check">✓</span> Call Recording Provided</div>
     </div>
-
     <div class="tier-card platinum">
       <div class="tier-name">Platinum ⭐</div>
       <div class="tier-label">Top Tier</div>
@@ -389,19 +392,15 @@
       <div class="tier-feature"><span class="check">✓</span> Data &amp; Scoring Check</div>
       <div class="tier-feature"><span class="check">✓</span> Voice-Qualified Consumer</div>
       <div class="tier-feature"><span class="check">✓</span> Call Transfer Attempt</div>
-      <div class="tier-feature"><span class="check">✓</span>
-        <span class="tier-highlight">1-to-1 eSign Consent</span>
-      </div>
+      <div class="tier-feature"><span class="check">✓</span><span class="tier-highlight">1-to-1 eSign Consent</span></div>
       <div class="tier-feature"><span class="check">✓</span> Full Form Delivered</div>
       <div class="tier-feature"><span class="check">✓</span> Call Recording Provided</div>
       <div class="tier-feature"><span class="check">✓</span> Appointment Backed Guarantee</div>
       <div class="tier-feature"><span class="check">✓</span> Follow Up Until Transfer Done</div>
     </div>
-
   </div>
 </section>
 
-<!-- USAGE RULES -->
 <section>
   <div class="section-label">05 — Usage</div>
   <div class="section-title">Logo Usage Rules</div>
@@ -410,11 +409,11 @@
       <h4>✓ Do</h4>
       <ul>
         <li>Use on pure black or deep navy backgrounds</li>
-        <li>Maintain clear space equal to the shield width on all sides</li>
+        <li>Maintain clear space equal to shield width on all sides</li>
         <li>Use the metallic gold gradient for all gold elements</li>
         <li>Always include ™ symbol after "VERIFY"</li>
         <li>Use horizontal wordmark for headers and email signatures</li>
-        <li>Use stacked wordmark for square/social formats</li>
+        <li>Use stacked wordmark for square / social formats</li>
       </ul>
     </div>
     <div class="rule-card dont">
@@ -425,23 +424,60 @@
         <li>Add glow, drop shadows, or blur effects</li>
         <li>Stretch, skew, or rotate the logo</li>
         <li>Use flat yellow as a substitute for mirror gold</li>
-        <li>Remove or alter the battlements/crenellations</li>
+        <li>Remove or alter the battlements / crenellations</li>
       </ul>
     </div>
   </div>
 </section>
 
-<!-- TAGLINE -->
 <div class="tagline-box" style="max-width:1200px;margin:0 auto 0;">
   <blockquote>"Not a FormFill. A Verified Consumer."</blockquote>
   <cite>CitadelVerify™ &nbsp;·&nbsp; AI-Verified. Guaranteed Contact. &nbsp;·&nbsp; A Trademark of Digify.AI</cite>
 </div>
 
-</div><!-- /max-width -->
+</div>
 
 <footer>
   <p>CitadelVerify™ is a trademark of <span>Digify.AI</span> &nbsp;·&nbsp; Brand Guide V2 &nbsp;·&nbsp; Confidential &nbsp;·&nbsp; 2026</p>
 </footer>
 
+</div><!-- /brand-content -->
+
+<script>
+  // SHA-256 stored hash — password is NOT stored in plain text
+  const HASH = "8e0f921ec77f314dc7aa9fe76ed48fcb90d5a1e32109484ccfad9423ab73bf00";
+
+  async function sha256(message) {
+    const msgBuffer = new TextEncoder().encode(message);
+    const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+    const hashArray  = Array.from(new Uint8Array(hashBuffer));
+    return hashArray.map(b => b.toString(16).padStart(2,'0')).join('');
+  }
+
+  async function checkPassword() {
+    const input = document.getElementById('pwd-input').value;
+    const hashed = await sha256(input);
+    const errEl  = document.getElementById('lock-error');
+    const lockBox = document.querySelector('.lock-box');
+
+    if (hashed === HASH) {
+      document.getElementById('lock-screen').style.display = 'none';
+      document.getElementById('brand-content').style.display = 'block';
+      // Remember in session
+      sessionStorage.setItem('cv_auth','1');
+    } else {
+      errEl.classList.add('show');
+      lockBox.classList.add('shake');
+      document.getElementById('pwd-input').value = '';
+      setTimeout(() => lockBox.classList.remove('shake'), 400);
+    }
+  }
+
+  // Check if already authenticated this session
+  if (sessionStorage.getItem('cv_auth') === '1') {
+    document.getElementById('lock-screen').style.display = 'none';
+    document.getElementById('brand-content').style.display = 'block';
+  }
+</script>
 </body>
 </html>
