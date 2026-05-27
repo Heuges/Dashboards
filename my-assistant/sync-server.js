@@ -723,6 +723,19 @@ const server = http.createServer(async (req, res) => {
         return;
     }
 
+    // ── GET /data/sheets-sync/:company ────────────────────────────────────
+    // Since Caddy blocks /sheets/*, we proxy sheets sync via the /data/ path.
+    if (req.method === 'GET' && req.url.startsWith('/data/sheets-sync/')) {
+        const co = req.url.replace('/data/sheets-sync/', '');
+        console.log(`[${co.toUpperCase()} Sheets] Manual sync triggered via /data/...`);
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ status: 'syncing', company: co, message: `Pulling ${co} data from Google Sheet...` }));
+        const syncFn = co === 'networks' ? syncAllCompanies : () => syncCompanyExpenses(co);
+        syncFn().then(() => console.log(`[${co.toUpperCase()} Sheets] ✅ Sync complete`))
+                .catch(e => console.error(`[${co.toUpperCase()} Sheets] Sync error:`, e.message));
+        return;
+    }
+
     // ── Generic /data/* endpoints ─────────────────────────────────────────
     if (req.method === 'GET' && req.url.startsWith('/data/')) {
         const name = req.url.replace('/data/', '');

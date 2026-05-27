@@ -1115,7 +1115,7 @@ function fmtMoney(n) {
 
 async function loadLiveExpenses() {
     try {
-        const r = await fetch(API_BASE + '/sheets/networks');
+        const r = await fetch(API_BASE + '/data/networks-expenses');
         liveExpData = await r.json();
         if (liveExpData && liveExpData.months) {
             renderLiveExpenses();
@@ -1253,7 +1253,7 @@ async function triggerSheetSync() {
     const syncBtn = document.querySelector('.sync-btn');
     if (syncBtn) { syncBtn.textContent = '⏳ Syncing...'; syncBtn.disabled = true; }
     try {
-        await fetch(API_BASE + '/sheets/networks/sync');
+        await fetch(API_BASE + '/data/sheets-sync/networks');
         // Wait 25 seconds then reload data (sync runs in background)
         setTimeout(async function() {
             await loadLiveExpenses();

@@ -1112,7 +1112,7 @@ function fmtMoney(n) {
 
 async function loadLiveExpenses() {
     try {
-        const r = await fetch(API_BASE + '/sheets/digify');
+        const r = await fetch(API_BASE + '/data/digify-expenses');
         liveExpData = await r.json();
         if (liveExpData && liveExpData.months) {
             renderLiveExpenses();
@@ -1250,7 +1250,7 @@ async function triggerSheetSync() {
     const syncBtn = document.querySelector('.sync-btn');
     if (syncBtn) { syncBtn.textContent = '⏳ Syncing...'; syncBtn.disabled = true; }
     try {
-        await fetch(API_BASE + '/sheets/digify/sync');
+        await fetch(API_BASE + '/data/sheets-sync/digify');
         // Wait 25 seconds then reload data (sync runs in background)
         setTimeout(async function() {
             await loadLiveExpenses();
