@@ -703,6 +703,11 @@ if ('serviceWorker' in navigator) {
       </button>
     </div>
     <input class="ql-input" id="qlFoodNote" placeholder="What did you eat? (optional note)" maxlength="200">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+      <label style="font-size:.75rem;color:var(--dim);white-space:nowrap">⏰ Time eaten:</label>
+      <input type="time" id="qlFoodManualTime" class="ql-input" style="margin-bottom:0;flex:1" title="Leave blank to use current time">
+      <span style="font-size:.7rem;color:var(--dim);white-space:nowrap">blank = now</span>
+    </div>
     <button class="ql-tap-btn" style="background:linear-gradient(135deg,#4c1d95,#8b5cf6);color:#fff" onclick="qlAddFood()">🍽️ Log Meal</button>
     <div class="ql-log-list" id="qlFoodLog"></div>
   </div>
@@ -863,6 +868,10 @@ if ('serviceWorker' in navigator) {
   <button onclick="shiftFoodDate(-1)">‹</button>
   <span class="fdn-label" id="foodDateLabel">Today</span>
   <button onclick="shiftFoodDate(1)" id="foodDateNext">›</button>
+</div>
+<div style="display:flex;gap:6px;margin-bottom:8px;align-items:center">
+  <input type="time" id="foodManualTime" style="background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:8px;padding:6px 8px;color:var(--text);font-size:.78rem;font-family:'Inter',sans-serif;outline:none;color-scheme:dark;flex:0 0 auto" title="Leave blank to use current time">
+  <span style="font-size:.72rem;color:var(--dim);white-space:nowrap">Leave blank = now</span>
 </div>
 <button class="food-meal-btn" onclick="logMeal()">+ Log Meal</button>
 <input type="text" class="food-meal-note" id="foodNote" placeholder="What did you eat? (optional)" onkeydown="if(event.key==='Enter')logMeal()">
@@ -2659,12 +2668,26 @@ function injectHistoricalData() {
 function logMeal() {
   const note = document.getElementById('foodNote').value.trim();
   const dateStr = foodViewDate;
-  const isToday = dateStr === getTodayStr();
-  const now = new Date();
-  const ts = isToday ? now.toISOString() : dateStr + 'T12:00:00.000Z';
-  const timeStr = isToday ? now.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'}) : '12:00 PM';
+  const manualTime = document.getElementById('foodManualTime')?.value; // e.g. "18:30"
+  let ts, timeStr;
+  if (manualTime) {
+    // Build timestamp from selected date + manual time
+    const [hh, mm] = manualTime.split(':').map(Number);
+    const d = new Date(dateStr + 'T00:00:00');
+    d.setHours(hh, mm, 0, 0);
+    ts = d.toISOString();
+    const ampm = hh >= 12 ? 'PM' : 'AM';
+    const h12 = hh % 12 || 12;
+    timeStr = `${h12}:${String(mm).padStart(2,'0')} ${ampm}`;
+  } else {
+    const isToday = dateStr === getTodayStr();
+    const now = new Date();
+    ts = isToday ? now.toISOString() : dateStr + 'T12:00:00.000Z';
+    timeStr = isToday ? now.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'}) : '12:00 PM';
+  }
   intakeLog.unshift({ id: Date.now(), date: dateStr, time: timeStr, timestamp: ts, type:'food', oz:null, note });
   document.getElementById('foodNote').value = '';
+  if (document.getElementById('foodManualTime')) document.getElementById('foodManualTime').value = '';
   saveIntake(); renderFood(); renderFasting();
 }
 function logDrink(type) {
@@ -3752,7 +3775,16 @@ function qlSelectMeal(meal, btn) {
 async function qlAddFood() {
   if (!qlMeal) { qlToast('Select a meal type first', '#ef4444'); return; }
   const note = document.getElementById('qlFoodNote')?.value.trim() || '';
-  const time = new Date().toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});
+  const manualTime = document.getElementById('qlFoodManualTime')?.value;
+  let time;
+  if (manualTime) {
+    const [hh, mm] = manualTime.split(':').map(Number);
+    const ampm = hh >= 12 ? 'PM' : 'AM';
+    const h12 = hh % 12 || 12;
+    time = `${h12}:${String(mm).padStart(2,'0')} ${ampm}`;
+  } else {
+    time = new Date().toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});
+  }
   const entry = { id: Date.now(), date: TODAY, time, meal: qlMeal, note };
   qlFoodLog.push(entry);
   qlRender();
