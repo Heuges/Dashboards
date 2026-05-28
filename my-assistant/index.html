@@ -869,9 +869,10 @@ if ('serviceWorker' in navigator) {
   <span class="fdn-label" id="foodDateLabel">Today</span>
   <button onclick="shiftFoodDate(1)" id="foodDateNext">›</button>
 </div>
-<div style="display:flex;gap:6px;margin-bottom:8px;align-items:center">
-  <input type="time" id="foodManualTime" style="background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:8px;padding:6px 8px;color:var(--text);font-size:.78rem;font-family:'Inter',sans-serif;outline:none;color-scheme:dark;flex:0 0 auto" title="Leave blank to use current time">
-  <span style="font-size:.72rem;color:var(--dim);white-space:nowrap">Leave blank = now</span>
+<div style="display:flex;gap:8px;margin-bottom:10px;align-items:center;background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:10px;padding:8px 12px">
+  <span style="font-size:.75rem;color:var(--dim);white-space:nowrap;font-weight:600">⏰ Meal Time</span>
+  <input type="time" id="foodManualTime" style="background:transparent;border:none;color:var(--text);font-size:.82rem;font-family:'Inter',sans-serif;outline:none;color-scheme:dark;flex:1" title="Set a custom time — leave blank to use the current time">
+  <span style="font-size:.68rem;color:var(--dim);white-space:nowrap;font-style:italic">blank = now</span>
 </div>
 <button class="food-meal-btn" onclick="logMeal()">+ Log Meal</button>
 <input type="text" class="food-meal-note" id="foodNote" placeholder="What did you eat? (optional)" onkeydown="if(event.key==='Enter')logMeal()">
@@ -990,6 +991,12 @@ if ('serviceWorker' in navigator) {
 
 <script>
 const API_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.protocol === 'file:' ? 'http://localhost:8888' : 'https://dashboard-assistant.digify.ai';
+// Helper: fetch with credentials so Caddy Basic Auth passes through on the live server
+function apiFetch(url, opts = {}) {
+  return fetch(url, { credentials: 'include', ...opts,
+    headers: { ...(opts.headers || {}) }
+  });
+}
 
 // Clock
 function updateClock(){
@@ -1063,14 +1070,14 @@ let walkLog = [];
 
 async function loadWalkLog() {
   try {
-    const r = await fetch(API_BASE + '/data/walklog');
+    const r = await apiFetch(API_BASE + '/data/walklog');
     walkLog = await r.json();
   } catch(e) { walkLog = JSON.parse(localStorage.getItem('walkLog') || '[]'); }
 }
 
 async function saveWalkLog() {
   localStorage.setItem('walkLog', JSON.stringify(walkLog));
-  try { await fetch(API_BASE + '/data/walklog', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(walkLog) }); } catch(e) {}
+  try { await apiFetch(API_BASE + '/data/walklog', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(walkLog) }); } catch(e) {}
 }
 
 function logWalk() {
@@ -2144,7 +2151,7 @@ let todoFilter = 'all';
 
 async function loadTodos() {
   try {
-    const r = await fetch(API_BASE + '/data/todos');
+    const r = await apiFetch(API_BASE + '/data/todos');
     todos = await r.json();
   } catch(e) { todos = JSON.parse(localStorage.getItem('todos') || '[]'); }
   renderTodos();
@@ -2152,7 +2159,7 @@ async function loadTodos() {
 
 async function saveTodos() {
   localStorage.setItem('todos', JSON.stringify(todos));
-  try { await fetch(API_BASE + '/data/todos', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(todos) }); } catch(e) {}
+  try { await apiFetch(API_BASE + '/data/todos', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(todos) }); } catch(e) {}
 }
 
 function addTodo() {
@@ -2225,7 +2232,7 @@ let reminders = [];
 
 async function loadReminders() {
   try {
-    const r = await fetch(API_BASE + '/data/reminders');
+    const r = await apiFetch(API_BASE + '/data/reminders');
     reminders = await r.json();
   } catch(e) { reminders = JSON.parse(localStorage.getItem('reminders') || '[]'); }
   renderReminders();
@@ -2233,7 +2240,7 @@ async function loadReminders() {
 
 async function saveReminders() {
   localStorage.setItem('reminders', JSON.stringify(reminders));
-  try { await fetch(API_BASE + '/data/reminders', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(reminders) }); } catch(e) {}
+  try { await apiFetch(API_BASE + '/data/reminders', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(reminders) }); } catch(e) {}
 }
 
 function addReminder() {
@@ -2328,7 +2335,7 @@ function getTodayStr() { return new Date().toISOString().slice(0,10); }
 
 async function loadWorkout() {
   try {
-    const r = await fetch(API_BASE + '/data/workout');
+    const r = await apiFetch(API_BASE + '/data/workout');
     workoutLog = await r.json();
   } catch(e) { workoutLog = JSON.parse(localStorage.getItem('workout') || '[]'); }
   renderWorkout();
@@ -2336,7 +2343,7 @@ async function loadWorkout() {
 
 async function saveWorkout() {
   localStorage.setItem('workout', JSON.stringify(workoutLog));
-  try { await fetch(API_BASE + '/data/workout', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(workoutLog) }); } catch(e) {}
+  try { await apiFetch(API_BASE + '/data/workout', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(workoutLog) }); } catch(e) {}
 }
 
 function logWorkout(type) {
@@ -2407,7 +2414,7 @@ let bpViewDate = getTodayStr();
 
 async function loadBP() {
   try {
-    const r = await fetch(API_BASE + '/data/bloodpressure');
+    const r = await apiFetch(API_BASE + '/data/bloodpressure');
     bpLog = await r.json();
   } catch(e) { bpLog = JSON.parse(localStorage.getItem('bloodpressure') || '[]'); }
   renderBP();
@@ -2415,7 +2422,7 @@ async function loadBP() {
 
 async function saveBP() {
   localStorage.setItem('bloodpressure', JSON.stringify(bpLog));
-  try { await fetch(API_BASE + '/data/bloodpressure', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(bpLog) }); } catch(e) {}
+  try { await apiFetch(API_BASE + '/data/bloodpressure', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(bpLog) }); } catch(e) {}
 }
 
 function addBP() {
@@ -2635,7 +2642,7 @@ function formatPaceSecs(t) {
 let intakeLog = [];
 async function loadIntake() {
   try {
-    const r = await fetch(API_BASE + '/data/intake');
+    const r = await apiFetch(API_BASE + '/data/intake');
     intakeLog = await r.json();
   } catch(e) { intakeLog = JSON.parse(localStorage.getItem('intakeLog') || '[]'); }
   renderFood();
@@ -2643,7 +2650,7 @@ async function loadIntake() {
 }
 async function saveIntake() {
   localStorage.setItem('intakeLog', JSON.stringify(intakeLog));
-  try { await fetch(API_BASE + '/data/intake', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(intakeLog) }); } catch(e) {}
+  try { await apiFetch(API_BASE + '/data/intake', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(intakeLog) }); } catch(e) {}
 }
 // Food date navigation
 let foodViewDate = getTodayStr();
@@ -2828,17 +2835,17 @@ const BM_LABELS = { neck:'Neck', chest:'Chest', belly:'Belly', hips:'Hips', thig
 let weightLog = [];
 let metricsLog = [];
 async function loadBodyMetrics() {
-  try { const r=await fetch(API_BASE + '/data/weightlog'); weightLog=await r.json(); } catch(e) { weightLog=JSON.parse(localStorage.getItem('weightLog')||'[]'); }
-  try { const r=await fetch(API_BASE + '/data/metricslog'); metricsLog=await r.json(); } catch(e) { metricsLog=JSON.parse(localStorage.getItem('metricsLog')||'[]'); }
+  try { const r=await apiFetch(API_BASE + '/data/weightlog'); if(r.ok) weightLog=await r.json(); else throw new Error(r.status); } catch(e) { weightLog=JSON.parse(localStorage.getItem('weightLog')||'[]'); }
+  try { const r=await apiFetch(API_BASE + '/data/metricslog'); if(r.ok) metricsLog=await r.json(); else throw new Error(r.status); } catch(e) { metricsLog=JSON.parse(localStorage.getItem('metricsLog')||'[]'); }
   renderBodyMetrics();
 }
 async function saveWeightLog() {
   localStorage.setItem('weightLog', JSON.stringify(weightLog));
-  try { await fetch(API_BASE + '/data/weightlog',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(weightLog)}); } catch(e) {}
+  try { await apiFetch(API_BASE + '/data/weightlog',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(weightLog)}); } catch(e) {}
 }
 async function saveMetricsLog() {
   localStorage.setItem('metricsLog', JSON.stringify(metricsLog));
-  try { await fetch(API_BASE + '/data/metricslog',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(metricsLog)}); } catch(e) {}
+  try { await apiFetch(API_BASE + '/data/metricslog',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(metricsLog)}); } catch(e) {}
 }
 function logWeight() {
   const input = document.getElementById('addWeight');
@@ -2879,7 +2886,7 @@ function connectWithings() {} // replaced by panel
 let withingsConfig = null;
 async function loadWithingsConfig() {
   try {
-    const r = await fetch(API_BASE + '/withings/config');
+    const r = await apiFetch(API_BASE + '/withings/config');
     withingsConfig = await r.json();
   } catch(e) { withingsConfig = null; }
   renderWithingsPanel();
@@ -2888,7 +2895,7 @@ async function saveWithingsLink() {
   const url = document.getElementById('bwLinkInput').value.trim();
   if (!url || !url.includes('withings')) { alert('Please paste a valid Withings link.'); return; }
   try {
-    const r = await fetch(API_BASE + '/withings/link', {
+    const r = await apiFetch(API_BASE + '/withings/link', {
       method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ url })
     });
     const data = await r.json();
@@ -2904,7 +2911,7 @@ async function syncWithingsNow() {
   if (btn) { btn.textContent = '... Syncing'; btn.disabled = true; }
   if (statusEl) statusEl.textContent = 'Syncing with Withings (takes ~15 sec)...';
   try {
-    await fetch(API_BASE + '/withings/sync');
+    await apiFetch(API_BASE + '/withings/sync');
     setTimeout(async () => {
       await loadBodyMetrics();
       await loadWithingsConfig();
