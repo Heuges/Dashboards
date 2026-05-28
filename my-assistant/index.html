@@ -1000,7 +1000,20 @@ if ('serviceWorker' in navigator) {
 <div class="chat-msgs" id="chatMsgs">
 <div class="msg ai">Hi Tommy! I'm your AI assistant. Ask me anything — check emails, reschedule meetings, plan your walks, or draft responses. <br><br>💡 <em>Try: "What should I reply to Mark Muzzini?"</em></div>
 </div>
-<div id="chatInputArea"></div>
+<div id="chatInputArea">
+  <div class="chat-input">
+    <input id="chatIn" placeholder="Ask anything — or type Good Morning" onkeydown="if(event.key==='Enter')sendMsg()">
+    <button onclick="sendMsg()">→</button>
+  </div>
+  <div id="chatApiSetup" style="display:none;padding:10px 16px;border-top:1px solid var(--border)">
+    <p style="margin:0 0 6px;font-size:.73rem;color:var(--dim);font-weight:600">🤖 Gemini API (optional — for AI chat):</p>
+    <div style="display:flex;gap:6px;margin-bottom:4px">
+      <input id="apiKeyIn" placeholder="Paste API key..." style="flex:1;background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:8px;padding:6px 10px;color:var(--text);font-size:.75rem;font-family:'Inter',sans-serif;outline:none">
+      <button onclick="saveKey()" style="background:var(--blue);border:none;border-radius:8px;padding:6px 12px;color:#fff;font-size:.75rem;font-weight:700;cursor:pointer">Save</button>
+    </div>
+    <a href="https://aistudio.google.com/apikey" target="_blank" style="font-size:.7rem;color:var(--blue)">Get a free key →</a>
+  </div>
+</div>
 </div>
 
 <script>
@@ -3404,11 +3417,13 @@ function toggleChat(){
   if(open)initChat();
 }
 function initChat(){
-  const key=localStorage.getItem(GEMINI_KEY_STORAGE);
-  const area=document.getElementById('chatInputArea');
-  // Always show the input first - Good Morning/Night work without an API key
-  area.innerHTML = '<div class="chat-input"><input id="chatIn" placeholder="Ask anything — or type Good Morning" onkeydown="if(event.key===\'Enter\')sendMsg()"><button onclick="sendMsg()">→</button></div>'
-    + (!key ? '<div style="padding:10px 16px;border-top:1px solid var(--border)"><p style="margin:0 0 6px;font-size:.73rem;color:var(--dim);font-weight:600">🤖 Gemini API (optional — for AI chat):</p><div style="display:flex;gap:6px;margin-bottom:4px"><input id="apiKeyIn" placeholder="Paste API key..." style="flex:1;background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:8px;padding:6px 10px;color:var(--text);font-size:.75rem;font-family:Inter,sans-serif;outline:none"><button onclick="saveKey()" style="background:var(--blue);border:none;border-radius:8px;padding:6px 12px;color:#fff;font-size:.75rem;font-weight:700;cursor:pointer">Save</button></div><a href="https://aistudio.google.com/apikey" target="_blank" style="font-size:.7rem;color:var(--blue)">Get a free key →</a></div>' : '');
+  const key = localStorage.getItem(GEMINI_KEY_STORAGE);
+  // Input is always in the HTML — just show/hide the API key setup section
+  const setup = document.getElementById('chatApiSetup');
+  if (setup) setup.style.display = key ? 'none' : 'block';
+  // Focus the input
+  const inp = document.getElementById('chatIn');
+  if (inp) inp.focus();
 }
 function saveKey(){
   const k=document.getElementById('apiKeyIn').value.trim();
