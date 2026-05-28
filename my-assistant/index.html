@@ -3384,8 +3384,12 @@ function toggleChat(){
 function initChat(){
   const key=localStorage.getItem(GEMINI_KEY_STORAGE);
   const area=document.getElementById('chatInputArea');
-  if(key){area.innerHTML='<div class="chat-input"><input id="chatIn" placeholder="Ask me anything..." onkeydown="if(event.key===\'Enter\')sendMsg()"><button onclick="sendMsg()">→</button></div>';}
-  else{area.innerHTML='<div class="api-setup"><p>Connect your free Gemini API key:</p><input id="apiKeyIn" placeholder="Paste API key here..."><button onclick="saveKey()">Connect</button><p><a href="https://aistudio.google.com/apikey" target="_blank">Get free key →</a></p></div>';}
+  // Always show the input box so Good Morning / Good Night always work
+  let html = '<div class="chat-input"><input id="chatIn" placeholder="Ask me anything... or type Good Morning" onkeydown="if(event.key===\'Enter\')sendMsg()"><button onclick="sendMsg()">→</button></div>';
+  if(!key){
+    html += '<div class="api-setup" style="border-top:1px solid var(--border);padding:10px 16px"><p style="margin:0 0 6px;font-size:.75rem;color:var(--dim)">Connect Gemini API for AI features:</p><div style="display:flex;gap:6px"><input id="apiKeyIn" placeholder="Paste API key here..."><button onclick="saveKey()">Connect</button></div><p style="margin:4px 0 0;font-size:.7rem"><a href="https://aistudio.google.com/apikey" target="_blank">Get free key →</a></p></div>';
+  }
+  area.innerHTML = html;
 }
 function saveKey(){
   const k=document.getElementById('apiKeyIn').value.trim();
