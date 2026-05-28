@@ -749,6 +749,20 @@ if ('serviceWorker' in navigator) {
 <div class="wrap">
 <a href="../" class="back desktop-only">← All Dashboards</a>
 
+<!-- Server Connection Banner (auto-hides once credentials saved) -->
+<div id="serverAuthBanner" style="display:none;background:linear-gradient(135deg,rgba(245,158,11,.12),rgba(245,158,11,.06));border:1px solid rgba(245,158,11,.35);border-radius:14px;padding:14px 18px;margin-bottom:16px;display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+  <span style="font-size:1.1rem">🔐</span>
+  <div style="flex:1;min-width:200px">
+    <div style="font-size:.82rem;font-weight:700;color:#f59e0b;margin-bottom:4px">Connect to Your Server</div>
+    <div style="font-size:.72rem;color:var(--dim)">Enter your dashboard login once to unlock Body Metrics, Weight, and all live data.</div>
+  </div>
+  <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">
+    <input id="dashUserIn" placeholder="Username" style="background:rgba(255,255,255,.06);border:1px solid rgba(245,158,11,.3);border-radius:8px;padding:7px 10px;color:var(--text);font-size:.8rem;font-family:'Inter',sans-serif;outline:none;width:100px">
+    <input id="dashPassIn" type="password" placeholder="Password" style="background:rgba(255,255,255,.06);border:1px solid rgba(245,158,11,.3);border-radius:8px;padding:7px 10px;color:var(--text);font-size:.8rem;font-family:'Inter',sans-serif;outline:none;width:100px" onkeydown="if(event.key==='Enter')saveDashCreds()">
+    <button onclick="saveDashCreds()" style="background:linear-gradient(135deg,#f59e0b,#d97706);border:none;border-radius:8px;padding:7px 14px;color:#000;font-weight:700;font-size:.78rem;cursor:pointer">Connect</button>
+  </div>
+</div>
+
 <div class="top">
 <h1>👋 Good <span id="greeting">Morning</span>, Tommy</h1>
 <div class="clock"><span id="time"></span><div class="date" id="dateStr"></div></div>
@@ -991,10 +1005,18 @@ if ('serviceWorker' in navigator) {
 
 <script>
 const API_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.protocol === 'file:' ? 'http://localhost:8888' : 'https://dashboard-assistant.digify.ai';
-// Helper: fetch with credentials so Caddy Basic Auth passes through on the live server
+const IS_LIVE = window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1' && window.location.protocol !== 'file:';
+// Caddy Basic Auth helper — reads stored credentials and injects Authorization header
+function getAuthHeader() {
+  if (!IS_LIVE) return {};
+  const u = localStorage.getItem('dash_user') || '';
+  const p = localStorage.getItem('dash_pass') || '';
+  if (!u || !p) return {};
+  return { 'Authorization': 'Basic ' + btoa(u + ':' + p) };
+}
 function apiFetch(url, opts = {}) {
-  return fetch(url, { credentials: 'include', ...opts,
-    headers: { ...(opts.headers || {}) }
+  return fetch(url, { ...opts,
+    headers: { ...getAuthHeader(), ...(opts.headers || {}) }
   });
 }
 
@@ -3384,12 +3406,9 @@ function toggleChat(){
 function initChat(){
   const key=localStorage.getItem(GEMINI_KEY_STORAGE);
   const area=document.getElementById('chatInputArea');
-  // Always show the input box so Good Morning / Good Night always work
-  let html = '<div class="chat-input"><input id="chatIn" placeholder="Ask me anything... or type Good Morning" onkeydown="if(event.key===\'Enter\')sendMsg()"><button onclick="sendMsg()">→</button></div>';
-  if(!key){
-    html += '<div class="api-setup" style="border-top:1px solid var(--border);padding:10px 16px"><p style="margin:0 0 6px;font-size:.75rem;color:var(--dim)">Connect Gemini API for AI features:</p><div style="display:flex;gap:6px"><input id="apiKeyIn" placeholder="Paste API key here..."><button onclick="saveKey()">Connect</button></div><p style="margin:4px 0 0;font-size:.7rem"><a href="https://aistudio.google.com/apikey" target="_blank">Get free key →</a></p></div>';
-  }
-  area.innerHTML = html;
+  // Always show the input first - Good Morning/Night work without an API key
+  area.innerHTML = '<div class="chat-input"><input id="chatIn" placeholder="Ask anything — or type Good Morning" onkeydown="if(event.key===\'Enter\')sendMsg()"><button onclick="sendMsg()">→</button></div>'
+    + (!key ? '<div style="padding:10px 16px;border-top:1px solid var(--border)"><p style="margin:0 0 6px;font-size:.73rem;color:var(--dim);font-weight:600">🤖 Gemini API (optional — for AI chat):</p><div style="display:flex;gap:6px;margin-bottom:4px"><input id="apiKeyIn" placeholder="Paste API key..." style="flex:1;background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:8px;padding:6px 10px;color:var(--text);font-size:.75rem;font-family:Inter,sans-serif;outline:none"><button onclick="saveKey()" style="background:var(--blue);border:none;border-radius:8px;padding:6px 12px;color:#fff;font-size:.75rem;font-weight:700;cursor:pointer">Save</button></div><a href="https://aistudio.google.com/apikey" target="_blank" style="font-size:.7rem;color:var(--blue)">Get a free key →</a></div>' : '');
 }
 function saveKey(){
   const k=document.getElementById('apiKeyIn').value.trim();
@@ -3895,9 +3914,35 @@ function qlShowTab(tab) {
 
 // Auto-init Quick Log data when on mobile and user switches to log tab
 // Pre-select 16oz water
+// ── Server Credentials (Caddy Basic Auth) ──────────────────────────────────
+function saveDashCreds() {
+  const u = document.getElementById('dashUserIn')?.value.trim();
+  const p = document.getElementById('dashPassIn')?.value.trim();
+  if (!u || !p) { alert('Please enter both username and password.'); return; }
+  localStorage.setItem('dash_user', u);
+  localStorage.setItem('dash_pass', p);
+  document.getElementById('serverAuthBanner').style.display = 'none';
+  // Reload all live data now that credentials are available
+  loadBodyMetrics();
+  loadIntake();
+  loadBP();
+  loadWorkout();
+  loadWalkLog();
+  loadTodos();
+  loadReminders();
+  loadWithingsConfig();
+  addMsg && typeof addMsg === 'function' && addMsg('ai', '✅ Server connected! Loading your data...');
+}
+
 document.addEventListener('DOMContentLoaded', () => {
   const def = document.querySelector('.ql-preset-btn[data-oz="16"]');
   if (def) def.classList.add('selected');
+
+  // Show server auth banner if credentials not yet saved (live server only)
+  if (IS_LIVE && (!localStorage.getItem('dash_user') || !localStorage.getItem('dash_pass'))) {
+    const banner = document.getElementById('serverAuthBanner');
+    if (banner) banner.style.display = 'flex';
+  }
 });
 </script>
 </body>
