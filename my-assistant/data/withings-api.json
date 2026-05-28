@@ -1,11 +1,11 @@
 {
   "client_id": "aa8731d6120af76613d48f9ba1aa53537d08883b4f7ec1cc0898123fc27e987c",
-  "client_secret": "a41ad8b7ebf2e0592772e4ec70e6ff2be0f9476569eccc0d7a764c62f785383d",
-  "access_token": "e1d165d24bb3f6eb709b447d25818d4a8b874a6d",
-  "refresh_token": "fca4fd293cb18c094b2d6ffc30ec89b093d2e94e",
-  "expires_at": 1779476521219,
-  "userid": "19217274",
+  "client_secret": "7328f4a3322e732dbf64f49b457b07e18ed7023b2c5dcf2b01d9ed80762ca863",
+  "access_token": "1b13e6eb5b461cc04323f3c47186cb82d2f622db",
+  "refresh_token": "d3afb6c6755a78031f6e6dd4b917a951f4920ad9",
+  "expires_at": 1780023145652,
+  "userid": 19217274,
   "connectedAt": "2026-05-22T16:02:01.219Z",
-  "lastHistorySync": "2026-05-22T16:06:51.375Z",
-  "totalEntries": 77
+  "lastHistorySync": "2026-05-28T23:52:26.033Z",
+  "totalEntries": 78
 }

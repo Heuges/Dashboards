@@ -1,5 +1,25 @@
 [
   {
+    "id": 1780012346032.915,
+    "time": "2:42 PM",
+    "unit": "lbs",
+    "date": "2026-05-28",
+    "timestamp": "2026-05-28T14:42:55.000Z",
+    "source": "withings-api",
+    "weight": 263.6,
+    "weight_kg": 119.6,
+    "fat_pct": 36.2,
+    "fat_kg": 43.3,
+    "fat_lbs": 95.5,
+    "fat_free_kg": 76.2,
+    "muscle_kg": 72.5,
+    "muscle_lbs": 159.8,
+    "water_kg": 54.3,
+    "water_lbs": 119.7,
+    "bone_kg": 3.7,
+    "bone_lbs": 8.2
+  },
+  {
     "id": 1779465721592.7034,
     "date": "2026-05-22",
     "time": "1:30 PM",
