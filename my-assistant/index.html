@@ -825,9 +825,9 @@ if ('serviceWorker' in navigator) {
 </div>
 <div id="remList"><div class="loading">Loading reminders...</div></div>
 </div>
-<!-- Workout Tracker -->
+<!-- Liquids Tracker -->
 <div class="card workout">
-<h2><span class="icon">💪</span> Workout</h2>
+<h2><span class="icon">💧</span> Liquids</h2>
 <div id="woToday" class="wo-today">
 <div class="wo-stat water"><div class="wo-icon">💧</div><div class="wo-val" id="woWater">0</div><div class="wo-label">oz Water</div></div>
 <div class="wo-stat pushups"><div class="wo-icon">🏋️</div><div class="wo-val" id="woPushups">0</div><div class="wo-label">Pushups</div></div>
@@ -2421,11 +2421,21 @@ function renderWorkout() {
   document.getElementById('woSitups').textContent = entry.situps;
   document.getElementById('woCoffee').textContent = entry.coffee || 0;
 
-  // History (last 7 days, excluding today)
-  const history = workoutLog.filter(w => w.date !== today).slice(0, 7);
+  // History — last 5 days (excluding today) + MTD average row
+  const history = workoutLog.filter(w => w.date !== today).slice(0, 5);
   if (history.length === 0) {
     document.getElementById('woHistory').innerHTML = '';
   } else {
+    // MTD average — all entries this month including today
+    const nowD = new Date();
+    const mtdStart = `${nowD.getFullYear()}-${String(nowD.getMonth()+1).padStart(2,'0')}-01`;
+    const mtdEntries = workoutLog.filter(w => w.date >= mtdStart);
+    const mtdDays = mtdEntries.length || 1;
+    const mtdWater  = Math.round(mtdEntries.reduce((s,w) => s+(w.water||0), 0) / mtdDays);
+    const mtdCoffee = (mtdEntries.reduce((s,w) => s+(w.coffee||0), 0) / mtdDays).toFixed(1);
+    const mtdPushups = Math.round(mtdEntries.reduce((s,w) => s+(w.pushups||0), 0) / mtdDays);
+    const mtdSitups  = Math.round(mtdEntries.reduce((s,w) => s+(w.situps||0), 0) / mtdDays);
+
     let html = '<div class="wo-history"><div class="wo-history-title">Recent History</div>';
     for (const d of history) {
       const dt = new Date(d.date + 'T12:00:00');
@@ -2436,10 +2446,20 @@ function renderWorkout() {
           <span>💧 ${d.water}oz</span>
           <span>🏋️ ${d.pushups}</span>
           <span>🔥 ${d.situps}</span>
-          <span>☕ ${d.coffee || 0}</span>
+          <span>☕ ${d.coffee || 0}oz</span>
         </div>
       </div>`;
     }
+    // MTD average row
+    html += `<div class="wo-day" style="background:rgba(59,130,246,.08);border:1px solid rgba(59,130,246,.2);border-radius:10px;margin-top:4px">
+      <div class="wo-date" style="color:var(--blue);font-weight:700">📊 MTD Avg (${mtdDays}d)</div>
+      <div class="wo-d-stat">
+        <span>💧 ${mtdWater}oz</span>
+        <span>🏋️ ${mtdPushups}</span>
+        <span>🔥 ${mtdSitups}</span>
+        <span>☕ ${mtdCoffee}oz</span>
+      </div>
+    </div>`;
     html += '</div>';
     document.getElementById('woHistory').innerHTML = html;
   }
