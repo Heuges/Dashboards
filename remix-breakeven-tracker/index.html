@@ -205,6 +205,22 @@
         .sync-btn { padding:7px 16px; border-radius:9px; background:rgba(0,212,255,.12); color:var(--blue); border:1px solid rgba(0,212,255,.2); font-size:.72rem; font-weight:700; cursor:pointer; font-family:'Inter',sans-serif; display:inline-flex; align-items:center; gap:6px; transition:background .2s; }
         .sync-btn:hover { background:rgba(0,212,255,.25); }
         .exp-placeholder { text-align:center; padding:40px; color:var(--dim); font-size:.88rem; }
+
+        /* -- QuickBooks Panel -- */
+        .qb-company-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:14px; }
+        .qb-co-card { background:rgba(255,255,255,.02); border:1px solid var(--border); border-radius:14px; padding:18px; position:relative; overflow:hidden; transition:border-color .2s; }
+        .qb-co-card:hover { border-color:#334155; }
+        .qb-co-card .qb-co-bar { position:absolute; top:0; left:0; right:0; height:3px; }
+        .qb-co-name { font-size:.9rem; font-weight:800; color:var(--text); margin-bottom:3px; margin-top:6px; }
+        .qb-co-status { display:inline-flex; align-items:center; gap:5px; font-size:.65rem; font-weight:700; text-transform:uppercase; letter-spacing:.5px; padding:3px 9px; border-radius:20px; margin-bottom:12px; }
+        .qb-status-live { background:rgba(16,185,129,.15); color:#10b981; border:1px solid rgba(16,185,129,.25); }
+        .qb-status-wait { background:rgba(100,116,139,.12); color:#64748b; border:1px solid rgba(100,116,139,.2); }
+        .qb-co-stat { display:flex; align-items:center; gap:8px; font-size:.78rem; color:var(--muted); margin-bottom:6px; }
+        .qb-co-stat .qsi { font-size:.85rem; width:18px; text-align:center; }
+        .qb-co-stat strong { color:var(--text); }
+        .qb-co-empty { font-size:.78rem; color:var(--dim); font-style:italic; line-height:1.6; margin-top:4px; }
+        .qb-sync-row { margin-top:12px; padding-top:10px; border-top:1px solid var(--border); font-size:.68rem; color:var(--dim); display:flex; align-items:center; gap:5px; }
+        .qb-sync-dot { width:6px; height:6px; border-radius:50%; background:var(--green); flex-shrink:0; animation:pulse 2s infinite; }
     </style>
 </head>
 <body>
@@ -271,6 +287,24 @@
         </div>
 
         <div class="footer-bar">Remix Dynamix Breakeven Tracker · Data pending — provide financial data to enable breakeven tracking · May 2026</div>
+
+
+        <!-- === QUICKBOOKS LIVE DATA PANEL === -->
+        <div class="card" id="qbDataCard">
+            <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:18px">
+                <div style="display:flex;align-items:center;gap:12px">
+                    <div style="font-size:2rem">&#x1F4DA;</div>
+                    <div>
+                        <h2 style="margin-bottom:3px">QuickBooks Online &#8212; Live Data Connection
+                            <span id="qbLiveBadge" class="live-badge" style="margin-left:8px;display:none"><span class="pulse"></span>LIVE</span>
+                        </h2>
+                        <div style="font-size:.76rem;color:var(--dim)" id="qbSyncLine">Connecting to QuickBooks database&#8230;</div>
+                    </div>
+                </div>
+                <button class="sync-btn" onclick="loadQBStatus()">&#x1F504; Refresh QB Data</button>
+            </div>
+            <div id="qbCompanyGrid" class="qb-company-grid"><!-- rendered by JS --></div>
+        </div>
 
         <div class="card" id="dataSourcesCard">
             <h2>🗂️ Financial Data Sources</h2>
