@@ -1,0 +1,30 @@
+name: Deploy to dashboard-assistant.digify.ai
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SERVER_SSH_KEY }}
+          port: ${{ secrets.SERVER_PORT || 22 }}
+          script: |
+            set -e
+            cd ~/work/Dashboards
+            echo "📥 Pulling latest code..."
+            git pull origin main
+            echo "📦 Installing dependencies..."
+            npm install --production
+            echo "🔄 Restarting web server..."
+            pm2 restart web-server || pm2 start web-server.js --name web-server
+            pm2 save
+            echo "✅ Deploy complete — $(date)"
+            echo "🔍 Server status:"
+            pm2 status web-server
