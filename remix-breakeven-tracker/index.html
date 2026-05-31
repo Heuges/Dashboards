@@ -244,17 +244,15 @@
     <div id="beView">
         <div style="text-align:center;margin-bottom:28px;">
             <h1 style="font-size:1.6rem;font-weight:800;background:linear-gradient(135deg,#fff,#94a3b8);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">Remix Dynamix Breakeven Tracker — Weekly View</h1>
-            <p style="color:var(--muted);font-size:.9rem;margin-top:6px;">Revenue vs. Breakeven (Reduced &amp; Full Strength) · Last 5 Weeks + 3 Week Projection</p>
+            <p style="color:var(--muted);font-size:.9rem;margin-top:6px;">Revenue vs. Full Strength Breakeven · Last 5 Weeks + 3 Week Projection · BE target pending payroll data</p>
         </div>
 
         <div class="card">
-            <h2>📊 Weekly Revenue vs. Breakeven Lines</h2>
-            <div class="sub">Green = Revenue · Red = Expenses · Amber dashed = Reduced BE ($56K/wk) · Purple dashed = Full Strength BE ($130K/wk)</div>
+            <h2>📊 Weekly Revenue vs. Expenses</h2>
+            <div class="sub">Green = Revenue · Red = Expenses · Full Strength BE line will appear once payroll data is entered</div>
             <div class="legend-custom">
                 <div class="legend-item"><div class="legend-line" style="background:var(--green)"></div> Revenue</div>
                 <div class="legend-item"><div class="legend-line" style="background:var(--red)"></div> Expenses</div>
-                <div class="legend-item"><div class="legend-dash" style="border-color:var(--amber)"></div> BE Reduced ($56K)</div>
-                <div class="legend-item"><div class="legend-dash" style="border-color:var(--purple)"></div> BE Full ($130K)</div>
                 <div class="legend-item"><div class="legend-line" style="background:rgba(99,102,241,.3);height:12px;border-radius:4px"></div> Projected</div>
             </div>
             <div class="chart-box"><canvas id="mainChart"></canvas></div>
@@ -264,25 +262,19 @@
             <h2>📋 Weekly Data — Actual + Projected</h2>
             <div class="sub">Blue-shaded rows are projections based on weighted avg + trend of last 3 actual weeks</div>
             <table><thead><tr>
-                <th style="text-align:left">Week</th><th>Revenue</th><th>Expenses</th><th>Net</th>
-                <th>BE Reduced</th><th>BE Full</th><th>vs. Reduced</th><th>vs. Full</th>
+                <th style="text-align:left">Week</th><th>Revenue</th><th>Expenses</th><th>Net</th><th>vs. Prior Wk</th>
             </tr></thead><tbody id="tbl"></tbody></table>
         </div>
 
         <div class="card">
             <h2>🔍 Analysis</h2>
-            <div class="insight">
-                <h4>Where Remix Dynamix Stands</h4>
-                <p><em style="color:var(--dim)">Financial data for Remix Dynamix not yet configured. Provide revenue and expense targets to activate breakeven tracking.</em></p></div>
-            <div class="insight" style="margin-top:12px">
-                <h4>3-Week Projection</h4>
-                <p>Based on the last 3 weeks, revenue has an <span class="hl">upward trend of +$12,906/week</span>.
-                Projected weeks 6–8 show revenue between <span class="hl">$91K–$104K/week</span> —
-                comfortably above reduced BE but still <span class="wn">$26K–$39K short</span> of full strength BE.</p>
+            <div class="insight" style="border-color:rgba(245,158,11,.3);background:rgba(245,158,11,.06)">
+                <h4 style="color:#f59e0b">⏳ Awaiting Payroll Data</h4>
+                <p>Remix Dynamix operates at full strength — <strong style="color:var(--text)">no reduced staffing scenario applies</strong>. The Full Strength Breakeven line will be calculated and displayed once weekly payroll figures are provided. Please share the payroll data to activate BE tracking.</p>
             </div>
-            <div class="insight" style="margin-top:12px;border-color:rgba(139,92,246,.3);background:rgba(139,92,246,.08)">
-                <h4>Path to Full Strength</h4>
-                
+            <div class="insight" style="margin-top:12px">
+                <h4>Revenue Trend</h4>
+                <p>Current data shows 5 weeks of revenue and expense history. Once the Full Strength BE target is established, the tracker will display weekly performance vs. target and a 3-week projection.</p>
             </div>
         </div>
 
@@ -441,11 +433,13 @@
 // ─────────────────────────────────────────────────────────────────────────────
 const API_BASE = 'https://dashboard-assistant.digify.ai';
 
-const weeks = ['Wk1\nApr 13','Wk2\nApr 20','Wk3\nApr 27','Wk4\nMay 4','Wk5\nMay 11','Wk6*\nMay 18','Wk7*\nMay 25','Wk8*\nJun 1'];
-const rev =   [128669, 58647, 80097, 47750, 105910, 90825, 97731, 104637];
-const exp =   [65146, 99085, 46780, 72666, 124660, 100183, 119123, 138063];
-const beRed = Array(8).fill(56234);
-const beFull= Array(8).fill(130294);
+// ── Remix Dynamix weekly data
+// Revenue & expense figures — BE Full line pending payroll data from Tommy
+const weeks  = ['Wk1\nApr 13','Wk2\nApr 20','Wk3\nApr 27','Wk4\nMay 4','Wk5\nMay 11','Wk6*\nMay 18','Wk7*\nMay 25','Wk8*\nJun 1'];
+const rev    = [128669, 58647, 80097, 47750, 105910, 90825, 97731, 104637];
+const exp    = [65146,  99085, 46780, 72666, 124660, 100183, 119123, 138063];
+// NOTE: beRed removed — Remix never had a reduced-strength staffing scenario
+// NOTE: beFull removed — $130K was CEM's figure; Remix BE will be set once payroll data is received
 
 Chart.defaults.color = '#94a3b8';
 Chart.defaults.borderColor = 'rgba(30,41,59,.4)';
@@ -459,27 +453,30 @@ new Chart(document.getElementById('mainChart'), {
           segment:{borderDash:ctx=>ctx.p0DataIndex>=4?[6,3]:undefined} },
         { label:'Expenses', data:exp, borderColor:'#ef4444', borderWidth:3, fill:false, tension:.3,
           pointRadius:[6,6,6,6,6,5,5,5], pointBackgroundColor:exp.map((v,i)=>i>=5?'rgba(239,68,68,.5)':'#ef4444'), pointBorderColor:'#fff', pointBorderWidth:2,
-          segment:{borderDash:ctx=>ctx.p0DataIndex>=4?[6,3]:undefined} },
-        { label:'BE Reduced ($56K)', data:beRed, borderColor:'#f59e0b', borderWidth:2.5, borderDash:[10,5], pointRadius:0, fill:false },
-        { label:'BE Full ($130K)', data:beFull, borderColor:'#8b5cf6', borderWidth:2.5, borderDash:[6,6], pointRadius:0, fill:false }
+          segment:{borderDash:ctx=>ctx.p0DataIndex>=4?[6,3]:undefined} }
     ]},
     options:{
         responsive:true, maintainAspectRatio:false,
         interaction:{intersect:false, mode:'index'},
         plugins:{ legend:{display:false}, tooltip:{ backgroundColor:'#1a2236', titleColor:'#f1f5f9', bodyColor:'#94a3b8', borderColor:'#1e293b', borderWidth:1, padding:12, callbacks:{label:ctx=>`${ctx.dataset.label}: $${ctx.raw.toLocaleString()}`} }},
-        scales:{ y:{ticks:{callback:v=>'$'+Math.round(v/1000)+'K'}, grid:{color:'rgba(30,41,59,.3)'}, min:0, max:160000}, x:{grid:{display:false}} }
+        scales:{ y:{ticks:{callback:v=>'$'+Math.round(v/1000)+'K'}, grid:{color:'rgba(30,41,59,.3)'}, min:0}, x:{grid:{display:false}} }
     }
 });
 
 const tbl = document.getElementById('tbl');
 const labels=['Apr 13-19','Apr 20-26','Apr 27-May 3','May 4-10','May 11-17','May 18-24*','May 25-31*','Jun 1-7*'];
 for(let i=0;i<8;i++){
-    const net=rev[i]-exp[i], vsR=rev[i]-beRed[0], vsF=rev[i]-beFull[0], cls=i>=5?' class="proj"':'';
-    tbl.innerHTML+=`<tr${cls}><td>${labels[i]}</td><td class="pos">$${rev[i].toLocaleString()}</td><td class="neg">$${exp[i].toLocaleString()}</td>
+    const net=rev[i]-exp[i];
+    const priorNet = i>0 ? (rev[i-1]-exp[i-1]) : null;
+    const delta = priorNet !== null ? net - priorNet : null;
+    const cls=i>=5?' class="proj"':'';
+    tbl.innerHTML+=`<tr${cls}>
+    <td>${labels[i]}</td>
+    <td class="pos">$${rev[i].toLocaleString()}</td>
+    <td class="neg">$${exp[i].toLocaleString()}</td>
     <td class="${net>=0?'pos':'neg'}">${net>=0?'+':'-'}$${Math.abs(net).toLocaleString()}</td>
-    <td>$${beRed[0].toLocaleString()}</td><td>$${beFull[0].toLocaleString()}</td>
-    <td class="${vsR>=0?'pos':'neg'}">${vsR>=0?'+':'-'}$${Math.abs(vsR).toLocaleString()}</td>
-    <td class="${vsF>=0?'pos':'neg'}">${vsF>=0?'+':'-'}$${Math.abs(vsF).toLocaleString()}</td></tr>`;
+    <td class="${delta===null?'':delta>=0?'pos':'neg'}">${delta===null?'—':(delta>=0?'+':'-')+'$'+Math.abs(delta).toLocaleString()}</td>
+    </tr>`;
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
