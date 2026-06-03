@@ -2879,16 +2879,20 @@ async function syncWithingsNow() {
   const btn = document.getElementById('bwSyncBtn');
   const statusEl = document.getElementById('bwStatusText');
   if (btn) { btn.textContent = '... Syncing'; btn.disabled = true; }
-  if (statusEl) statusEl.textContent = 'Syncing with Withings (takes ~15 sec)...';
+  if (statusEl) statusEl.textContent = 'Pulling fresh data from Withings API...';
   try {
-    await fetch(API_BASE + '/withings/sync');
+    const r = await fetch(API_BASE + '/withings/api-sync');
+    const data = await r.json();
+    if (statusEl) statusEl.textContent = data.message || 'Sync started...';
+    // Poll for completion — reload body metrics after a short delay
     setTimeout(async () => {
       await loadBodyMetrics();
       await loadWithingsConfig();
       if (btn) { btn.textContent = '&#8635; Sync Now'; btn.disabled = false; }
-    }, 18000);
+      if (statusEl) statusEl.textContent = 'Sync complete — body metrics updated!';
+    }, 5000);
   } catch(e) {
-    if (statusEl) statusEl.textContent = 'Sync server not reachable.';
+    if (statusEl) statusEl.textContent = 'Sync server not reachable (is it running?)';
     if (btn) { btn.textContent = '&#8635; Sync Now'; btn.disabled = false; }
   }
 }
@@ -2937,28 +2941,40 @@ function renderBodyMetrics() {
       const diff = prev ? (latest.weight - prev.weight) : null;
       const trendColor = diff === null ? 'var(--dim)' : diff < 0 ? 'var(--green)' : diff > 0 ? 'var(--red)' : 'var(--dim)';
       const trendStr = diff === null ? '' : (diff > 0 ? '+' : '') + diff.toFixed(1) + ' lbs vs prev';
+      // Support both old scraper fields (fat/muscle/bone/water as %) and new API fields (fat_pct, muscle_lbs, etc.)
+      const hasFat     = latest.fat_pct  != null || latest.fat     != null;
+      const hasMuscle  = latest.muscle_lbs != null || latest.muscle   != null;
+      const hasWater   = latest.water_lbs  != null || latest.water    != null;
+      const hasBone    = latest.bone_lbs   != null || latest.bone     != null;
       let compHtml = '';
-      if (latest.fat || latest.muscle || latest.water || latest.bone) {
+      if (hasFat || hasMuscle || hasWater || hasBone) {
+        const fatPct     = latest.fat_pct   != null ? latest.fat_pct   : latest.fat;
+        const muscleLbs  = latest.muscle_lbs != null ? latest.muscle_lbs : null;
+        const musclePct  = latest.muscle    != null ? latest.muscle    : null;
+        const waterLbs   = latest.water_lbs  != null ? latest.water_lbs  : null;
+        const waterPct   = latest.water     != null ? latest.water     : null;
+        const boneLbs    = latest.bone_lbs   != null ? latest.bone_lbs   : null;
+        const bonePct    = latest.bone      != null ? latest.bone      : null;
         compHtml = `<div class="bm-comp-grid">
           <div class="bm-comp-card">
             <div class="bm-comp-label">Fat</div>
-            <div class="bm-comp-val">${latest.fat ? latest.fat.toFixed(1) + '%' : '—'}</div>
-            <div class="bm-comp-bar-bg"><div class="bm-comp-bar fat" style="width:${latest.fat || 0}%"></div></div>
+            <div class="bm-comp-val">${fatPct != null ? fatPct.toFixed(1) + '%' : '—'}</div>
+            <div class="bm-comp-bar-bg"><div class="bm-comp-bar fat" style="width:${fatPct || 0}%"></div></div>
           </div>
           <div class="bm-comp-card">
             <div class="bm-comp-label">Muscle</div>
-            <div class="bm-comp-val">${latest.muscle ? latest.muscle.toFixed(1) + '%' : '—'}</div>
-            <div class="bm-comp-bar-bg"><div class="bm-comp-bar muscle" style="width:${latest.muscle || 0}%"></div></div>
+            <div class="bm-comp-val">${muscleLbs != null ? muscleLbs.toFixed(1) + ' lbs' : musclePct != null ? musclePct.toFixed(1) + '%' : '—'}</div>
+            <div class="bm-comp-bar-bg"><div class="bm-comp-bar muscle" style="width:${musclePct || (muscleLbs ? Math.min(muscleLbs / 2.5, 100) : 0)}%"></div></div>
           </div>
           <div class="bm-comp-card">
             <div class="bm-comp-label">Water</div>
-            <div class="bm-comp-val">${latest.water ? latest.water.toFixed(1) + '%' : '—'}</div>
-            <div class="bm-comp-bar-bg"><div class="bm-comp-bar water" style="width:${latest.water || 0}%"></div></div>
+            <div class="bm-comp-val">${waterLbs != null ? waterLbs.toFixed(1) + ' lbs' : waterPct != null ? waterPct.toFixed(1) + '%' : '—'}</div>
+            <div class="bm-comp-bar-bg"><div class="bm-comp-bar water" style="width:${waterPct || (waterLbs ? Math.min(waterLbs / 2.5, 100) : 0)}%"></div></div>
           </div>
           <div class="bm-comp-card">
             <div class="bm-comp-label">Bone</div>
-            <div class="bm-comp-val">${latest.bone ? latest.bone.toFixed(1) + '%' : '—'}</div>
-            <div class="bm-comp-bar-bg"><div class="bm-comp-bar bone" style="width:${(latest.bone || 0) * 10}%"></div></div>
+            <div class="bm-comp-val">${boneLbs != null ? boneLbs.toFixed(1) + ' lbs' : bonePct != null ? bonePct.toFixed(1) + '%' : '—'}</div>
+            <div class="bm-comp-bar-bg"><div class="bm-comp-bar bone" style="width:${bonePct || (boneLbs ? Math.min(boneLbs * 8, 100) : 0)}%"></div></div>
           </div>
         </div>`;
       }

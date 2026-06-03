@@ -552,8 +552,14 @@ setInterval(() => {
     const dateKey = now.toISOString().slice(0, 10);
     if (now.getHours() === 22 && now.getMinutes() === 0 && lastScheduledSync !== dateKey) {
         lastScheduledSync = dateKey;
-        console.log(`[Withings] ⏰ 10pm — running scheduled sync...`);
-        runWithingsSync().catch(e => console.error('[Withings] Scheduler error:', e.message));
+        console.log(`[Withings] ⏰ 10pm — running scheduled API sync...`);
+        pullWithingsHistory(1).then(r => {
+            writeDataFile('withings-last-sync', { success: true, syncedAt: new Date().toISOString(), added: r.added, updated: r.updated, total: r.total });
+            console.log(`[Withings] ✅ Nightly sync done: ${r.added} new, ${r.updated} updated`);
+        }).catch(e => {
+            writeDataFile('withings-last-sync', { success: false, error: e.message, syncedAt: new Date().toISOString() });
+            console.error('[Withings] Nightly sync error:', e.message);
+        });
     }
 }, 60000);
 
@@ -676,10 +682,14 @@ const server = http.createServer(async (req, res) => {
             res.writeHead(400); res.end(JSON.stringify({ error: 'Not connected to Withings API. Visit /withings/auth first.' })); return;
         }
         res.writeHead(200, { 'Content-Type': 'application/json' });
-        res.end(JSON.stringify({ status: 'syncing', message: 'Pulling 6-month history...' }));
+        res.end(JSON.stringify({ status: 'syncing', message: 'Pulling latest data from Withings API...' }));
         pullWithingsHistory(6).then(r => {
-            console.log(`[Withings API] Manual sync: ${r.added} new entries, ${r.total} total`);
-        }).catch(e => console.error('[Withings API] Manual sync error:', e.message));
+            writeDataFile('withings-last-sync', { success: true, syncedAt: new Date().toISOString(), added: r.added, updated: r.updated, total: r.total });
+            console.log(`[Withings API] ✅ Manual sync: ${r.added} new, ${r.updated} updated, ${r.total} total`);
+        }).catch(e => {
+            writeDataFile('withings-last-sync', { success: false, error: e.message, syncedAt: new Date().toISOString() });
+            console.error('[Withings API] Manual sync error:', e.message);
+        });
         return;
     }
 
