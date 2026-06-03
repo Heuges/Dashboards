@@ -18,13 +18,14 @@ jobs:
           script: |
             set -e
             cd ~/work/Dashboards
-            echo "📥 Pulling latest code..."
+            echo "Pulling latest code..."
             git pull origin main
-            echo "📦 Installing dependencies..."
-            npm install --production
-            echo "🔄 Restarting web server..."
+            echo "Installing dependencies..."
+            cd my-assistant && npm install --production && cd ..
+            echo "Restarting web server..."
             pm2 restart web-server || pm2 start web-server.js --name web-server
+            echo "Restarting sync server..."
+            pm2 restart sync-server || pm2 start my-assistant/sync-server.js --name sync-server
             pm2 save
-            echo "✅ Deploy complete — $(date)"
-            echo "🔍 Server status:"
-            pm2 status web-server
+            echo "Deploy complete -- $(date)"
+            pm2 status
