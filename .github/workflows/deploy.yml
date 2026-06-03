@@ -8,24 +8,20 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - name: Deploy via SSH
-        uses: appleboy/ssh-action@v1.0.3
-        with:
-          host: ${{ secrets.SERVER_HOST }}
-          username: ${{ secrets.SERVER_USER }}
-          key: ${{ secrets.SERVER_SSH_KEY }}
-          port: ${{ secrets.SERVER_PORT || 22 }}
-          script: |
-            set -e
-            cd ~/work/Dashboards
-            echo "Pulling latest code..."
-            git pull origin main
-            echo "Installing dependencies..."
-            cd my-assistant && npm install --production && cd ..
-            echo "Restarting web server..."
-            pm2 restart web-server || pm2 start web-server.js --name web-server
-            echo "Restarting sync server..."
-            pm2 restart sync-server || pm2 start my-assistant/sync-server.js --name sync-server
-            pm2 save
-            echo "Deploy complete -- $(date)"
-            pm2 status
+      - name: Trigger deploy webhook
+        run: |
+          echo "Triggering deploy via HTTPS webhook..."
+          RESPONSE=$(curl -s -w "\n%{http_code}" -X POST \
+            https://dashboard-assistant.digify.ai/deploy \
+            -H "X-Deploy-Token: ${{ secrets.DEPLOY_TOKEN }}" \
+            -H "Content-Type: application/json" \
+            --max-time 45)
+          HTTP_CODE=$(echo "$RESPONSE" | tail -1)
+          BODY=$(echo "$RESPONSE" | head -1)
+          echo "HTTP Status: $HTTP_CODE"
+          echo "Response: $BODY"
+          if [ "$HTTP_CODE" != "200" ]; then
+            echo "Deploy failed with status $HTTP_CODE"
+            exit 1
+          fi
+          echo "Deploy successful!"

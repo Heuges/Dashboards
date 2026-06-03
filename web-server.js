@@ -1,10 +1,15 @@
 const http = require('http');
 const fs   = require('fs');
 const path = require('path');
+const { execSync } = require('child_process');
 const { Pool } = require('pg');
 
 const PORT = 8080;
 const ROOT = path.join(__dirname);
+
+// ─── Deploy Webhook Secret ────────────────────────────────────────────────────
+// Token is checked on every POST /deploy request
+const DEPLOY_SECRET = process.env.DEPLOY_SECRET || 'digify-deploy-2026';
 
 // ─── Neon DB Connection Pool ──────────────────────────────────────────────────
 const pool = new Pool({
@@ -14,7 +19,7 @@ const pool = new Pool({
   idleTimeoutMillis: 30000,
 });
 
-// ─── Company config: known companies + their QB account codes ─────────────────
+// ─── Company config ───────────────────────────────────────────────────────────
 const COMPANIES = [
   { key: 'cem',   name: 'Channel Edge Media',  color: '#ef4444' },
   { key: 'remix', name: 'Remix Dynamix',        color: '#06b6d4' },
@@ -37,7 +42,6 @@ async function getQBStatus() {
       GROUP BY account
       ORDER BY account
     `);
-
     const syncRes = await client.query(`
       SELECT DISTINCT ON (account)
         account, sync_type, records_synced, completed_at, status, error
@@ -45,22 +49,17 @@ async function getQBStatus() {
       WHERE status = 'completed'
       ORDER BY account, completed_at DESC
     `);
-
     const lastSyncRes = await client.query(`
       SELECT MAX(completed_at) AS last_sync, SUM(records_synced)::int AS total_today
       FROM sync_log
       WHERE completed_at > NOW() - INTERVAL '24 hours'
         AND status = 'completed'
     `);
-
     const invoiceMap = {};
     for (const row of invoiceRes.rows) invoiceMap[row.account] = row;
-
     const syncMap = {};
     for (const row of syncRes.rows) syncMap[row.account] = row;
-
     const lastSync = lastSyncRes.rows[0];
-
     const companies = COMPANIES.map(co => {
       const inv  = invoiceMap[co.key] || null;
       const sync = syncMap[co.key] || syncMap['all'] || null;
@@ -79,7 +78,6 @@ async function getQBStatus() {
         syncRecords:  sync ? sync.records_synced : 0,
       };
     });
-
     return {
       pulledAt:         new Date().toISOString(),
       lastDbSync:       lastSync ? lastSync.last_sync : null,
@@ -108,7 +106,38 @@ const MIME = {
 http.createServer(async (req, res) => {
   const urlPath = req.url.split('?')[0];
 
-  // ── API: QB Status ──
+  // ── POST /deploy — secure webhook, no SSH needed ──────────────────────────
+  if (req.method === 'POST' && urlPath === '/deploy') {
+    const token = req.headers['x-deploy-token'] || '';
+    if (token !== DEPLOY_SECRET) {
+      res.writeHead(401, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ error: 'Unauthorized' }));
+      console.warn('[Deploy] ⚠️  Rejected unauthorized deploy attempt');
+      return;
+    }
+    try {
+      console.log('[Deploy] 📥 Pulling latest code from GitHub...');
+      const pullOut = execSync('git pull origin main 2>&1', { cwd: ROOT, timeout: 30000 }).toString();
+      console.log('[Deploy] Git pull:', pullOut.trim().split('\n').pop());
+      let pm2Out = '';
+      try {
+        pm2Out = execSync('pm2 restart all 2>&1', { cwd: ROOT, timeout: 15000 }).toString();
+        console.log('[Deploy] ✅ PM2 restarted all processes');
+      } catch(e) {
+        pm2Out = e.message;
+        console.error('[Deploy] PM2 restart error:', e.message);
+      }
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ success: true, deployedAt: new Date().toISOString(), gitPull: pullOut, pm2: pm2Out }));
+    } catch(e) {
+      console.error('[Deploy] ❌ Deploy error:', e.message);
+      res.writeHead(500, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ success: false, error: e.message }));
+    }
+    return;
+  }
+
+  // ── GET /api/qb-status ────────────────────────────────────────────────────
   if (urlPath === '/api/qb-status') {
     res.writeHead(200, {
       'Content-Type': 'application/json',
@@ -126,7 +155,7 @@ http.createServer(async (req, res) => {
     return;
   }
 
-  // ── Static files ──
+  // ── Static files ──────────────────────────────────────────────────────────
   let filePath = urlPath === '/' ? '/index.html' : urlPath;
   if (!path.extname(filePath)) filePath = filePath.replace(/\/?$/, '/index.html');
   const absPath = path.join(ROOT, filePath);
@@ -152,8 +181,7 @@ http.createServer(async (req, res) => {
 }).listen(PORT, '0.0.0.0', () => {
   console.log(`🌐 Dashboards      →  http://localhost:${PORT}`);
   console.log(`📚 QB Status API   →  http://localhost:${PORT}/api/qb-status`);
+  console.log(`🚀 Deploy Webhook  →  POST http://localhost:${PORT}/deploy`);
   console.log(`📊 CEM             →  http://localhost:${PORT}/cem-breakeven-tracker/`);
   console.log(`📊 Remix           →  http://localhost:${PORT}/remix-breakeven-tracker/`);
-  console.log(`📊 Networks        →  http://localhost:${PORT}/networks-breakeven-tracker/`);
-  console.log(`📊 Digify          →  http://localhost:${PORT}/digify-breakeven-tracker/`);
 });
