@@ -1,5 +1,5 @@
 {
-  "syncedAt": "2026-05-27T01:42:51.644Z",
+  "syncedAt": "2026-06-03T14:00:28.696Z",
   "sheetId": "1zW-orwWjQ4k3MFYduw4_vkpnqgAPmaD8a1UWMIwNkX4",
   "company": "digify",
   "months": {
@@ -12,7 +12,7 @@
       "staffTotal": 0,
       "vendorTotal": 0,
       "platformTotal": 0,
-      "grandTotal": 157584.57,
+      "grandTotal": 167884.57,
       "computedTotal": 0
     },
     "February": {
@@ -77,7 +77,7 @@
       "staffTotal": 0,
       "vendorTotal": 0,
       "platformTotal": 72.84,
-      "grandTotal": 105849.5,
+      "grandTotal": 102210.15,
       "computedTotal": 72.84
     }
   }

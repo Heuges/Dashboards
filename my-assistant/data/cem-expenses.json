@@ -1,5 +1,5 @@
 {
-  "syncedAt": "2026-05-27T01:43:12.506Z",
+  "syncedAt": "2026-06-03T14:00:28.696Z",
   "sheetId": "1zW-orwWjQ4k3MFYduw4_vkpnqgAPmaD8a1UWMIwNkX4",
   "company": "cem",
   "months": {
@@ -11,6 +11,11 @@
           "name": "Tommy",
           "actual": 13000,
           "cemAmt": 8926.67
+        },
+        {
+          "name": "Joey",
+          "actual": 10000,
+          "cemAmt": 10300
         },
         {
           "name": "Stacey Schaedel",
@@ -86,16 +91,6 @@
           "name": "Jimmy - setup",
           "actual": 650,
           "cemAmt": 520
-        },
-        {
-          "name": "Tarun Wadhwa - Full Stack",
-          "actual": 2600,
-          "cemAmt": 1560
-        },
-        {
-          "name": "Vendant Bhatia - Full Stack",
-          "actual": 2600,
-          "cemAmt": 1560
         }
       ],
       "vendors": [
@@ -107,6 +102,11 @@
         }
       ],
       "platforms": [
+        {
+          "name": "Vendant Bhatia - Full Stack",
+          "actual": 2600,
+          "cemAmt": 1560
+        },
         {
           "name": "A10 Web AI",
           "actual": 60,
@@ -251,23 +251,13 @@
           "name": "Google Suites",
           "actual": 1656.31,
           "cemAmt": 952.38
-        },
-        {
-          "name": "Chad",
-          "actual": 28,
-          "cemAmt": 483
-        },
-        {
-          "name": "Chad",
-          "actual": 45,
-          "cemAmt": 258.75
         }
       ],
-      "staffTotal": 63562.79,
+      "staffTotal": 70742.79,
       "vendorTotal": 2330,
-      "platformTotal": 30076.910000000003,
-      "grandTotal": 95969.53,
-      "computedTotal": 95969.70000000001
+      "platformTotal": 30895.160000000003,
+      "grandTotal": 103967.95,
+      "computedTotal": 103967.95
     },
     "February": {
       "tab": "February",
@@ -1055,11 +1045,6 @@
           "cemAmt": 466.67
         },
         {
-          "name": "Chuck Lazaros - Web/IT",
-          "actual": 9583.33,
-          "cemAmt": 1935.41
-        },
-        {
           "name": "Jeff Cefaul - Ops Assistant",
           "actual": 5416.67,
           "cemAmt": 2789.59
@@ -1218,11 +1203,11 @@
           "cemAmt": 1178.75
         }
       ],
-      "staffTotal": 26994.009999999995,
+      "staffTotal": 25058.6,
       "vendorTotal": 0,
       "platformTotal": 27565.9,
-      "grandTotal": 54559.909999999996,
-      "computedTotal": 54559.909999999996
+      "grandTotal": 52624.5,
+      "computedTotal": 52624.5
     }
   }
 }

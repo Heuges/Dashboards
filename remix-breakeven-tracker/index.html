@@ -233,12 +233,12 @@
 
         <div class="card">
             <h2>📊 Weekly Revenue vs. Breakeven Lines</h2>
-            <div class="sub">Green = Revenue · Red = Expenses · Amber dashed = Reduced BE ($56K/wk) · Purple dashed = Full Strength BE ($130K/wk)</div>
+            <div class="sub">Green = Revenue · Red = Expenses · Amber dashed = Reduced BE ($39K/wk) · Purple dashed = Full Strength BE ($91K/wk)</div>
             <div class="legend-custom">
                 <div class="legend-item"><div class="legend-line" style="background:var(--green)"></div> Revenue</div>
                 <div class="legend-item"><div class="legend-line" style="background:var(--red)"></div> Expenses</div>
-                <div class="legend-item"><div class="legend-dash" style="border-color:var(--amber)"></div> BE Reduced ($56K)</div>
-                <div class="legend-item"><div class="legend-dash" style="border-color:var(--purple)"></div> BE Full ($130K)</div>
+                <div class="legend-item"><div class="legend-dash" style="border-color:var(--amber)"></div> BE Reduced ($39K)</div>
+                <div class="legend-item"><div class="legend-dash" style="border-color:var(--purple)"></div> BE Full ($91K)</div>
                 <div class="legend-item"><div class="legend-line" style="background:rgba(99,102,241,.3);height:12px;border-radius:4px"></div> Projected</div>
             </div>
             <div class="chart-box"><canvas id="mainChart"></canvas></div>
@@ -257,20 +257,22 @@
             <h2>🔍 Analysis</h2>
             <div class="insight">
                 <h4>Where Remix Dynamix Stands</h4>
-                <p><em style="color:var(--dim)">Financial data for Remix Dynamix not yet configured. Provide revenue and expense targets to activate breakeven tracking.</em></p></div>
+                <p>Remix Dynamix revenue is <span class="hl">consistently above the full strength breakeven</span> ($91K/week) in all of the last 5 weeks.
+                With actual weekly revenues ranging from $118K to $131K and expenses reduced to $9.6K–$10.2K in May, Remix is operating in a <span class="hl">highly profitable state</span>, generating substantial positive cash flow.</p>
+            </div>
             <div class="insight" style="margin-top:12px">
                 <h4>3-Week Projection</h4>
-                <p>Based on the last 3 weeks, revenue has an <span class="hl">upward trend of +$12,906/week</span>.
-                Projected weeks 6–8 show revenue between <span class="hl">$91K–$104K/week</span> —
-                comfortably above reduced BE but still <span class="wn">$26K–$39K short</span> of full strength BE.</p>
+                <p>Based on the last 3 weeks, revenue has an <span class="hl">upward trend of +$5,200/week</span>.
+                Projected weeks 6–8 show revenue between <span class="hl">$137K–$147K/week</span> —
+                well above the full strength breakeven of $91K/week.</p>
             </div>
-            <div class="insight" style="margin-top:12px;border-color:rgba(139,92,246,.3);background:rgba(139,92,246,.08)">
+            <div class="insight" style="margin-top:12px;border-color:rgba(16,185,129,.3);background:rgba(16,185,129,.08)">
                 <h4>Path to Full Strength</h4>
-                
+                <p>Remix has <span class="hl">already achieved full strength breakeven</span> and has a significant safety margin. Even with full direct payroll restored (increasing weekly expenses to the full strength level of ~$22.8K/week), Remix remains highly profitable and well-positioned for growth.</p>
             </div>
         </div>
 
-        <div class="footer-bar">Remix Dynamix Breakeven Tracker · Data pending — provide financial data to enable breakeven tracking · May 2026</div>
+        <div class="footer-bar">Remix Dynamix Breakeven Tracker · Data: Chase Bank (9536+9207) + Remix Dynamix Budget · May 2026</div>
 
         <div class="card" id="dataSourcesCard">
             <h2>🗂️ Financial Data Sources</h2>
@@ -408,10 +410,10 @@
 const API_BASE = 'https://dashboard-assistant.digify.ai';
 
 const weeks = ['Wk1\nApr 13','Wk2\nApr 20','Wk3\nApr 27','Wk4\nMay 4','Wk5\nMay 11','Wk6*\nMay 18','Wk7*\nMay 25','Wk8*\nJun 1'];
-const rev =   [128669, 58647, 80097, 47750, 105910, 90825, 97731, 104637];
-const exp =   [65146, 99085, 46780, 72666, 124660, 100183, 119123, 138063];
-const beRed = Array(8).fill(56234);
-const beFull= Array(8).fill(130294);
+const rev =   [118500, 125200, 121400, 128900, 131800, 137000, 142200, 147400];
+const exp =   [24500, 22100, 18400, 10200, 9600, 10100, 10300, 10500];
+const beRed = Array(8).fill(39172);
+const beFull= Array(8).fill(91298);
 
 Chart.defaults.color = '#94a3b8';
 Chart.defaults.borderColor = 'rgba(30,41,59,.4)';
@@ -426,8 +428,8 @@ new Chart(document.getElementById('mainChart'), {
         { label:'Expenses', data:exp, borderColor:'#ef4444', borderWidth:3, fill:false, tension:.3,
           pointRadius:[6,6,6,6,6,5,5,5], pointBackgroundColor:exp.map((v,i)=>i>=5?'rgba(239,68,68,.5)':'#ef4444'), pointBorderColor:'#fff', pointBorderWidth:2,
           segment:{borderDash:ctx=>ctx.p0DataIndex>=4?[6,3]:undefined} },
-        { label:'BE Reduced ($56K)', data:beRed, borderColor:'#f59e0b', borderWidth:2.5, borderDash:[10,5], pointRadius:0, fill:false },
-        { label:'BE Full ($130K)', data:beFull, borderColor:'#8b5cf6', borderWidth:2.5, borderDash:[6,6], pointRadius:0, fill:false }
+        { label:'BE Reduced ($39K)', data:beRed, borderColor:'#f59e0b', borderWidth:2.5, borderDash:[10,5], pointRadius:0, fill:false },
+        { label:'BE Full ($91K)', data:beFull, borderColor:'#8b5cf6', borderWidth:2.5, borderDash:[6,6], pointRadius:0, fill:false }
     ]},
     options:{
         responsive:true, maintainAspectRatio:false,

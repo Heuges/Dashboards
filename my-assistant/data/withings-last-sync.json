@@ -1,15 +1,6 @@
 {
-  "success": true,
-  "weights": [],
-  "historical": [],
-  "dates": [],
-  "title": "Withings Health Record",
-  "pageTextPreview": "Discover\n\nWelcome to Withings Secured Health Record\n\nAsk your patient to share their data with you again\n\nThe link you are trying to use is no longer valid (expired or used too many times). For security, please ask for a new sharing link.",
-  "selectorData": {},
-  "scrapedAt": "2026-05-22T22:00:55.073Z",
-  "fat": null,
-  "muscle": null,
-  "bone": null,
-  "water": null,
-  "syncedAt": "2026-05-22T22:00:55.073Z"
+  "success": false,
+  "error": "No system Chromium found",
+  "rawText": "",
+  "syncedAt": "2026-06-03T05:00:27.439Z"
 }

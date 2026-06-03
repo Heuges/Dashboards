@@ -1,5 +1,5 @@
 {
-  "syncedAt": "2026-05-27T01:42:51.645Z",
+  "syncedAt": "2026-06-03T14:00:28.696Z",
   "sheetId": "1zW-orwWjQ4k3MFYduw4_vkpnqgAPmaD8a1UWMIwNkX4",
   "company": "remix",
   "months": {
@@ -71,16 +71,6 @@
           "name": "Jimmy - setup",
           "actual": 650,
           "cemAmt": 260
-        },
-        {
-          "name": "Tarun Wadhwa - Full Stack",
-          "actual": 2600,
-          "cemAmt": 1560
-        },
-        {
-          "name": "Vendant Bhatia - Full Stack",
-          "actual": 2600,
-          "cemAmt": 1560
         }
       ],
       "vendors": [
@@ -92,6 +82,11 @@
         }
       ],
       "platforms": [
+        {
+          "name": "Vendant Bhatia - Full Stack",
+          "actual": 2600,
+          "cemAmt": 1560
+        },
         {
           "name": "A10 Web AI",
           "actual": 60,
@@ -221,23 +216,13 @@
           "name": "Google Suites",
           "actual": 1656.31,
           "cemAmt": 952.38
-        },
-        {
-          "name": "Chad",
-          "actual": 28,
-          "cemAmt": 611.8
-        },
-        {
-          "name": "Chad",
-          "actual": 45,
-          "cemAmt": 517.5
         }
       ],
-      "staffTotal": 23913.140000000003,
+      "staffTotal": 20793.140000000003,
       "vendorTotal": 1687.14,
-      "platformTotal": 33439.770000000004,
-      "grandTotal": 59040.04,
-      "computedTotal": 59040.05
+      "platformTotal": 33870.469999999994,
+      "grandTotal": 56350.75,
+      "computedTotal": 56350.75
     },
     "February": {
       "tab": "February",
@@ -921,8 +906,8 @@
         },
         {
           "name": "Chuck Lazaros - Web/IT",
-          "actual": 9583.33,
-          "cemAmt": 4935.41
+          "actual": 3000,
+          "cemAmt": 3090
         },
         {
           "name": "Jeff Cefaul - Ops Assistant",
@@ -1034,8 +1019,8 @@
         },
         {
           "name": "Moo Business Cards",
-          "actual": 623.3,
-          "cemAmt": 747.96
+          "actual": 910.07,
+          "cemAmt": 1001.08
         },
         {
           "name": "N8N AI server",
@@ -1064,8 +1049,8 @@
         },
         {
           "name": "Company Shirts",
-          "actual": 650,
-          "cemAmt": 747.5
+          "actual": 578.06,
+          "cemAmt": 635.87
         },
         {
           "name": "TrackDrive",
@@ -1078,11 +1063,11 @@
           "cemAmt": 1178.75
         }
       ],
-      "staffTotal": 26385.819999999996,
+      "staffTotal": 24540.41,
       "vendorTotal": 0,
-      "platformTotal": 17721.32,
-      "grandTotal": 44107.14,
-      "computedTotal": 44107.14
+      "platformTotal": 17862.81,
+      "grandTotal": 42403.22,
+      "computedTotal": 42403.22
     }
   }
 }
