@@ -2369,7 +2369,14 @@ setInterval(renderReminders, 60000);
 // ─── Workout Tracker ───
 let workoutLog = [];
 
-function getTodayStr() { return new Date().toISOString().slice(0,10); }
+function getTodayStr() {
+  // Use LOCAL date, not UTC — prevents late-night entries rolling over to the next day
+  const d = new Date();
+  const y = d.getFullYear();
+  const m = String(d.getMonth()+1).padStart(2,'0');
+  const day = String(d.getDate()).padStart(2,'0');
+  return `${y}-${m}-${day}`;
+}
 
 async function loadWorkout() {
   try {
@@ -3066,10 +3073,18 @@ function renderBodyMetrics() {
           </div>
         </div>`;
       }
+      // Check if data is stale (no entry today or yesterday)
+      const today = getTodayStr();
+      const latestDate = new Date(latest.date + 'T12:00:00');
+      const daysSince = Math.floor((new Date(today + 'T12:00:00') - latestDate) / 86400000);
+      const staleWarning = daysSince > 1
+        ? `<div style="font-size:.65rem;color:#f59e0b;margin-top:4px;font-weight:700">⚠️ Last updated ${daysSince} days ago — tap Sync Now below</div>`
+        : '';
       wEl.innerHTML = `<div class="bm-weight-display">
         <div class="bm-w-num">${latest.weight}</div>
-        <div class="bm-w-sub">lbs · ${latest.date}</div>
+        <div class="bm-w-sub">lbs · ${latest.date}${latest.date === today ? ' <span style="color:var(--green);font-size:.65rem">● Today</span>' : ''}</div>
         ${trendStr ? `<div class="bm-w-trend" style="color:${trendColor}">${trendStr}</div>` : ''}
+        ${staleWarning}
       </div>
       ${compHtml}`;
     }
