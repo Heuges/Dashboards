@@ -1,0 +1,12 @@
+{
+  "name": "dashboards",
+  "version": "1.0.0",
+  "description": "Loyal Companies financial dashboards",
+  "main": "web-server.js",
+  "scripts": {
+    "start": "node web-server.js"
+  },
+  "dependencies": {
+    "pg": "^8.14.1"
+  }
+}

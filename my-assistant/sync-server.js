@@ -881,6 +881,29 @@ const server = http.createServer(async (req, res) => {
         return;
     }
 
+    // ── POST /withings/notify (webhook — Withings pushes data on new measurement) ─
+    if (req.url.startsWith('/withings/notify')) {
+        // Withings sends a GET to verify the endpoint, and POST with measurement data
+        if (req.method === 'GET') {
+            res.writeHead(200, { 'Content-Type': 'text/plain' });
+            res.end('OK');
+            console.log('[Withings Notify] ✅ Webhook verification ping received.');
+            return;
+        }
+        if (req.method === 'POST') {
+            const body = await readBody(req);
+            console.log('[Withings Notify] 📥 Push received:', body.slice(0, 200));
+            res.writeHead(200, { 'Content-Type': 'text/plain' });
+            res.end('OK');
+            // Pull latest data from Withings API in background
+            console.log('[Withings Notify] 🔄 Triggering API sync after push...');
+            pullWithingsHistory(1).then(r => {
+                console.log(`[Withings Notify] ✅ Auto-sync complete: ${r.added} new, ${r.total} total`);
+            }).catch(e => console.error('[Withings Notify] Sync error:', e.message));
+            return;
+        }
+    }
+
     res.writeHead(404); res.end();
 
 });

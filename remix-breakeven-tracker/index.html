@@ -205,6 +205,22 @@
         .sync-btn { padding:7px 16px; border-radius:9px; background:rgba(0,212,255,.12); color:var(--blue); border:1px solid rgba(0,212,255,.2); font-size:.72rem; font-weight:700; cursor:pointer; font-family:'Inter',sans-serif; display:inline-flex; align-items:center; gap:6px; transition:background .2s; }
         .sync-btn:hover { background:rgba(0,212,255,.25); }
         .exp-placeholder { text-align:center; padding:40px; color:var(--dim); font-size:.88rem; }
+
+        /* -- QuickBooks Panel -- */
+        .qb-company-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:14px; }
+        .qb-co-card { background:rgba(255,255,255,.02); border:1px solid var(--border); border-radius:14px; padding:18px; position:relative; overflow:hidden; transition:border-color .2s; }
+        .qb-co-card:hover { border-color:#334155; }
+        .qb-co-card .qb-co-bar { position:absolute; top:0; left:0; right:0; height:3px; }
+        .qb-co-name { font-size:.9rem; font-weight:800; color:var(--text); margin-bottom:3px; margin-top:6px; }
+        .qb-co-status { display:inline-flex; align-items:center; gap:5px; font-size:.65rem; font-weight:700; text-transform:uppercase; letter-spacing:.5px; padding:3px 9px; border-radius:20px; margin-bottom:12px; }
+        .qb-status-live { background:rgba(16,185,129,.15); color:#10b981; border:1px solid rgba(16,185,129,.25); }
+        .qb-status-wait { background:rgba(100,116,139,.12); color:#64748b; border:1px solid rgba(100,116,139,.2); }
+        .qb-co-stat { display:flex; align-items:center; gap:8px; font-size:.78rem; color:var(--muted); margin-bottom:6px; }
+        .qb-co-stat .qsi { font-size:.85rem; width:18px; text-align:center; }
+        .qb-co-stat strong { color:var(--text); }
+        .qb-co-empty { font-size:.78rem; color:var(--dim); font-style:italic; line-height:1.6; margin-top:4px; }
+        .qb-sync-row { margin-top:12px; padding-top:10px; border-top:1px solid var(--border); font-size:.68rem; color:var(--dim); display:flex; align-items:center; gap:5px; }
+        .qb-sync-dot { width:6px; height:6px; border-radius:50%; background:var(--green); flex-shrink:0; animation:pulse 2s infinite; }
     </style>
 </head>
 <body>
@@ -228,7 +244,7 @@
     <div id="beView">
         <div style="text-align:center;margin-bottom:28px;">
             <h1 style="font-size:1.6rem;font-weight:800;background:linear-gradient(135deg,#fff,#94a3b8);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">Remix Dynamix Breakeven Tracker — Weekly View</h1>
-            <p style="color:var(--muted);font-size:.9rem;margin-top:6px;">Revenue vs. Breakeven (Reduced &amp; Full Strength) · Last 5 Weeks + 3 Week Projection</p>
+            <p style="color:var(--muted);font-size:.9rem;margin-top:6px;">Revenue vs. Full Strength Breakeven · Last 5 Weeks + 3 Week Projection · BE target pending payroll data</p>
         </div>
 
         <div class="card">
@@ -248,8 +264,7 @@
             <h2>📋 Weekly Data — Actual + Projected</h2>
             <div class="sub">Blue-shaded rows are projections based on weighted avg + trend of last 3 actual weeks</div>
             <table><thead><tr>
-                <th style="text-align:left">Week</th><th>Revenue</th><th>Expenses</th><th>Net</th>
-                <th>BE Reduced</th><th>BE Full</th><th>vs. Reduced</th><th>vs. Full</th>
+                <th style="text-align:left">Week</th><th>Revenue</th><th>Expenses</th><th>Net</th><th>vs. Prior Wk</th>
             </tr></thead><tbody id="tbl"></tbody></table>
         </div>
 
@@ -273,6 +288,24 @@
         </div>
 
         <div class="footer-bar">Remix Dynamix Breakeven Tracker · Data: Chase Bank (9536+9207) + Remix Dynamix Budget · May 2026</div>
+
+
+        <!-- === QUICKBOOKS LIVE DATA PANEL === -->
+        <div class="card" id="qbDataCard">
+            <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:18px">
+                <div style="display:flex;align-items:center;gap:12px">
+                    <div style="font-size:2rem">&#x1F4DA;</div>
+                    <div>
+                        <h2 style="margin-bottom:3px">QuickBooks Online &#8212; Live Data Connection
+                            <span id="qbLiveBadge" class="live-badge" style="margin-left:8px;display:none"><span class="pulse"></span>LIVE</span>
+                        </h2>
+                        <div style="font-size:.76rem;color:var(--dim)" id="qbSyncLine">Connecting to QuickBooks database&#8230;</div>
+                    </div>
+                </div>
+                <button class="sync-btn" onclick="loadQBStatus()">&#x1F504; Refresh QB Data</button>
+            </div>
+            <div id="qbCompanyGrid" class="qb-company-grid"><!-- rendered by JS --></div>
+        </div>
 
         <div class="card" id="dataSourcesCard">
             <h2>🗂️ Financial Data Sources</h2>
@@ -435,19 +468,24 @@ new Chart(document.getElementById('mainChart'), {
         responsive:true, maintainAspectRatio:false,
         interaction:{intersect:false, mode:'index'},
         plugins:{ legend:{display:false}, tooltip:{ backgroundColor:'#1a2236', titleColor:'#f1f5f9', bodyColor:'#94a3b8', borderColor:'#1e293b', borderWidth:1, padding:12, callbacks:{label:ctx=>`${ctx.dataset.label}: $${ctx.raw.toLocaleString()}`} }},
-        scales:{ y:{ticks:{callback:v=>'$'+Math.round(v/1000)+'K'}, grid:{color:'rgba(30,41,59,.3)'}, min:0, max:160000}, x:{grid:{display:false}} }
+        scales:{ y:{ticks:{callback:v=>'$'+Math.round(v/1000)+'K'}, grid:{color:'rgba(30,41,59,.3)'}, min:0}, x:{grid:{display:false}} }
     }
 });
 
 const tbl = document.getElementById('tbl');
 const labels=['Apr 13-19','Apr 20-26','Apr 27-May 3','May 4-10','May 11-17','May 18-24*','May 25-31*','Jun 1-7*'];
 for(let i=0;i<8;i++){
-    const net=rev[i]-exp[i], vsR=rev[i]-beRed[0], vsF=rev[i]-beFull[0], cls=i>=5?' class="proj"':'';
-    tbl.innerHTML+=`<tr${cls}><td>${labels[i]}</td><td class="pos">$${rev[i].toLocaleString()}</td><td class="neg">$${exp[i].toLocaleString()}</td>
+    const net=rev[i]-exp[i];
+    const priorNet = i>0 ? (rev[i-1]-exp[i-1]) : null;
+    const delta = priorNet !== null ? net - priorNet : null;
+    const cls=i>=5?' class="proj"':'';
+    tbl.innerHTML+=`<tr${cls}>
+    <td>${labels[i]}</td>
+    <td class="pos">$${rev[i].toLocaleString()}</td>
+    <td class="neg">$${exp[i].toLocaleString()}</td>
     <td class="${net>=0?'pos':'neg'}">${net>=0?'+':'-'}$${Math.abs(net).toLocaleString()}</td>
-    <td>$${beRed[0].toLocaleString()}</td><td>$${beFull[0].toLocaleString()}</td>
-    <td class="${vsR>=0?'pos':'neg'}">${vsR>=0?'+':'-'}$${Math.abs(vsR).toLocaleString()}</td>
-    <td class="${vsF>=0?'pos':'neg'}">${vsF>=0?'+':'-'}$${Math.abs(vsF).toLocaleString()}</td></tr>`;
+    <td class="${delta===null?'':delta>=0?'pos':'neg'}">${delta===null?'—':(delta>=0?'+':'-')+'$'+Math.abs(delta).toLocaleString()}</td>
+    </tr>`;
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
