@@ -2976,7 +2976,7 @@ async function syncWithingsNow() {
   if (btn) { btn.textContent = '... Syncing'; btn.disabled = true; }
   if (statusEl) statusEl.textContent = 'Pulling fresh data from Withings API...';
   try {
-    const r = await fetch(API_BASE + '/withings/api-sync');
+    const r = await apiFetch(API_BASE + '/withings/api-sync');
     const data = await r.json();
     if (statusEl) statusEl.textContent = data.message || 'Sync started...';
     // Poll for completion — reload body metrics after a short delay

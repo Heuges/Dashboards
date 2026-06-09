@@ -36,6 +36,7 @@ const WITHINGS_CONFIG_FILE = path.join(DATA_DIR, 'withings-config.json');
 const WITHINGS_API_FILE    = path.join(DATA_DIR, 'withings-api.json');
 const SHARE_TOKENS_FILE    = path.join(DATA_DIR, 'share-tokens.json');
 const REDIRECT_URI = 'https://dashboard-assistant.digify.ai/withings/callback';
+const isLocal = process.platform === 'darwin' || !fs.existsSync('/home/tommy/work/Dashboards');
 
 if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
 
@@ -90,6 +91,27 @@ function readDataFile(name) {
 function writeDataFile(name, data) {
     fs.writeFileSync(path.join(DATA_DIR, name + '.json'), JSON.stringify(data, null, 2), 'utf8');
 }
+function gitSyncRepo(dir) {
+    return new Promise((resolve, reject) => {
+        const cmd = `cd "${dir}" && git add . && (git commit -m "Auto-sync from My Assistant" || true) && (git pull --rebase || true) && git push`;
+        exec(cmd, (error, stdout, stderr) => {
+            if (error) {
+                console.error(`[Git Sync] Error syncing ${dir}:`, error.message);
+                reject(error);
+            } else {
+                console.log(`[Git Sync] Successfully synced ${dir}`);
+                resolve(stdout);
+            }
+        });
+    });
+}
+function gitPullRepo(dir) {
+    return new Promise((resolve) => {
+        exec(`cd "${dir}" && (git pull --rebase || true)`, (error, stdout, stderr) => {
+            resolve();
+        });
+    });
+}
 function readWithingsConfig() {
     try { return JSON.parse(fs.readFileSync(WITHINGS_CONFIG_FILE, 'utf8')); } catch(e) { return null; }
 }
@@ -133,7 +155,11 @@ async function scrapeWithings(url) {
         await new Promise(r => setTimeout(r, 12000));
 
         // Take a screenshot for debug
-        await page.screenshot({ path: path.join(DATA_DIR, 'withings-debug.png'), fullPage: true });
+        try {
+            await page.screenshot({ path: path.join(DATA_DIR, 'withings-debug.png'), fullPage: true, timeout: 5000 });
+        } catch(se) {
+            console.warn('[Withings] Debug screenshot failed or timed out:', se.message);
+        }
 
         // Extract all visible text and try to find measurements
         const result = await page.evaluate(() => {
@@ -409,6 +435,8 @@ function readWithingsApi() {
 }
 function writeWithingsApi(data) {
     fs.writeFileSync(WITHINGS_API_FILE, JSON.stringify(data, null, 2), 'utf8');
+    const dashboardsDir = fs.existsSync('/home/tommy/work/Dashboards') ? '/home/tommy/work/Dashboards' : path.join(__dirname, '..');
+    gitSyncRepo(dashboardsDir).catch(() => {});
 }
 
 // Make an HTTPS POST to the Withings API
@@ -465,6 +493,8 @@ async function refreshWithingsToken() {
 
 // Get a valid access token (refresh if needed)
 async function getValidToken() {
+    const dashboardsDir = fs.existsSync('/home/tommy/work/Dashboards') ? '/home/tommy/work/Dashboards' : path.join(__dirname, '..');
+    await gitPullRepo(dashboardsDir);
     let api = readWithingsApi();
     if (!api || !api.access_token) throw new Error('Not authenticated with Withings API');
     // Refresh if within 5 minutes of expiry
@@ -548,6 +578,7 @@ async function pullWithingsHistory(monthsBack = 6) {
 
 let lastScheduledSync = null;
 setInterval(() => {
+    if (isLocal) return; // Do not run scheduled nightly syncs locally to prevent conflicts with production
     const now = new Date();
     const dateKey = now.toISOString().slice(0, 10);
     if (now.getHours() === 22 && now.getMinutes() === 0 && lastScheduledSync !== dateKey) {
@@ -771,8 +802,8 @@ const server = http.createServer(async (req, res) => {
         const startTime = new Date();
         console.log(`[${startTime.toLocaleTimeString()}] Sync triggered by dashboard.`);
         const directoriesToSync = [
-            '/home/tommy/work/antigravity-sync',
-            '/home/tommy/work/Dashboards'
+            fs.existsSync('/home/tommy/work/antigravity-sync') ? '/home/tommy/work/antigravity-sync' : path.join(__dirname, '../../antigravity-sync'),
+            fs.existsSync('/home/tommy/work/Dashboards') ? '/home/tommy/work/Dashboards' : path.join(__dirname, '..')
         ];
         const results = [];
         let processed = 0;
@@ -1090,6 +1121,7 @@ setTimeout(() => {
 
 // Schedule nightly sync at 7am
 setInterval(() => {
+    if (isLocal) return; // Do not run scheduled nightly syncs locally to prevent conflicts with production
     const h = new Date().getHours(), m = new Date().getMinutes();
     if (h === 7 && m === 0) {
         console.log('[All Sheets] ⏰ 7am nightly sync for all companies...');
