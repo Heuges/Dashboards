@@ -333,6 +333,6 @@ http.createServer(async (req, res) => {
   console.log(`🌐 Dashboards      →  http://localhost:${PORT}`);
   console.log(`📚 QB Status API   →  http://localhost:${PORT}/api/qb-status`);
   console.log(`🚀 Deploy Webhook  →  POST http://localhost:${PORT}/deploy`);
-  console.log(`📊 CEM             →  http://localhost:${PORT}/cem-breakeven-tracker/`);
+  console.log(`📊 CEM             →  http://localhost:${PORT}/cem-breakeven-cashflow/`);
   console.log(`📊 Remix           →  http://localhost:${PORT}/remix-breakeven-tracker/`);
 });

@@ -35,14 +35,14 @@ const DASHBOARDS_DIR = path.join(__dirname, '..');
 const WITHINGS_CONFIG_FILE = path.join(DATA_DIR, 'withings-config.json');
 const WITHINGS_API_FILE    = path.join(DATA_DIR, 'withings-api.json');
 const SHARE_TOKENS_FILE    = path.join(DATA_DIR, 'share-tokens.json');
-const REDIRECT_URI = 'https://dashboard-assistant.digify.ai/withings/callback';
+const REDIRECT_URI = 'https://cem.dashboard.digify.ai/withings/callback';
 const isLocal = process.platform === 'darwin' || !fs.existsSync('/home/tommy/work/Dashboards');
 
 if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
 
 // Board definitions
 const BOARDS = {
-    cem:      { dir: 'cem-breakeven-tracker',      name: 'CEM Breakeven Tracker' },
+    cem:      { dir: 'cem-breakeven-cashflow',     name: 'CEM Breakeven Cash Flow' },
     digify:   { dir: 'digify-breakeven-tracker',   name: 'Digify Breakeven Tracker' },
     networks: { dir: 'networks-breakeven-tracker', name: 'Networks Breakeven Tracker' },
     remix:    { dir: 'remix-breakeven-tracker',    name: 'Remix Dynamix Breakeven Tracker' },
@@ -663,7 +663,7 @@ const server = http.createServer(async (req, res) => {
 
     // ── GET /withings/callback (OAuth2 code exchange) ──────────────────────
     if (req.method === 'GET' && req.url.startsWith('/withings/callback')) {
-        const urlParams = new URL(req.url, 'https://dashboard-assistant.digify.ai').searchParams;
+        const urlParams = new URL(req.url, 'https://cem.dashboard.digify.ai').searchParams;
         const code  = urlParams.get('code');
         const error = urlParams.get('error');
         if (error || !code) {
@@ -697,7 +697,7 @@ const server = http.createServer(async (req, res) => {
                 console.log(`[Withings API] 🎉 History sync complete: ${r.added} new, ${r.total} total entries`);
             }).catch(e => console.error('[Withings API] History pull error:', e.message));
             res.writeHead(200, { 'Content-Type': 'text/html' });
-            res.end(`<!DOCTYPE html><html><head><meta charset="UTF-8"><style>body{font-family:sans-serif;background:#0a0e1a;color:#f1f5f9;display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0}.box{background:#1a2236;border:1px solid #1e293b;border-radius:16px;padding:40px;text-align:center;max-width:400px}h2{color:#10b981;margin-bottom:12px}p{color:#94a3b8;margin-bottom:24px}a{display:inline-block;background:#3b82f6;color:#fff;padding:10px 24px;border-radius:10px;text-decoration:none;font-weight:600}</style></head><body><div class="box"><h2>✅ Withings Connected!</h2><p>Pulling your last 6 months of weight data now. The chart will populate within a minute.</p><a href="https://dashboard-assistant.digify.ai">← Back to Dashboard</a></div></body></html>`);
+            res.end(`<!DOCTYPE html><html><head><meta charset="UTF-8"><style>body{font-family:sans-serif;background:#0a0e1a;color:#f1f5f9;display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0}.box{background:#1a2236;border:1px solid #1e293b;border-radius:16px;padding:40px;text-align:center;max-width:400px}h2{color:#10b981;margin-bottom:12px}p{color:#94a3b8;margin-bottom:24px}a{display:inline-block;background:#3b82f6;color:#fff;padding:10px 24px;border-radius:10px;text-decoration:none;font-weight:600}</style></head><body><div class="box"><h2>✅ Withings Connected!</h2><p>Pulling your last 6 months of weight data now. The chart will populate within a minute.</p><a href="https://cem.dashboard.digify.ai">← Back to Dashboard</a></div></body></html>`);
         } catch(e) {
             console.error('[Withings API] Callback error:', e.message);
             res.writeHead(500, { 'Content-Type': 'text/html' });
@@ -860,7 +860,7 @@ const server = http.createServer(async (req, res) => {
     // ── GET /admin/share-tokens ────────────────────────────────────────────
     if (req.method === 'GET' && req.url === '/admin/share-tokens') {
         const tokens = readShareTokens();
-        const BASE = 'https://dashboard-assistant.digify.ai';
+        const BASE = 'https://cem.dashboard.digify.ai';
         const result = {};
         for (const [key, board] of Object.entries(BOARDS)) {
             result[key] = {
@@ -881,7 +881,7 @@ const server = http.createServer(async (req, res) => {
         const tokens = readShareTokens();
         tokens[boardKey] = generateToken();
         writeShareTokens(tokens);
-        const newUrl = `https://dashboard-assistant.digify.ai/share/${boardKey}/${tokens[boardKey]}`;
+        const newUrl = `https://cem.dashboard.digify.ai/share/${boardKey}/${tokens[boardKey]}`;
         console.log(`[Share] 🔄 Token regenerated for ${boardKey}: ${newUrl}`);
         res.writeHead(200, { 'Content-Type': 'application/json' });
         res.end(JSON.stringify({ board: boardKey, shareUrl: newUrl }));
