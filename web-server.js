@@ -19,6 +19,22 @@ const pool = new Pool({
   idleTimeoutMillis: 30000,
 });
 
+// ─── Authentication Sessions & In-Memory Statements ───────────────────────────
+const SESSIONS = new Set();
+const MEMORY_STATEMENTS = [];
+
+function parseCookies(req) {
+  const list = {};
+  const rc = req.headers.cookie;
+  if (rc) {
+    rc.split(';').forEach(cookie => {
+      const parts = cookie.split('=');
+      list[parts.shift().trim()] = decodeURI(parts.join('='));
+    });
+  }
+  return list;
+}
+
 // ─── Company config ───────────────────────────────────────────────────────────
 const COMPANIES = [
   { key: 'cem',   name: 'Channel Edge Media',  color: '#ef4444' },
@@ -106,6 +122,39 @@ const MIME = {
 http.createServer(async (req, res) => {
   const urlPath = req.url.split('?')[0];
 
+  // ── Redirect /cem-breakeven-cashflow to trailing slash ──
+  if (urlPath === '/cem-breakeven-cashflow') {
+    res.writeHead(302, { 'Location': '/cem-breakeven-cashflow/' });
+    res.end();
+    return;
+  }
+
+  // ── Secure Access / Logout Route ──
+  if (urlPath === '/cem-breakeven-cashflow/logout') {
+    const cookies = parseCookies(req);
+    const sid = cookies['session_id'];
+    if (sid) SESSIONS.delete(sid);
+    res.writeHead(302, {
+      'Set-Cookie': 'session_id=; Path=/; HttpOnly; Max-Age=0',
+      'Location': '/cem-breakeven-cashflow/login.html'
+    });
+    res.end();
+    return;
+  }
+
+  // ── Secure Access Verification for cashflow folder ──
+  if (urlPath.startsWith('/cem-breakeven-cashflow/') && 
+      urlPath !== '/cem-breakeven-cashflow/login.html' && 
+      urlPath !== '/cem-breakeven-cashflow/cem-logo.png') {
+    const cookies = parseCookies(req);
+    const sid = cookies['session_id'];
+    if (!sid || !SESSIONS.has(sid)) {
+      res.writeHead(302, { 'Location': '/cem-breakeven-cashflow/login.html' });
+      res.end();
+      return;
+    }
+  }
+
   // ── POST /deploy — secure webhook, no SSH needed ──────────────────────────
   if (req.method === 'POST' && urlPath === '/deploy') {
     const token = req.headers['x-deploy-token'] || '';
@@ -134,6 +183,108 @@ http.createServer(async (req, res) => {
       res.writeHead(500, { 'Content-Type': 'application/json' });
       res.end(JSON.stringify({ success: false, error: e.message }));
     }
+    return;
+  }
+
+  // ── POST /api/cem-login ───────────────────────────────────────────────────
+  if (req.method === 'POST' && urlPath === '/api/cem-login') {
+    let body = '';
+    req.on('data', chunk => { body += chunk.toString(); });
+    req.on('end', () => {
+      try {
+        const credentials = JSON.parse(body);
+        if (credentials.username === 'Heuges' && credentials.password === '1Thunder1') {
+          const sessionToken = 'sess_' + Math.random().toString(36).substring(2) + Date.now().toString(36);
+          SESSIONS.add(sessionToken);
+          res.writeHead(200, {
+            'Content-Type': 'application/json',
+            'Set-Cookie': `session_id=${sessionToken}; Path=/; HttpOnly`
+          });
+          res.end(JSON.stringify({ success: true }));
+        } else {
+          res.writeHead(401, { 'Content-Type': 'application/json' });
+          res.end(JSON.stringify({ success: false, error: 'Invalid username or password' }));
+        }
+      } catch(e) {
+        res.writeHead(400, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ success: false, error: 'Invalid JSON request' }));
+      }
+    });
+    return;
+  }
+
+  // ── POST /api/cem-upload-statement ─────────────────────────────────────────
+  if (req.method === 'POST' && urlPath === '/api/cem-upload-statement') {
+    const cookies = parseCookies(req);
+    const sid = cookies['session_id'];
+    if (!sid || !SESSIONS.has(sid)) {
+      res.writeHead(401, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ error: 'Unauthorized' }));
+      return;
+    }
+
+    const originalName = req.headers['x-file-name'] || 'uploaded_statement';
+    const sanitizedName = originalName.replace(/[^a-zA-Z0-9.-]/g, '_');
+    const diskName = `${Date.now()}-${sanitizedName}`;
+
+    const chunks = [];
+    req.on('data', chunk => {
+      chunks.push(chunk);
+    });
+
+    req.on('error', (err) => {
+      console.error('File upload stream error:', err.message);
+      res.writeHead(500, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ success: false, error: err.message }));
+    });
+
+    req.on('end', () => {
+      const buffer = Buffer.concat(chunks);
+      const sizeBytes = buffer.length;
+
+      const fileRecord = {
+        diskName,
+        originalName,
+        sizeBytes,
+        uploadedAt: new Date().toISOString(),
+        contentBase64: buffer.toString('base64'),
+      };
+      MEMORY_STATEMENTS.push(fileRecord);
+
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ success: true, file: {
+        diskName: fileRecord.diskName,
+        originalName: fileRecord.originalName,
+        sizeBytes: fileRecord.sizeBytes,
+        uploadedAt: fileRecord.uploadedAt
+      }}));
+    });
+    return;
+  }
+
+  // ── GET /api/cem-uploaded-statements ───────────────────────────────────────
+  if (req.method === 'GET' && urlPath === '/api/cem-uploaded-statements') {
+    const cookies = parseCookies(req);
+    const sid = cookies['session_id'];
+    if (!sid || !SESSIONS.has(sid)) {
+      res.writeHead(401, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ error: 'Unauthorized' }));
+      return;
+    }
+    
+    // Return only public metadata, omit base64 content to keep response light
+    const metadataList = MEMORY_STATEMENTS.map(f => ({
+      diskName: f.diskName,
+      originalName: f.originalName,
+      sizeBytes: f.sizeBytes,
+      uploadedAt: f.uploadedAt
+    }));
+
+    res.writeHead(200, {
+      'Content-Type': 'application/json',
+      'Cache-Control': 'no-cache'
+    });
+    res.end(JSON.stringify(metadataList));
     return;
   }
 

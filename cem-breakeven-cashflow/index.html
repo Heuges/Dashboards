@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CEM — Breakeven &amp; Cash Flow</title>
+    <title>CEM Breakeven Cash Flow</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
@@ -231,19 +231,22 @@
         <div class="logo-block">
             <img src="cem-logo.png" alt="Channel Edge Media">
             <div>
-                <div class="co-name">Financial Dashboard</div>
+                <div class="co-name" style="color: #ef4444; font-weight:800;">CEM Breakeven Cash Flow</div>
             </div>
         </div>
-        <div class="view-toggle">
-            <button class="vt-btn active" id="btnBreakeven" onclick="switchView('breakeven')">📊 Weekly Breakeven</button>
-            <button class="vt-btn" id="btnCashflow" onclick="switchView('cashflow')">💰 Cash Flow</button>
+        <div style="display:flex; gap:12px; align-items:center;">
+            <div class="view-toggle">
+                <button class="vt-btn active" id="btnBreakeven" onclick="switchView('breakeven')">📊 Weekly Breakeven</button>
+                <button class="vt-btn" id="btnCashflow" onclick="switchView('cashflow')">💰 Cash Flow</button>
+            </div>
+            <button class="btn-secondary" onclick="logout()" style="padding:9px 18px; border-radius:12px; font-size:0.8rem; border-color:var(--border); font-weight:600; cursor:pointer;">🔒 Sign Out</button>
         </div>
     </div>
 
     <!-- ════ BREAKEVEN VIEW ════ -->
     <div id="beView">
         <div style="text-align:center;margin-bottom:28px;">
-            <h1 style="font-size:1.6rem;font-weight:800;background:linear-gradient(135deg,#fff,#94a3b8);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">CEM Breakeven Tracker — Weekly View</h1>
+            <h1 style="font-size:1.6rem;font-weight:800;background:linear-gradient(135deg,#fff,#94a3b8);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">CEM Breakeven Cash Flow — Weekly View</h1>
             <p style="color:var(--muted);font-size:.9rem;margin-top:6px;">Revenue vs. Breakeven (Reduced &amp; Full Strength) · Last 5 Weeks + 3 Week Projection</p>
         </div>
 
@@ -307,6 +310,37 @@
                 <button class="sync-btn" onclick="loadQBStatus()">&#x1F504; Refresh QB Data</button>
             </div>
             <div id="qbCompanyGrid" class="qb-company-grid"><!-- rendered by JS --></div>
+        </div>
+
+        <!-- === UPLOAD STATEMENTS PANEL === -->
+        <div class="card" id="uploadStatementsCard">
+            <h2>📤 Secure Statement Upload Vault</h2>
+            <p style="font-size:.82rem;color:var(--dim);margin-bottom:14px">Upload credit card and bank statements (.csv, .pdf, .ofx) to merge details and record transactions permanently.</p>
+            <div style="display:flex;gap:12px;align-items:center;margin-bottom:20px;flex-wrap:wrap">
+                <input type="file" id="stmtFileInput" style="display:none" onchange="handleFileSelected()">
+                <button class="sync-btn" onclick="document.getElementById('stmtFileInput').click()">📁 Select Statement File</button>
+                <span id="selectedFileName" style="font-size:.8rem;color:var(--muted)">No file selected</span>
+                <button class="btn-primary" id="btnUploadStmt" onclick="uploadStatement()" style="padding:7px 18px;border-radius:9px;font-size:.72rem;display:none;font-weight:700;">🚀 Upload File</button>
+            </div>
+            
+            <div id="uploadStatusLine" style="font-size:.78rem;color:var(--dim);margin-bottom:12px;display:none"></div>
+            
+            <h3 style="font-size:0.85rem;font-weight:700;margin-bottom:10px;color:var(--muted)">📁 Uploaded Statements Registry</h3>
+            <div style="overflow-x:auto">
+                <table style="width:100%;font-size:0.78rem; border-collapse: collapse;" id="tblUploads">
+                    <thead>
+                        <tr>
+                            <th style="text-align:left">File Name</th>
+                            <th>Upload Date</th>
+                            <th>File Size</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tblUploadsBody">
+                        <tr><td colspan="4" style="text-align:center;color:var(--dim)">No uploaded statements recorded.</td></tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
 
         <div class="card" id="dataSourcesCard">
@@ -1312,6 +1346,96 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 });
+
+// ── Secure Access & Statement Vault Logic ──
+function logout() {
+    window.location.href = '/cem-breakeven-cashflow/logout';
+}
+
+function handleFileSelected() {
+    const fileInput = document.getElementById('stmtFileInput');
+    const nameSpan = document.getElementById('selectedFileName');
+    const uploadBtn = document.getElementById('btnUploadStmt');
+    if (fileInput.files.length > 0) {
+        nameSpan.textContent = fileInput.files[0].name;
+        uploadBtn.style.display = 'inline-block';
+    } else {
+        nameSpan.textContent = 'No file selected';
+        uploadBtn.style.display = 'none';
+    }
+}
+
+async function uploadStatement() {
+    const fileInput = document.getElementById('stmtFileInput');
+    const uploadBtn = document.getElementById('btnUploadStmt');
+    const statusLine = document.getElementById('uploadStatusLine');
+    if (fileInput.files.length === 0) return;
+    
+    const file = fileInput.files[0];
+    uploadBtn.disabled = true;
+    uploadBtn.textContent = 'Uploading...';
+    statusLine.style.display = 'block';
+    statusLine.style.color = 'var(--muted)';
+    statusLine.textContent = 'Uploading file to secure vault...';
+    
+    try {
+        const res = await fetch('/api/cem-upload-statement', {
+            method: 'POST',
+            headers: {
+                'X-File-Name': file.name,
+                'Content-Type': file.type || 'application/octet-stream'
+            },
+            body: file
+        });
+        const result = await res.json();
+        if (result.success) {
+            statusLine.style.color = 'var(--green)';
+            statusLine.textContent = '✅ Statement uploaded successfully and recorded permanently!';
+            fileInput.value = '';
+            handleFileSelected();
+            setTimeout(loadUploadedStatements, 500);
+        } else {
+            statusLine.style.color = 'var(--red)';
+            statusLine.textContent = '❌ Upload failed: ' + (result.error || 'Server error');
+        }
+    } catch (err) {
+        statusLine.style.color = 'var(--red)';
+        statusLine.textContent = '❌ Error connecting to server.';
+    } finally {
+        uploadBtn.disabled = false;
+        uploadBtn.textContent = 'Upload File';
+    }
+}
+
+async function loadUploadedStatements() {
+    try {
+        const res = await fetch('/api/cem-uploaded-statements');
+        const data = await res.json();
+        const tbody = document.getElementById('tblUploadsBody');
+        if (data && data.length > 0) {
+            tbody.innerHTML = data.map(f => {
+                const date = new Date(f.uploadedAt).toLocaleString('en-US', {
+                    month: 'short', day: 'numeric', year: 'numeric',
+                    hour: 'numeric', minute: '2-digit'
+                });
+                const sizeKB = (f.sizeBytes / 1024).toFixed(1) + ' KB';
+                return `<tr>
+                    <td style="text-align:left;font-weight:600;color:var(--text)">${f.originalName}</td>
+                    <td>${date}</td>
+                    <td>${sizeKB}</td>
+                    <td style="color:var(--green)">✓ Recorded</td>
+                </tr>`;
+            }).join('');
+        } else {
+            tbody.innerHTML = `<tr><td colspan="4" style="text-align:center;color:var(--dim)">No uploaded statements recorded.</td></tr>`;
+        }
+    } catch(e) {
+        console.error('Error loading uploaded statements:', e);
+    }
+}
+
+// Load uploaded statements on startup
+document.addEventListener('DOMContentLoaded', loadUploadedStatements);
 </script>
 </body>
 </html>
