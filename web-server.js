@@ -306,6 +306,32 @@ http.createServer(async (req, res) => {
     return;
   }
 
+  // ── Secure Data Proxy for CEM dashboard ──
+  if (urlPath.startsWith('/data/cem-') || urlPath.startsWith('/data/sheets-sync/cem')) {
+    const cookies = parseCookies(req);
+    const sid = cookies['session_id'];
+    if (!sid || !SESSIONS.has(sid)) {
+      res.writeHead(401, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ error: 'Unauthorized' }));
+      return;
+    }
+    
+    // Proxy to sync-server (port 8888)
+    const proxyReq = http.request({
+      hostname: 'localhost',
+      port: 8888,
+      path: req.url,
+      method: req.method,
+      headers: req.headers
+    }, proxyRes => {
+      res.writeHead(proxyRes.statusCode, proxyRes.headers);
+      proxyRes.pipe(res);
+    });
+    
+    req.pipe(proxyReq);
+    return;
+  }
+
   // ── Static files ──────────────────────────────────────────────────────────
   let filePath = urlPath === '/' ? '/index.html' : urlPath;
   if (!path.extname(filePath)) filePath = filePath.replace(/\/?$/, '/index.html');
