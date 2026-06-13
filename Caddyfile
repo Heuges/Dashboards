@@ -1,0 +1,54 @@
+cem.dashboard.digify.ai, dashboard-assistant.digify.ai {
+    # These routes are protected by app-level tokens, not passwords
+    handle /share/* {
+        reverse_proxy localhost:8888
+    }
+    handle /admin/* {
+        reverse_proxy localhost:8888
+    }
+
+    # CEM Breakeven Cash Flow has its own login system, bypass Caddy basic_auth
+    handle /cem-breakeven-cashflow* {
+        reverse_proxy localhost:8080
+    }
+    handle /api/cem-* {
+        reverse_proxy localhost:8080
+    }
+    handle /data/cem-* {
+        reverse_proxy localhost:8080
+    }
+    handle /data/sheets-sync/cem* {
+        reverse_proxy localhost:8080
+    }
+    handle /favicon.ico {
+        reverse_proxy localhost:8080
+    }
+    handle /robots.txt {
+        reverse_proxy localhost:8080
+    }
+
+    # Everything else requires Tommy's login
+    handle {
+        basic_auth {
+            Heuges $2a$14$hxWirjmeklWTkSfI1mJJ7OcuBGcGGigRhw5Qmg4n4WSnlP3kCV8na
+        }
+        route {
+            handle /data/* {
+                reverse_proxy localhost:8888
+            }
+            handle /sync {
+                reverse_proxy localhost:8888
+            }
+            handle /withings/* {
+                reverse_proxy localhost:8888
+            }
+            handle {
+                reverse_proxy localhost:8080
+            }
+        }
+    }
+}
+
+:80 {
+    respond "Tommy's server is up." 200
+}
