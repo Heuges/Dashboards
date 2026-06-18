@@ -7,7 +7,10 @@
 <meta http-equiv="Expires" content="0">
 <title>Dash — Personal Assistant</title>
 <!-- PWA -->
-<link rel="manifest" href="/manifest.json">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js" defer></script>
 <meta name="theme-color" content="#0a0e1a">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -653,7 +656,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
 <script>
 // Register service worker
 if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('/sw.js').then(() => console.log('SW registered'));
+  navigator.serviceWorker.register('sw.js').then(() => console.log('SW registered'));
 }
 </script>
 
@@ -923,6 +926,16 @@ if ('serviceWorker' in navigator) {
   <label>⚖️ Weight</label><input type="number" id="addWeight" placeholder="lbs" step="0.1" min="50" max="500" onkeydown="if(event.key==='Enter')logWeight()">
   <input type="date" id="addWeightDate" style="background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:8px;padding:7px 8px;color:var(--text);font-size:.78rem;font-family:'Inter',sans-serif;outline:none;color-scheme:dark">
   <button onclick="logWeight()">+ Log</button>
+</div>
+
+<div id="bmCsvPanel" style="background:rgba(16,185,129,.06);border:1px solid rgba(16,185,129,.25);border-radius:14px;padding:12px;margin-bottom:12px">
+  <div style="font-size:.8rem;font-weight:700;color:var(--text);margin-bottom:4px">📦 Upload Withings Export (ZIP or CSV)</div>
+  <div style="font-size:.7rem;color:var(--dim);margin-bottom:10px;line-height:1.4">Drop the whole <strong>ZIP</strong> from Withings (Health Mate → Profile → Download my data) — it reads every CSV inside: weight & body composition feed Body Metrics, blood-pressure readings feed the ❤️ Blood Pressure tile. A single CSV works too.</div>
+  <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+    <input type="file" id="bmCsvFile" accept=".zip,.csv,application/zip,text/csv" style="flex:1;min-width:140px;font-size:.74rem;color:var(--text)">
+    <button onclick="uploadBodyMetricsCSV()" style="background:linear-gradient(135deg,#065f46,#10b981);color:#fff;border:none;border-radius:8px;padding:8px 16px;font-size:.78rem;font-weight:600;cursor:pointer;white-space:nowrap">Import</button>
+  </div>
+  <div id="bmCsvStatus" style="font-size:.72rem;margin-top:8px;line-height:1.4"></div>
 </div>
 
 <div class="bm-withings-panel" id="bmWithingsPanel">
@@ -2146,7 +2159,7 @@ setInterval(() => {
 function loadCosts(){
   const platforms=[
     {name:'Google AI Ultra (Business)',icon:'G',color:'#8b5cf6',bg:'rgba(139,92,246,',tier:'Ultra for Business',cost:250,type:'subscription',limit:'Unlimited · No weekly caps',used:60,note:'Includes Antigravity + Gemini + Deep Research'},
-    {name:'Claude (Anthropic)',icon:'C',color:'#d97706',bg:'rgba(217,119,6,',tier:'Pro Plan',cost:20,type:'subscription',limit:'Unlimited messages',used:75,note:'Complex analysis & coding'},
+    {name:'Claude (Anthropic)',icon:'C',color:'#d97706',bg:'rgba(217,119,6,',tier:'Max 5x Plan',cost:100,type:'subscription',limit:'~5× Pro usage · higher limits',used:80,note:'Claude Code (Athena) + complex analysis & coding'},
     {name:'Gemini API (AI Studio)',icon:'✦',color:'#3b82f6',bg:'rgba(59,130,246,',tier:'Free Tier',cost:0,type:'free',limit:'1,500 req/day free',used:5,note:'Powers dashboard chat'},
   ];
   const totalMonthly=platforms.reduce((s,p)=>s+p.cost,0);
@@ -2174,10 +2187,10 @@ function loadCosts(){
     <strong>💡 Optimization Tips:</strong>
     <ul style="list-style:none;padding:0;margin:4px 0 0">
       <li>⚡ Your Ultra plan covers Antigravity, Gemini, Deep Research, NotebookLM — use them all</li>
-      <li>📊 Consider if Claude Pro ($20) overlaps with Antigravity — could save $240/yr</li>
+      <li>🤖 Claude Max 5x ($100) powers Claude Code (Athena) for heavy coding & analysis</li>
       <li>✅ Dashboard chat uses free Gemini API — $0 cost for quick questions</li>
       <li>🔍 Check Google Admin Console for per-user seat costs if scaling</li>
-      <li>💰 <strong>Biggest cost: Google Ultra at $250/mo (93% of spend)</strong></li>
+      <li>💰 <strong>Biggest cost: Google Ultra at $250/mo (71% of spend)</strong></li>
     </ul>
   </div>`;
   document.getElementById('costContent').innerHTML=html;
@@ -2836,6 +2849,9 @@ function renderFasting() {
     return Math.max(0, (e - s) / 3600000);
   }
   const allPeriods = periods; // completed + ongoing
+  const now        = new Date();
+  const weekAgo    = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 6);
+  const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
   const weekFasts  = allPeriods.filter(p => (p.ongoing ? now : p.end) >= weekAgo && p.start <= now);
   const monthFasts = allPeriods.filter(p => (p.ongoing ? now : p.end) >= monthStart && p.start <= now);
   const weekHrs    = weekFasts.reduce((s,p)  => s + fastHoursInWindow(p, weekAgo, now), 0);
@@ -2930,6 +2946,185 @@ function logWeight() {
   dateInput.value = '';
   saveWeightLog();
   renderBodyMetrics();
+}
+
+// ── Withings import: ZIP (multiple CSVs) or a single CSV. Weight→Body Metrics, BP→Blood Pressure ──
+const BM_KG_TO_LB = 2.20462;
+const BM_R1 = (x) => Math.round(x * 10) / 10;
+function bmParseCSVLine(line) {
+  const out = []; let cur = ''; let inQ = false;
+  for (let i = 0; i < line.length; i++) {
+    const c = line[i];
+    if (c === '"') { if (inQ && line[i+1] === '"') { cur += '"'; i++; } else inQ = !inQ; }
+    else if (c === ',' && !inQ) { out.push(cur); cur = ''; }
+    else cur += c;
+  }
+  out.push(cur);
+  return out.map(s => s.trim().replace(/^"|"$/g, ''));
+}
+function bmNormalizeDate(raw) {
+  if (!raw) return null;
+  const s = String(raw).trim().replace(/"/g, '');
+  const datePart = s.split(/[ T]/)[0];
+  let m = datePart.match(/^(\d{4})[-/](\d{1,2})[-/](\d{1,2})$/);
+  if (m) return `${m[1]}-${String(m[2]).padStart(2,'0')}-${String(m[3]).padStart(2,'0')}`;
+  m = datePart.match(/^(\d{1,2})[/](\d{1,2})[/](\d{4})$/); // assume US MM/DD/YYYY
+  if (m) return `${m[3]}-${String(m[1]).padStart(2,'0')}-${String(m[2]).padStart(2,'0')}`;
+  const d = new Date(s);
+  return isNaN(d) ? null : d.toISOString().slice(0,10);
+}
+function bmNormalizeDateTime(raw) {
+  const s = String(raw || '').trim().replace(/"/g, '');
+  const date = bmNormalizeDate(s);
+  let time = null, iso = null;
+  const tm = s.match(/(\d{1,2}):(\d{2})(?::(\d{2}))?\s*([ap]\.?m\.?)?/i);
+  if (tm && date) {
+    let h = parseInt(tm[1]); const min = tm[2], ss = tm[3] || '00', ampm = (tm[4] || '').toLowerCase();
+    if (ampm.startsWith('p') && h < 12) h += 12;
+    if (ampm.startsWith('a') && h === 12) h = 0;
+    const hr12 = (h % 12) || 12;
+    time = `${hr12}:${min} ${h < 12 ? 'AM' : 'PM'}`;
+    const d = new Date(`${date}T${String(h).padStart(2,'0')}:${min}:${ss}`);
+    if (!isNaN(d)) iso = d.toISOString();
+  }
+  if (!iso && date) iso = new Date(date + 'T12:00:00').toISOString();
+  return { date, time: time || '8:00 AM', iso };
+}
+function bmFindCol(hLower, ...needles) {
+  for (let i = 0; i < hLower.length; i++) if (needles.some(n => hLower[i].includes(n))) return i;
+  return -1;
+}
+function bmClassifyCSV(filename, hLower) {
+  const f = (filename || '').toLowerCase();
+  const hj = hLower.join('|');
+  if (/systolic|diastolic/.test(hj) || /\bbp\b|blood|pressure/.test(f)) return 'bp';
+  if (/weight/.test(hj) || /weight|measure|body/.test(f)) return 'weight';
+  return null;
+}
+// Parse weight rows into a date-keyed accumulator
+function bmParseWeightRows(lines, headers, weightByDate) {
+  const hLower = headers.map(h => h.toLowerCase());
+  const iDate = bmFindCol(hLower, 'date', 'time'), iWeight = bmFindCol(hLower, 'weight');
+  if (iDate === -1 || iWeight === -1) return { parsed: 0, skipped: 0 };
+  const iFatPct = bmFindCol(hLower, 'fat %', 'fat percent', 'fat ratio', 'fat_pct');
+  const iFatMass = bmFindCol(hLower, 'fat mass'), iMuscle = bmFindCol(hLower, 'muscle');
+  const iWater = bmFindCol(hLower, 'hydration', 'water'), iBone = bmFindCol(hLower, 'bone');
+  const isKg = (idx) => idx >= 0 && /\(kg\)|\bkg\b/.test(hLower[idx]);
+  const toLb = (v, idx) => isKg(idx) ? v * BM_KG_TO_LB : v;
+  const toKg = (v, idx) => isKg(idx) ? v : v / BM_KG_TO_LB;
+  let parsed = 0, skipped = 0;
+  for (let r = 1; r < lines.length; r++) {
+    const cols = bmParseCSVLine(lines[r]);
+    const date = bmNormalizeDate(cols[iDate]);
+    const w = parseFloat(cols[iWeight]);
+    if (!date || isNaN(w) || w <= 0) { skipped++; continue; }
+    const weightLb = toLb(w, iWeight);
+    if (weightLb < 30 || weightLb > 800) { skipped++; continue; }
+    const entry = { id: 'csv-' + date, date, time: '8:00 AM',
+      timestamp: new Date(date + 'T12:00:00').toISOString(), source: 'csv',
+      weight: BM_R1(weightLb), weight_kg: BM_R1(toKg(w, iWeight)) };
+    const addMass = (idx, kgKey, lbKey) => {
+      if (idx < 0) return; const v = parseFloat(cols[idx]);
+      if (isNaN(v) || v <= 0) return;
+      entry[kgKey] = BM_R1(toKg(v, idx)); entry[lbKey] = BM_R1(toLb(v, idx));
+    };
+    addMass(iFatMass, 'fat_kg', 'fat_lbs');
+    addMass(iMuscle, 'muscle_kg', 'muscle_lbs');
+    addMass(iWater, 'water_kg', 'water_lbs');
+    addMass(iBone, 'bone_kg', 'bone_lbs');
+    if (iFatPct >= 0) { const fp = parseFloat(cols[iFatPct]); if (!isNaN(fp) && fp > 0 && fp < 80) entry.fat_pct = BM_R1(fp); }
+    if (entry.fat_pct == null && entry.fat_lbs != null && entry.weight) entry.fat_pct = BM_R1((entry.fat_lbs / entry.weight) * 100);
+    weightByDate[date] = entry; // last row for a date wins
+    parsed++;
+  }
+  return { parsed, skipped };
+}
+// Parse blood-pressure rows into an entries array
+function bmParseBPRows(lines, headers, bpEntries) {
+  const hLower = headers.map(h => h.toLowerCase());
+  const iDate = bmFindCol(hLower, 'date', 'time');
+  const iSys = bmFindCol(hLower, 'systolic', 'sys');
+  const iDia = bmFindCol(hLower, 'diastolic', 'dia');
+  const iPul = bmFindCol(hLower, 'heart rate', 'heart_rate', 'pulse', 'bpm', 'pul');
+  if (iDate === -1 || iSys === -1 || iDia === -1) return { parsed: 0, skipped: 0 };
+  let parsed = 0, skipped = 0;
+  for (let r = 1; r < lines.length; r++) {
+    const cols = bmParseCSVLine(lines[r]);
+    const dt = bmNormalizeDateTime(cols[iDate]);
+    const sys = Math.round(parseFloat(cols[iSys])), dia = Math.round(parseFloat(cols[iDia]));
+    let pul = iPul >= 0 ? Math.round(parseFloat(cols[iPul])) : 0; if (isNaN(pul)) pul = 0;
+    if (!dt.date || isNaN(sys) || isNaN(dia) || sys < 40 || sys > 300 || dia < 20 || dia > 200) { skipped++; continue; }
+    bpEntries.push({ id: 'csv-' + (dt.iso || dt.date) + '-' + sys + '-' + dia, date: dt.date, time: dt.time, sys, dia, pul, timestamp: dt.iso, source: 'csv' });
+    parsed++;
+  }
+  return { parsed, skipped };
+}
+// Route one CSV's text to the right parser based on filename + headers
+function bmRouteCSV(text, filename, weightByDate, bpEntries, tally) {
+  const lines = String(text || '').replace(/^﻿/, '').split(/\r?\n/).filter(l => l.trim().length);
+  if (lines.length < 2) return false;
+  const headers = bmParseCSVLine(lines[0]);
+  const hLower = headers.map(h => h.toLowerCase());
+  const type = bmClassifyCSV(filename, hLower);
+  if (type === 'weight') { const r = bmParseWeightRows(lines, headers, weightByDate); tally.weight += r.parsed; tally.skipped += r.skipped; return r.parsed > 0; }
+  if (type === 'bp') { const r = bmParseBPRows(lines, headers, bpEntries); tally.bp += r.parsed; tally.skipped += r.skipped; return r.parsed > 0; }
+  return false;
+}
+// Merge accumulated data into the live boards and persist
+function bmApplyImport(weightByDate, bpEntries) {
+  const msgs = [];
+  const wDates = Object.keys(weightByDate);
+  if (wDates.length) {
+    const set = new Set(wDates);
+    weightLog = weightLog.filter(e => !set.has(e.date)).concat(Object.values(weightByDate));
+    weightLog.sort((a, b) => new Date(b.date) - new Date(a.date));
+    saveWeightLog();
+    msgs.push(wDates.length + ' weight');
+  }
+  if (bpEntries.length) {
+    const sig = (e) => e.date + '|' + e.time + '|' + e.sys + '|' + e.dia;
+    const seen = new Set(bpLog.map(sig));
+    let added = 0;
+    for (const e of bpEntries) { if (!seen.has(sig(e))) { bpLog.unshift(e); seen.add(sig(e)); added++; } }
+    bpLog.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+    saveBP();
+    msgs.push(added + ' BP');
+  }
+  renderBodyMetrics();
+  try { renderBP(); } catch (e) {}
+  return msgs;
+}
+async function uploadBodyMetricsCSV() {
+  const fileEl = document.getElementById('bmCsvFile');
+  const statusEl = document.getElementById('bmCsvStatus');
+  const setStatus = (msg, color) => { if (statusEl) { statusEl.textContent = msg; statusEl.style.color = color || 'var(--dim)'; } };
+  const file = fileEl && fileEl.files && fileEl.files[0];
+  if (!file) { setStatus('Choose a Withings ZIP or a CSV first.', 'var(--amber)'); return; }
+  const name = (file.name || '').toLowerCase();
+  const weightByDate = {}, bpEntries = [], tally = { weight: 0, bp: 0, skipped: 0 };
+  let filesRead = 0;
+  try {
+    if (name.endsWith('.zip')) {
+      if (typeof JSZip === 'undefined') { setStatus('ZIP reader not loaded (offline?). Try again online, or upload a single CSV.', 'var(--red)'); return; }
+      setStatus('Reading ZIP…');
+      const zip = await JSZip.loadAsync(await file.arrayBuffer());
+      const csvNames = Object.keys(zip.files).filter(n => !zip.files[n].dir && n.toLowerCase().endsWith('.csv'));
+      if (!csvNames.length) { setStatus('No CSV files found inside the ZIP.', 'var(--red)'); return; }
+      for (const n of csvNames) {
+        const text = await zip.files[n].async('string');
+        if (bmRouteCSV(text, n, weightByDate, bpEntries, tally)) filesRead++;
+      }
+    } else {
+      const text = await file.text();
+      if (bmRouteCSV(text, name, weightByDate, bpEntries, tally)) filesRead++;
+    }
+    const msgs = bmApplyImport(weightByDate, bpEntries);
+    fileEl.value = '';
+    if (!msgs.length) { setStatus('No weight or blood-pressure data recognized. Check the file contains a Date + Weight (or Systolic/Diastolic) column.', 'var(--amber)'); return; }
+    setStatus(`✅ Imported ${msgs.join(' + ')} reading(s) from ${filesRead} file${filesRead === 1 ? '' : 's'}${tally.skipped ? ` (${tally.skipped} rows skipped)` : ''}. Boards updated.`, 'var(--green)');
+  } catch (err) {
+    setStatus('Import failed: ' + err.message, 'var(--red)');
+  }
 }
 
 function saveMeasurements() {
@@ -3454,7 +3649,8 @@ loadWorkout();
 loadBP();
 loadIntake().then(() => injectHistoricalData());
 loadBodyMetrics();
-loadDashHub();
+// loadDashHub is declared in a later <script> block; defer until all scripts have loaded
+window.addEventListener('load', () => { try { loadDashHub(); } catch(e) { console.warn('loadDashHub failed', e); } });
 
 loadWithingsConfig();
 try { updateHealthAnalysis(); } catch(e) {}

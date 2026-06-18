@@ -577,7 +577,13 @@ async function pullWithingsHistory(monthsBack = 6) {
 
 
 let lastScheduledSync = null;
+// ── Withings nightly auto-sync DISABLED 2026-06-18 ──────────────────────────────
+// Withings' developer site has been down for weeks, so this scheduled sync was failing
+// (see server-error.log). Body Metrics are now updated via the CSV/ZIP upload on the
+// dashboard instead. To re-enable when Withings is back, set this flag to false.
+const WITHINGS_AUTOSYNC_DISABLED = true;
 setInterval(() => {
+    if (WITHINGS_AUTOSYNC_DISABLED) return; // Withings auto-sync disabled — using CSV/ZIP upload
     if (isLocal) return; // Do not run scheduled nightly syncs locally to prevent conflicts with production
     const now = new Date();
     const dateKey = now.toISOString().slice(0, 10);
@@ -1133,6 +1139,6 @@ server.listen(PORT, '0.0.0.0', () => {
     console.log(`🧠 Brain Server running on http://localhost:${PORT}`);
     console.log(`📡 Withings endpoints: /withings/link (POST), /withings/sync (GET), /withings/config (GET)`);
     console.log(`📊 CEM Sheets endpoints: /sheets/cem (GET), /sheets/cem/sync (GET)`);
-    console.log(`⏰ Withings auto-sync at 10pm | Sheets auto-sync at 7am daily`);
+    console.log(`⏰ Withings auto-sync DISABLED (use dashboard CSV/ZIP upload) | Sheets auto-sync at 7am daily`);
     console.log(`💾 Data directory: ${DATA_DIR}`);
 });
